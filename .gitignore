@@ -3,4 +3,6 @@ farm.db
 *.pyc
 farmdb.egg-info
 
-.envfarmdb.tar
+.env
+
+*.tar
