@@ -13,12 +13,32 @@ jobs:
     runs-on: ubuntu-latest
  
     steps:
-      - uses: actions/checkout@v4
+      - name: Decode private key
+        id: decode-key
+        run: |
+          KEY=$(echo "${{ secrets.GH_APP_PRIVATE_KEY }}" | base64 -d)
+          echo "DECODED_PRIVATE_KEY<<EOF" >> $GITHUB_ENV
+          echo "$KEY" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ env.DECODED_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Configure git
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
       - name: Python Semantic Release
         uses: python-semantic-release/python-semantic-release@v9.15.1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ steps.app-token.outputs.token }}
