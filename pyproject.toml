@@ -20,3 +20,10 @@ package = true
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+
+[tool.semantic_release]
+version_variable = "pyproject.toml:project.version"
+branch = "master"
+upload_to_pypi = false
+build_command = ""
+changelog_file = "CHANGELOG.md"
