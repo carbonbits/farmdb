@@ -5,6 +5,7 @@ import uvicorn
 from core.storage.database import DB
 from settings import settings
 from apps.api.utilities import api_tags_metadata
+from features.field.router import router as fields_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -21,6 +22,9 @@ application = FastAPI(
     lifespan=lifespan,
     openapi_tags=api_tags_metadata,
 )
+
+application.include_router(fields_router)
+
 
 if __name__ == "__main__":
     uvicorn.run(application, host="0.0.0.0", port=5700)
