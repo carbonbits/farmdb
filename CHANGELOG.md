@@ -1,0 +1,43 @@
+# CHANGELOG
+
+
+## v0.1.0 (2026-02-16)
+
+### Bug Fixes
+
+- Release using github bot
+  ([`3e9d936`](https://github.com/carbonbits/farmdb/commit/3e9d9366601a59f7410f2cb20e50173eefdf68eb))
+
+- **docker**: Use uv base image and fix .gitignore formatting
+  ([`79d3c66`](https://github.com/carbonbits/farmdb/commit/79d3c66cb346d745bc64f3cb8c1527082d1a9147))
+
+- **release**: Add chore commit type to semantic release
+  ([`43d29d6`](https://github.com/carbonbits/farmdb/commit/43d29d634936819a98adb7d17beb93078636fa5e))
+
+- **release**: Add refactor commit type to parser
+  ([`e1f9861`](https://github.com/carbonbits/farmdb/commit/e1f9861681311cb66248118b3d7d7ee7c7ac0ded))
+
+### Chores
+
+- #4 initialize nextjs codebase
+  ([`5139230`](https://github.com/carbonbits/farmdb/commit/5139230fd925facb196540e8db52fda4cfad56b6))
+
+- Add fastapi dependency
+  ([`4b3da02`](https://github.com/carbonbits/farmdb/commit/4b3da029c4a9c1bbe29b0c0402f82496f657e526))
+
+initialize the database when the app starts
+
+- Basic migration script etup
+  ([`2c5429b`](https://github.com/carbonbits/farmdb/commit/2c5429b6489d622600d8827d54cea6204a69102f))
+
+- Initialize fields table
+  ([`6da5e87`](https://github.com/carbonbits/farmdb/commit/6da5e87a30802ee71c80a2639cd5851782def76a))
+
+- **docker**: Add dockerfile for farmdb service
+  ([`9e78bd9`](https://github.com/carbonbits/farmdb/commit/9e78bd93d2b4f1f6dce01217d955c34ee1688674))
+
+- **docker**: Add Dockerfile for farmdb service
+  ([`02598d5`](https://github.com/carbonbits/farmdb/commit/02598d56b72256a02785a71476ccefa3c94172df))
+
+- **release**: Add python semantic release workflow
+  ([`b9356eb`](https://github.com/carbonbits/farmdb/commit/b9356eb20f1955ee8acf788ee7567d773ef2ae58))
