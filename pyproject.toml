@@ -27,3 +27,8 @@ branch = "master"
 upload_to_pypi = false
 build_command = ""
 changelog_file = "CHANGELOG.md"
+
+[tool.semantic_release.commit_parser_options]
+allowed_tags = ["feat", "fix", "chore"]  # Include chore!
+minor_tags = ["feat", "chore"]           # Treat chore like feat
+patch_tags = ["fix"]
