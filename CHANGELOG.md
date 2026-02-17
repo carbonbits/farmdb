@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.2.1 (2026-02-17)
+
+### Bug Fixes
+
+- Reference the correct registry credentials
+  ([`9824a34`](https://github.com/carbonbits/farmdb/commit/9824a34b7e66fb90bbe0d6c89c944019e3bb99f1))
+
+
 ## v0.2.0 (2026-02-17)
 
 ### Bug Fixes
@@ -34,11 +42,6 @@
 
 - #4 initialize nextjs codebase
   ([`5139230`](https://github.com/carbonbits/farmdb/commit/5139230fd925facb196540e8db52fda4cfad56b6))
-
-- Add fastapi dependency
-  ([`4b3da02`](https://github.com/carbonbits/farmdb/commit/4b3da029c4a9c1bbe29b0c0402f82496f657e526))
-
-initialize the database when the app starts
 
 - Basic migration script etup
   ([`2c5429b`](https://github.com/carbonbits/farmdb/commit/2c5429b6489d622600d8827d54cea6204a69102f))
