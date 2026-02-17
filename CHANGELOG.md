@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.2.3 (2026-02-17)
+
+### Bug Fixes
+
+- **security**: Run container as a non root user
+  ([`82b18dc`](https://github.com/carbonbits/farmdb/commit/82b18dc844b18d5b1e04e362576eb4e5b5695067))
+
+
 ## v0.2.2 (2026-02-17)
 
 ### Bug Fixes
