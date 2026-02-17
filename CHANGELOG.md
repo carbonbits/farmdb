@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.2.0 (2026-02-17)
+
+### Bug Fixes
+
+- Publish both arm64 and amd64 containers
+  ([`67a6cad`](https://github.com/carbonbits/farmdb/commit/67a6cad4f0d4509e08e39ab2f26b6032aeb0f288))
+
+### Chores
+
+- **docker**: Add docker publish workflow on release tags
+  ([`269b3c5`](https://github.com/carbonbits/farmdb/commit/269b3c54cb65110d6aeeb4d7e3a47c45aae9d7e5))
+
+
 ## v0.1.0 (2026-02-16)
 
 ### Bug Fixes
