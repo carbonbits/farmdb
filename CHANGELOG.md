@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.2.2 (2026-02-17)
+
+### Bug Fixes
+
+- **release**: Trigger docker build after versioning
+  ([`25b4ccb`](https://github.com/carbonbits/farmdb/commit/25b4ccbe9dc97ddd5f443a1542ba2cb242961a39))
+
+
 ## v0.2.1 (2026-02-17)
 
 ### Bug Fixes
