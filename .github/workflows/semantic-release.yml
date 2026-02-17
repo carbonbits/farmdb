@@ -12,6 +12,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, '[skip ci]') && !startsWith(github.event.head_commit.message, 'chore(release)')"
+    outputs:
+      released: ${{ steps.release.outputs.released }}
+      version: ${{ steps.release.outputs.version }}
 
     steps:
       - name: Decode private key
@@ -40,6 +43,15 @@ jobs:
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
       - name: Python Semantic Release
+        id: release
         uses: python-semantic-release/python-semantic-release@v9.15.1
         with:
           github_token: ${{ steps.app-token.outputs.token }}
+
+  docker:
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    uses: ./.github/workflows/docker-publish.yml
+    with:
+      version: ${{ needs.release.outputs.version }}
+    secrets: inherit

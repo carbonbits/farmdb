@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
 
 jobs:
   docker:
@@ -13,19 +18,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get version from tag
+      - name: Get version
         id: version
         run: |
-          # Extract version from git tag (removes 'v' prefix)
-          TAG_VERSION=${GITHUB_REF_NAME#v}
-          echo "tag_version=$TAG_VERSION" >> $GITHUB_OUTPUT
-
-          # Extract version from pyproject.toml for verification
-          PYPROJECT_VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml)
-          echo "pyproject_version=$PYPROJECT_VERSION" >> $GITHUB_OUTPUT
-
-          echo "Tag version: $TAG_VERSION"
-          echo "pyproject.toml version: $PYPROJECT_VERSION"
+          # Use input version if called by workflow_call, otherwise extract from tag
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION=${GITHUB_REF_NAME#v}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
 
       - name: Docker meta
         id: meta
@@ -33,8 +36,7 @@ jobs:
         with:
           images: carbonbitshq/farmdb
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=${{ steps.version.outputs.version }}
             type=raw,value=latest
 
       - name: Set up QEMU
