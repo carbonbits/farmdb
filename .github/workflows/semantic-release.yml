@@ -11,7 +11,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
- 
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && !startsWith(github.event.head_commit.message, 'chore(release)')"
+
     steps:
       - name: Decode private key
         id: decode-key

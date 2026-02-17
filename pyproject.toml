@@ -27,8 +27,9 @@ branch = "master"
 upload_to_pypi = false
 build_command = ""
 changelog_file = "CHANGELOG.md"
+commit_message = "{version}\n\n[skip ci]"
 
 [tool.semantic_release.commit_parser_options]
-allowed_tags = ["feat", "fix", "chore","refactor"] 
-minor_tags = ["feat", "chore", "refactor"]           
-patch_tags = ["fix"]
+allowed_types = ["feat", "fix", "chore", "refactor", "perf", "docs"]
+minor_types = ["feat"]
+patch_types = ["fix", "perf"]
