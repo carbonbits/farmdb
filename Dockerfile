@@ -1,3 +1,12 @@
+# Build Next.js static site
+FROM node:22-slim AS web-builder
+WORKDIR /web
+COPY src/apps/web/package*.json ./
+RUN npm ci
+COPY src/apps/web ./
+RUN npm run build
+
+# Build Python app
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
 RUN groupadd --gid 1000 shamba && \
@@ -7,6 +16,7 @@ WORKDIR /app
 
 COPY --chown=mkulima:shamba pyproject.toml uv.lock README.md ./
 COPY --chown=mkulima:shamba src/ ./src/
+COPY --from=web-builder --chown=mkulima:shamba /web/out ./src/apps/web/out
 
 RUN uv sync --frozen --no-dev && chown -R mkulima:shamba /app
 

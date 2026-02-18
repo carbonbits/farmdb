@@ -10,6 +10,7 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    if: github.event.repository.visibility == 'public'
 
     steps:
       - name: Checkout

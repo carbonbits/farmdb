@@ -1,7 +1,10 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
 import uvicorn
 
+from apps.api.middleware.spa import SPAMiddleware, spa_directory
 from core.storage.database import DB
 from settings import settings
 from apps.api.utilities import api_tags_metadata
@@ -24,6 +27,10 @@ application = FastAPI(
 )
 
 application.include_router(fields_router)
+application.add_middleware(SPAMiddleware)
+
+if spa_directory.exists():
+    application.mount("/_next", StaticFiles(directory=spa_directory / "_next"), name="next-static")
 
 
 if __name__ == "__main__":

@@ -50,7 +50,7 @@ jobs:
 
   docker:
     needs: release
-    if: needs.release.outputs.released == 'true'
+    if: needs.release.outputs.released == 'true' && github.event.repository.visibility == 'public'
     uses: ./.github/workflows/docker-publish.yml
     with:
       version: ${{ needs.release.outputs.version }}
