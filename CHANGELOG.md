@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.3.0 (2026-02-18)
+
+### Features
+
+- Serve nextjs app using fastapi
+  ([`5feb7c2`](https://github.com/carbonbits/farmdb/commit/5feb7c2751ab445191d3b60472d12577d5cae6c5))
+
+
 ## v0.2.3 (2026-02-17)
 
 ### Bug Fixes
