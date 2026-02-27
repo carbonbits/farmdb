@@ -11,3 +11,8 @@ Example
 Generate a secret
 
 `python -c "import secrets; print(secrets.token_urlsafe(32))"`
+
+### Ruff
+`uv run ruff format src`
+
+`uv run ruff check src --fix`
