@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from fastapi import Request
 from fastapi.responses import FileResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -6,6 +7,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 # Navigate from src/apps/api/middleware/ up to src/apps/web/out
 spa_directory = Path(__file__).parents[2] / "web" / "out"
 excluded_prefixes = ("/v1/", "/docs", "/redoc", "/openapi.json")
+
 
 class SPAMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:

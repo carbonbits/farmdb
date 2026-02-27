@@ -4,13 +4,11 @@ from core.storage.database import db
 from features.field.handlers.create.input import CreateFarmFieldInput
 from features.field.models.field import FarmField
 
-
 router = APIRouter(prefix="/v1/fields", tags=["fields"])
 
+
 @router.post("/", response_model=FarmField)
-async def create_farm_fields(
-    input: CreateFarmFieldInput,conn = Depends(db)
-) -> FarmField:
+async def create_farm_fields(input: CreateFarmFieldInput, conn=Depends(db)) -> FarmField:
     """Create a farm field"""
     print(input)
 

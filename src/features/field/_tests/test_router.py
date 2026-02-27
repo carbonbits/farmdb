@@ -9,10 +9,7 @@ from main import application
 @pytest_asyncio.fixture
 async def client():
     DB.connect()
-    async with AsyncClient(
-        transport=ASGITransport(app=application),
-        base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=ASGITransport(app=application), base_url="http://test") as ac:
         yield ac
     DB.disconnect()
 
@@ -21,8 +18,7 @@ async def client():
 @pytest.mark.xfail(reason="Endpoint not implemented")
 async def test_create_field(client):
     response = await client.post(
-        "/v1/fields/",
-        json={"name": "North Field", "description": "Primary wheat field"}
+        "/v1/fields/", json={"name": "North Field", "description": "Primary wheat field"}
     )
     assert response.status_code == 200
     data = response.json()

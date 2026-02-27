@@ -14,7 +14,7 @@ from webauthn import (
     verify_authentication_response,
     verify_registration_response,
 )
-from webauthn.helpers import bytes_to_base64url, base64url_to_bytes
+from webauthn.helpers import base64url_to_bytes, bytes_to_base64url
 from webauthn.helpers.structs import (
     AuthenticatorSelectionCriteria,
     PublicKeyCredentialDescriptor,
@@ -22,10 +22,10 @@ from webauthn.helpers.structs import (
     UserVerificationRequirement,
 )
 
+from config.settings import settings
+from core.auth.models import PasskeyInfo, User, UserPublic
 from core.service import Service
 from core.storage.database import db
-from core.auth.models import User, UserPublic, PasskeyInfo
-from config.settings import settings
 
 
 class AuthService(Service):
@@ -48,7 +48,8 @@ class AuthService(Service):
 
         conn.execute(
             """
-            INSERT INTO v1.users (id, email, display_name, is_active, is_verified, created_at, updated_at)
+            INSERT INTO v1.users
+                (id, email, display_name, is_active, is_verified, created_at, updated_at)
             VALUES (?, ?, ?, TRUE, FALSE, ?, ?)
             """,
             [user_id, email.lower(), display_name, now, now],
@@ -62,7 +63,10 @@ class AuthService(Service):
     def get_user_by_email(self, email: str) -> Optional[User]:
         conn = db()
         result = conn.execute(
-            "SELECT id, email, display_name, is_active, is_verified, created_at, updated_at FROM v1.users WHERE email = ?",
+            """
+            SELECT id, email, display_name, is_active, is_verified, created_at, updated_at
+            FROM v1.users WHERE email = ?
+            """,
             [email.lower()],
         ).fetchone()
 
@@ -82,7 +86,10 @@ class AuthService(Service):
     def get_user_by_id(self, user_id: str) -> Optional[User]:
         conn = db()
         result = conn.execute(
-            "SELECT id, email, display_name, is_active, is_verified, created_at, updated_at FROM v1.users WHERE id = ?",
+            """
+            SELECT id, email, display_name, is_active, is_verified, created_at, updated_at
+            FROM v1.users WHERE id = ?
+            """,
             [user_id],
         ).fetchone()
 
@@ -122,13 +129,18 @@ class AuthService(Service):
 
         if existing:
             conn.execute(
-                "UPDATE v1.password_credentials SET password_hash = ?, updated_at = ? WHERE user_id = ?",
+                """
+                UPDATE v1.password_credentials
+                SET password_hash = ?, updated_at = ?
+                WHERE user_id = ?
+                """,
                 [password_hash, now, user_id],
             )
         else:
             conn.execute(
                 """
-                INSERT INTO v1.password_credentials (id, user_id, password_hash, created_at, updated_at)
+                INSERT INTO v1.password_credentials
+                    (id, user_id, password_hash, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?)
                 """,
                 [cred_id, user_id, password_hash, now, now],
@@ -163,9 +175,7 @@ class AuthService(Service):
             [user.id],
         ).fetchall()
 
-        exclude_credentials = [
-            PublicKeyCredentialDescriptor(id=row[0]) for row in existing_creds
-        ]
+        exclude_credentials = [PublicKeyCredentialDescriptor(id=row[0]) for row in existing_creds]
 
         options = generate_registration_options(
             rp_id=settings.webauthn_rp_id,
@@ -201,8 +211,7 @@ class AuthService(Service):
             ],
             "timeout": options.timeout,
             "excludeCredentials": [
-                {"type": "public-key", "id": bytes_to_base64url(c.id)}
-                for c in exclude_credentials
+                {"type": "public-key", "id": bytes_to_base64url(c.id)} for c in exclude_credentials
             ],
             "authenticatorSelection": {
                 "residentKey": enum_val(options.authenticator_selection.resident_key),
@@ -244,13 +253,18 @@ class AuthService(Service):
 
         # Store passkey credential
         transports_json = json.dumps(credential.get("response", {}).get("transports", []))
-        device_type = enum_val(verification.credential_device_type) if verification.credential_device_type else None
+        device_type = (
+            enum_val(verification.credential_device_type)
+            if verification.credential_device_type
+            else None
+        )
 
         conn.execute(
             """
-            INSERT INTO v1.passkey_credentials
-            (id, user_id, credential_id, public_key, sign_count, device_type, backed_up, transports, aaguid, friendly_name, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO v1.passkey_credentials (
+                id, user_id, credential_id, public_key, sign_count,
+                device_type, backed_up, transports, aaguid, friendly_name, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             [
                 cred_id,
@@ -284,7 +298,10 @@ class AuthService(Service):
             user = self.get_user_by_email(email)
             if user:
                 creds = conn.execute(
-                    "SELECT credential_id, transports FROM v1.passkey_credentials WHERE user_id = ?",
+                    """
+                    SELECT credential_id, transports
+                    FROM v1.passkey_credentials WHERE user_id = ?
+                    """,
                     [user.id],
                 ).fetchall()
 
@@ -480,9 +497,7 @@ class AuthService(Service):
                 return None
 
             # Revoke old token
-            conn.execute(
-                "UPDATE v1.refresh_tokens SET revoked = TRUE WHERE id = ?", [result[0]]
-            )
+            conn.execute("UPDATE v1.refresh_tokens SET revoked = TRUE WHERE id = ?", [result[0]])
 
             # Get user and create new tokens
             user = self.get_user_by_id(payload["sub"])

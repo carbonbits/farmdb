@@ -15,6 +15,7 @@ def create(
     """Create a new resource (e.g., migration)."""
     if resource == "migration":
         from cli.migrations import create_migration
+
         create_migration(name)
     else:
         typer.echo(f"Unknown resource type: {resource}", err=True)

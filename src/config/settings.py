@@ -1,7 +1,8 @@
 import secrets
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
 from enum import Enum
+from typing import Optional
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from .utils import get_version_from_pyproject
 
@@ -9,6 +10,7 @@ from .utils import get_version_from_pyproject
 class Environment(str, Enum):
     DEV = "dev"
     PROD = "prod"
+
 
 class Settings(BaseSettings):
     environment: Environment = Environment.DEV

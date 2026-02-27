@@ -1,16 +1,16 @@
-from .user import UserBase, UserCreate, User, UserPublic
-from .auth import RegisterRequest, LoginPasswordRequest, TokenResponse, RefreshTokenRequest
+from .auth import LoginPasswordRequest, RefreshTokenRequest, RegisterRequest, TokenResponse
+from .error import AuthError
 from .passkey import (
-    PasskeyRegistrationOptionsRequest,
-    PasskeyRegistrationOptionsResponse,
-    PasskeyRegistrationVerifyRequest,
     PasskeyAuthenticationOptionsRequest,
     PasskeyAuthenticationOptionsResponse,
     PasskeyAuthenticationVerifyRequest,
     PasskeyInfo,
     PasskeyListResponse,
+    PasskeyRegistrationOptionsRequest,
+    PasskeyRegistrationOptionsResponse,
+    PasskeyRegistrationVerifyRequest,
 )
-from .error import AuthError
+from .user import User, UserBase, UserCreate, UserPublic
 
 __all__ = [
     # User models

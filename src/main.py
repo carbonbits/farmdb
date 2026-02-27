@@ -1,17 +1,17 @@
 from contextlib import asynccontextmanager
+
+import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-import uvicorn
-
 from apps.api.middleware.spa import SPAMiddleware, spa_directory
-from apps.api.graphql import graphql_router
-from core.storage.database import DB
-from config.settings import settings
 from apps.api.utilities import api_tags_metadata
-from features.field.router import router as fields_router
-from features.farm.rest import router as farms_router
+from config.settings import settings
 from core.auth.router import router as auth_router
+from core.storage.database import DB
+from features.farm.rest import router as farms_router
+from features.field.router import router as fields_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -31,7 +31,6 @@ application = FastAPI(
 
 application.include_router(fields_router)
 application.include_router(farms_router)
-application.include_router(graphql_router, prefix="/graphql")
 application.include_router(auth_router)
 application.add_middleware(SPAMiddleware)
 
