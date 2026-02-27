@@ -1,6 +1,7 @@
 """
 Migration: create_fields_table
 """
+
 import duckdb
 
 
@@ -8,7 +9,7 @@ def up(conn: duckdb.DuckDBPyConnection) -> None:
     # Create configuration key-value store table
     conn.execute("""
         INSTALL spatial;
-                 
+
         LOAD spatial;
 
         CREATE TABLE IF NOT EXISTS v1.fields (

@@ -1,15 +1,16 @@
 from contextlib import asynccontextmanager
+
+import uvicorn
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-import uvicorn
-
 from apps.api.middleware.spa import SPAMiddleware, spa_directory
-from core.storage.database import DB
-from config.settings import settings
 from apps.api.utilities import api_tags_metadata
-from features.field.router import router as fields_router
+from config.settings import settings
 from core.auth.router import router as auth_router
+from core.storage.database import DB
+from features.field.router import router as fields_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,6 +18,7 @@ async def lifespan(app: FastAPI):
     yield
 
     DB.disconnect()
+
 
 application = FastAPI(
     title="FarmDB",

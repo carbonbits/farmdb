@@ -1,7 +1,10 @@
 """
 Migration: create_users_table
-Creates authentication-related tables: users, password_credentials, passkey_credentials, refresh_tokens
+
+Creates authentication-related tables:
+users, password_credentials, passkey_credentials, refresh_tokens
 """
+
 import duckdb
 
 
@@ -64,9 +67,26 @@ def up(conn: duckdb.DuckDBPyConnection) -> None:
     """)
 
     # Create indexes for efficient lookups
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_users_email ON v1.users(email)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_password_credentials_user_id ON v1.password_credentials(user_id)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_passkey_credentials_user_id ON v1.passkey_credentials(user_id)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_passkey_credentials_credential_id ON v1.passkey_credentials(credential_id)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON v1.refresh_tokens(user_id)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token_hash ON v1.refresh_tokens(token_hash)")
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_users_email ON v1.users(email)"
+    )
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_password_credentials_user_id
+        ON v1.password_credentials(user_id)
+    """)
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_passkey_credentials_user_id
+        ON v1.passkey_credentials(user_id)
+    """)
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_passkey_credentials_credential_id
+        ON v1.passkey_credentials(credential_id)
+    """)
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id
+        ON v1.refresh_tokens(user_id)
+    """)
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token_hash
+        ON v1.refresh_tokens(token_hash)
+    """)

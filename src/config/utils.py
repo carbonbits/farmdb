@@ -1,5 +1,5 @@
-from pathlib import Path
 import tomllib
+from pathlib import Path
 
 
 def get_version_from_pyproject() -> str:
@@ -9,7 +9,7 @@ def get_version_from_pyproject() -> str:
 
         with open(pyproject_path, "rb") as f:
             data = tomllib.load(f)
-            
+
             return data["project"]["version"]
     except Exception:
         return "0.1.0"
