@@ -1,7 +1,8 @@
-import duckdb
 from typing import Optional
 
-from settings import settings
+import duckdb
+
+from config.settings import settings
 
 
 class DB:
@@ -23,7 +24,7 @@ class DB:
         if cls._instance is None:
             raise RuntimeError("Database is not connected. Call connect() first.")
         return cls._instance
-    
+
     @classmethod
     def _initialize_database(cls):
         pass

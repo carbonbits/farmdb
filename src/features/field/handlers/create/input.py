@@ -1,4 +1,5 @@
 from pydantic import ConfigDict
+
 from features.field.models.base import FarmFieldBase
 
 
