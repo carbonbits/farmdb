@@ -21,8 +21,8 @@ from core.storage.database import DB
 
 @pytest.fixture(autouse=True)
 def in_memory_db(tmp_path):
-    import settings as s
-    s.settings.database_path = str(tmp_path / "test.db")
+    from config.settings import settings
+    settings.database_path = str(tmp_path / "test.db")
     DB.connect()
     conn = DB.get_connection()
     conn.execute("CREATE SCHEMA IF NOT EXISTS v1")

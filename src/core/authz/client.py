@@ -10,7 +10,7 @@ from dataclasses import dataclass
 
 import httpx
 
-from settings import settings
+from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
