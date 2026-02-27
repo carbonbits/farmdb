@@ -67,9 +67,7 @@ def up(conn: duckdb.DuckDBPyConnection) -> None:
     """)
 
     # Create indexes for efficient lookups
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_users_email ON v1.users(email)"
-    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_users_email ON v1.users(email)")
     conn.execute("""
         CREATE INDEX IF NOT EXISTS idx_password_credentials_user_id
         ON v1.password_credentials(user_id)
