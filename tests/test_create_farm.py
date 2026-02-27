@@ -71,11 +71,7 @@ def farm_count(conn: duckdb.DuckDBPyConnection) -> int:
 @pytest.mark.asyncio
 async def test_rest_allowed_creates_farm(headers, in_memory_db):
     with patch(
-        "features.farm.handlers.create.handler.get_org_authz",
-        new_callable=AsyncMock,
-        return_value=("store-123", "model-123"),
-    ), patch(
-        "features.farm.handlers.create.handler.fga_client.can",
+        "features.farm.handlers.create.handler.authz_client.can",
         new_callable=AsyncMock,
         return_value=True,
     ):
@@ -102,11 +98,7 @@ async def test_rest_allowed_creates_farm(headers, in_memory_db):
 @pytest.mark.asyncio
 async def test_rest_denied_returns_403_no_row_written(headers, in_memory_db):
     with patch(
-        "features.farm.handlers.create.handler.get_org_authz",
-        new_callable=AsyncMock,
-        return_value=("store-123", "model-123"),
-    ), patch(
-        "features.farm.handlers.create.handler.fga_client.can",
+        "features.farm.handlers.create.handler.authz_client.can",
         new_callable=AsyncMock,
         return_value=False,
     ):
@@ -156,11 +148,7 @@ mutation {
 @pytest.mark.asyncio
 async def test_graphql_allowed_creates_farm(graphql_headers, in_memory_db):
     with patch(
-        "features.farm.handlers.create.handler.get_org_authz",
-        new_callable=AsyncMock,
-        return_value=("store-123", "model-123"),
-    ), patch(
-        "features.farm.handlers.create.handler.fga_client.can",
+        "features.farm.handlers.create.handler.authz_client.can",
         new_callable=AsyncMock,
         return_value=True,
     ):
@@ -187,11 +175,7 @@ async def test_graphql_allowed_creates_farm(graphql_headers, in_memory_db):
 @pytest.mark.asyncio
 async def test_graphql_denied_returns_permission_denied_no_row(graphql_headers, in_memory_db):
     with patch(
-        "features.farm.handlers.create.handler.get_org_authz",
-        new_callable=AsyncMock,
-        return_value=("store-123", "model-123"),
-    ), patch(
-        "features.farm.handlers.create.handler.fga_client.can",
+        "features.farm.handlers.create.handler.authz_client.can",
         new_callable=AsyncMock,
         return_value=False,
     ):

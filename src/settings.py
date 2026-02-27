@@ -14,14 +14,10 @@ class Settings(BaseSettings):
     version: Optional[str] = get_version_from_pyproject()
     database_path: Optional[str] = "farm.db"
 
-    # Platform API OpenFGA authz checks
+    # Platform API authz checks
     platform_api_url: str = "https://api.carbonbits.work"
     cf_access_client_id: Optional[str] = None
     cf_access_client_secret: Optional[str] = None
-
-    openfga_api_url: str = "http://localhost:8080"
-    openfga_store_id: Optional[str] = None
-    openfga_model_id: Optional[str] = None
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
