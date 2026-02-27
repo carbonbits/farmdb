@@ -1,7 +1,7 @@
 import duckdb
 from typing import Optional
 
-from settings import settings
+from config.settings import settings
 
 
 class DB:
