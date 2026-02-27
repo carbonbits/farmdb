@@ -18,9 +18,9 @@ async def lifespan(app: FastAPI):
     DB.disconnect()
 
 application = FastAPI(
-    title="farmdb",
+    title="FarmDB",
     description="Profesional farm management tooling",
-    terms_of_service="https://agin.africa/farmdb/terms/",
+    terms_of_service="https://farmdb.io/terms/",
     version=settings.version,
     lifespan=lifespan,
     openapi_tags=api_tags_metadata,

@@ -1,12 +1,13 @@
 [project]
 name = "farmdb"
-version = "0.1.2"
+version = "0.3.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "duckdb>=1.4.3",
     "fastapi[standard]>=0.128.0",
+    "loguru>=0.7.3",
     "pydantic-settings>=2.12.0",
     "typer>=0.9.0",
     "uvicorn>=0.40.0",
@@ -22,7 +23,7 @@ package = true
 package-dir = {"" = "src"}
 
 [tool.semantic_release]
-version_variable = "pyproject.toml:project.version"
+version_toml = ["pyproject.toml:project.version"]
 branch = "master"
 upload_to_pypi = false
 build_command = ""
@@ -30,6 +31,13 @@ changelog_file = "CHANGELOG.md"
 commit_message = "{version}\n\n[skip ci]"
 
 [tool.semantic_release.commit_parser_options]
-allowed_types = ["feat", "fix", "chore", "refactor", "perf", "docs"]
-minor_types = ["feat"]
-patch_types = ["fix", "perf"]
+allowed_tags = ["feat", "fix", "chore", "refactor", "perf", "docs"]
+minor_tags = ["feat"]
+patch_tags = ["fix", "perf"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+]
