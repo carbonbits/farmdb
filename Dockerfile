@@ -1,5 +1,5 @@
 # Build Next.js static site
-FROM node:25-slim AS web-builder
+FROM node:26-slim AS web-builder
 WORKDIR /web
 COPY src/apps/web/package*.json ./
 RUN npm ci
