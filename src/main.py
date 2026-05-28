@@ -5,17 +5,20 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 from apps.api.middleware.spa import SPAMiddleware, spa_directory
+from apps.api.graphql import graphql_router
 from core.storage.database import DB
 from settings import settings
 from apps.api.utilities import api_tags_metadata
 from features.field.router import router as fields_router
+from features.farm.rest import router as farms_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     DB.connect()
     yield
-
     DB.disconnect()
+
 
 application = FastAPI(
     title="farmdb",
@@ -27,11 +30,12 @@ application = FastAPI(
 )
 
 application.include_router(fields_router)
+application.include_router(farms_router)
+application.include_router(graphql_router, prefix="/graphql")
 application.add_middleware(SPAMiddleware)
 
 if spa_directory.exists():
     application.mount("/_next", StaticFiles(directory=spa_directory / "_next"), name="next-static")
-
 
 if __name__ == "__main__":
     uvicorn.run(application, host="0.0.0.0", port=5700)
