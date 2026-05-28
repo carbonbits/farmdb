@@ -13,4 +13,3 @@ class CreateFarmInput(BaseModel):
     name: str
     description: Optional[str] = None
     shortcode: Optional[str] = None
-    org_id: str
