@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     cf_access_client_id: Optional[str] = None
     cf_access_client_secret: Optional[str] = None
 
+    openfga_api_url: str = "http://localhost:8080"
+    openfga_store_id: Optional[str] = None
+    openfga_model_id: Optional[str] = None
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
