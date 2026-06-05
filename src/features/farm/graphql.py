@@ -2,6 +2,7 @@
 Farm GraphQL mutations.
 Transport only — calls the same handler as REST.
 """
+
 from __future__ import annotations
 
 import strawberry

@@ -2,11 +2,12 @@
 GraphQL schema assembly.
 Single place that composes all feature mutations into one schema.
 """
+
 from __future__ import annotations
 
 import strawberry
-from strawberry.fastapi import GraphQLRouter
 from fastapi import Request
+from strawberry.fastapi import GraphQLRouter
 
 from features.farm.graphql import FarmMutation
 

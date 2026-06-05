@@ -3,6 +3,7 @@ Authz client for farmdb.
 Single place that talks to api.carbonbits.work/platform/v1/authz/can.
 Fails closed any error returns allowed=False.
 """
+
 from __future__ import annotations
 
 import logging
@@ -17,9 +18,9 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AuthzTuple:
-    user: str      # e.g. "user:<user_id>"
+    user: str  # e.g. "user:<user_id>"
     relation: str  # e.g. "create_farm"
-    object: str    # e.g. "organization:<org_id>"
+    object: str  # e.g. "organization:<org_id>"
 
 
 class AuthzClient:
@@ -38,11 +39,13 @@ class AuthzClient:
         context_id: str,
     ) -> bool:
         payload = {
-            "checks": [{
-                "user": tuple_.user,
-                "relation": tuple_.relation,
-                "object": tuple_.object,
-            }],
+            "checks": [
+                {
+                    "user": tuple_.user,
+                    "relation": tuple_.relation,
+                    "object": tuple_.object,
+                }
+            ],
             "context": context,
             "context_id": context_id,
         }

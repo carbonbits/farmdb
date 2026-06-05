@@ -2,6 +2,7 @@
 Farm REST endpoints.
 Transport only no business logic here.
 """
+
 from __future__ import annotations
 
 import duckdb

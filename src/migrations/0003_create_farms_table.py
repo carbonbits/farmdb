@@ -2,6 +2,7 @@
 Migration: 0003_create_v1_farms_table
 Creates the v1.farms table in the v1 schema.
 """
+
 import duckdb
 
 

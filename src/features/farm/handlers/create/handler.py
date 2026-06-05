@@ -3,11 +3,13 @@ createFarm handler.
 Transportagnostic called by both REST and GraphQL.
 Raises PermissionDenied so each transport maps it correctly.
 """
+
 from __future__ import annotations
 
 import logging
-from ulid import ULID
+
 import duckdb
+from ulid import ULID
 
 from core.authz.client import AuthzTuple, authz_client
 from features.farm.handlers.create.input import CreateFarmInput
@@ -60,7 +62,13 @@ async def create_farm(
     ).fetchone()
 
     return FarmModel(
-        id=row[0], name=row[1], description=row[2], shortcode=row[3],
-        org_id=row[4], created_by=row[5], is_active=row[6],
-        created_at=row[7], updated_at=row[8],
+        id=row[0],
+        name=row[1],
+        description=row[2],
+        shortcode=row[3],
+        org_id=row[4],
+        created_by=row[5],
+        is_active=row[6],
+        created_at=row[7],
+        updated_at=row[8],
     )
