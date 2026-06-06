@@ -6,7 +6,7 @@ import duckdb
 
 
 def up(conn: duckdb.DuckDBPyConnection) -> None:
-    # Create configuration key-value store table
+    # Create fields table
     conn.execute("""
         INSTALL spatial;
 
@@ -15,6 +15,7 @@ def up(conn: duckdb.DuckDBPyConnection) -> None:
         CREATE TABLE IF NOT EXISTS v1.fields (
             id TEXT PRIMARY KEY,
             name TEXT,
+            role TEXT,
             description TEXT,
             created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,

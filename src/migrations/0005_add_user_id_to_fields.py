@@ -11,7 +11,7 @@ def up(conn: duckdb.DuckDBPyConnection) -> None:
     """Apply the migration."""
     conn.execute("""
         ALTER TABLE v1.fields
-        ADD COLUMN user_id TEXT REFERENCES v1.users(id)
+        ADD COLUMN user_id TEXT
     """)
 
     conn.execute("""

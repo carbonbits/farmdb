@@ -1,5 +1,5 @@
 """
-Migration: create_farms_table
+Migration: create_configurations_table
 """
 
 import duckdb
@@ -7,13 +7,14 @@ import duckdb
 
 def up(conn: duckdb.DuckDBPyConnection) -> None:
     """Apply the migration."""
-    # Create v1 schema
-    conn.execute("CREATE SCHEMA IF NOT EXISTS v1")
 
     # Create configuration key-value store table
     conn.execute("""
         CREATE TABLE IF NOT EXISTS v1.configuration (
             key TEXT PRIMARY KEY,
-            value TEXT
+            value TEXT,
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+            created_by TEXT,
         )
     """)
