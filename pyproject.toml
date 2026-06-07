@@ -44,3 +44,8 @@ commit_message = "{version}\n\n[skip ci]"
 allowed_types = ["feat", "fix", "chore", "refactor", "perf", "docs"]
 minor_types = ["feat"]
 patch_types = ["fix", "perf"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.16",
+]
