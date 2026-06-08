@@ -16,13 +16,11 @@ export default function Home() {
               <span className="text-gray-400">Loading...</span>
             ) : isAuthenticated ? (
               <>
-                <Link
-                  href="/account/passkeys"
-                  className="text-gray-600 hover:text-gray-900"
-                >
+                <Link href="/account/passkeys" className="text-gray-600 hover:text-gray-900">
                   Passkeys
                 </Link>
                 <button
+                  type="button"
                   onClick={() => logout()}
                   className="text-gray-600 hover:text-gray-900"
                 >
@@ -31,10 +29,7 @@ export default function Home() {
               </>
             ) : (
               <>
-                <Link
-                  href="/login"
-                  className="text-gray-600 hover:text-gray-900"
-                >
+                <Link href="/login" className="text-gray-600 hover:text-gray-900">
                   Login
                 </Link>
                 <Link
@@ -51,20 +46,14 @@ export default function Home() {
 
       <main className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Welcome to FarmDB
-          </h2>
-          <p className="text-xl text-gray-600 mb-8">
-            Professional farm management tooling
-          </p>
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">Welcome to FarmDB</h2>
+          <p className="text-xl text-gray-600 mb-8">Professional farm management tooling</p>
 
           {isAuthenticated && user && (
             <div className="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
               <p className="text-gray-600">Logged in as</p>
               <p className="text-lg font-medium text-gray-900">{user.email}</p>
-              {user.display_name && (
-                <p className="text-gray-500">{user.display_name}</p>
-              )}
+              {user.display_name && <p className="text-gray-500">{user.display_name}</p>}
             </div>
           )}
 

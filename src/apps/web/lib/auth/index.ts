@@ -1,28 +1,28 @@
 // Context and hooks
-export { AuthProvider, useAuth } from "./context";
 
 // API client
-export { authApi, AuthApiError } from "./api";
+export { AuthApiError, authApi } from "./api";
+export { AuthProvider, useAuth } from "./context";
 
 // Passkey utilities
 export {
-  registerPasskey,
   authenticateWithPasskey,
-  startConditionalAuth,
-  isWebAuthnSupported,
   isAutofillSupported,
   isPlatformAuthenticatorAvailable,
+  isWebAuthnSupported,
+  registerPasskey,
+  startConditionalAuth,
 } from "./passkeys";
 
 // Types
 export type {
-  User,
-  TokenResponse,
-  PasskeyInfo,
+  ApiError,
   AuthState,
-  RegisterRequest,
   LoginRequest,
   PasskeyAuthOptions,
+  PasskeyInfo,
   PasskeyRegOptions,
-  ApiError,
+  RegisterRequest,
+  TokenResponse,
+  User,
 } from "./types";

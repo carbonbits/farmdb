@@ -1,19 +1,19 @@
-import {
-  startAuthentication,
-  startRegistration,
-  browserSupportsWebAuthn,
-  browserSupportsWebAuthnAutofill,
-  platformAuthenticatorIsAvailable,
-} from "@simplewebauthn/browser";
 import type {
+  AuthenticationResponseJSON,
   PublicKeyCredentialCreationOptionsJSON,
   PublicKeyCredentialRequestOptionsJSON,
   RegistrationResponseJSON,
-  AuthenticationResponseJSON,
+} from "@simplewebauthn/browser";
+import {
+  browserSupportsWebAuthn,
+  browserSupportsWebAuthnAutofill,
+  platformAuthenticatorIsAvailable,
+  startAuthentication,
+  startRegistration,
 } from "@simplewebauthn/browser";
 
 import { authApi } from "./api";
-import type { PasskeyAuthOptions, PasskeyRegOptions, TokenResponse, PasskeyInfo } from "./types";
+import type { PasskeyAuthOptions, PasskeyInfo, PasskeyRegOptions, TokenResponse } from "./types";
 
 /**
  * Check if WebAuthn is supported in the current browser
@@ -39,9 +39,7 @@ export async function isPlatformAuthenticatorAvailable(): Promise<boolean> {
 /**
  * Convert server options to SimpleWebAuthn format for registration
  */
-function toRegistrationOptions(
-  options: PasskeyRegOptions
-): PublicKeyCredentialCreationOptionsJSON {
+function toRegistrationOptions(options: PasskeyRegOptions): PublicKeyCredentialCreationOptionsJSON {
   return {
     challenge: options.challenge,
     rp: options.rp,
@@ -60,8 +58,7 @@ function toRegistrationOptions(
       id: c.id,
     })),
     authenticatorSelection: {
-      residentKey: options.authenticatorSelection
-        .residentKey as ResidentKeyRequirement,
+      residentKey: options.authenticatorSelection.residentKey as ResidentKeyRequirement,
       userVerification: options.authenticatorSelection
         .userVerification as UserVerificationRequirement,
     },
@@ -73,14 +70,13 @@ function toRegistrationOptions(
  * Convert server options to SimpleWebAuthn format for authentication
  */
 function toAuthenticationOptions(
-  options: PasskeyAuthOptions
+  options: PasskeyAuthOptions,
 ): PublicKeyCredentialRequestOptionsJSON {
   return {
     challenge: options.challenge,
     timeout: options.timeout,
     rpId: options.rpId,
-    userVerification:
-      options.userVerification as UserVerificationRequirement,
+    userVerification: options.userVerification as UserVerificationRequirement,
     allowCredentials: options.allowCredentials?.map((c) => ({
       type: c.type as "public-key",
       id: c.id,
@@ -110,7 +106,7 @@ function toAuthenticationOptions(
  */
 export async function registerPasskey(
   accessToken: string,
-  friendlyName?: string
+  friendlyName?: string,
 ): Promise<PasskeyInfo> {
   // 1. Get registration options from server
   const { options } = await authApi.getPasskeyRegisterOptions(accessToken);
@@ -124,7 +120,7 @@ export async function registerPasskey(
   const passkey = await authApi.verifyPasskeyRegister(
     accessToken,
     credential as unknown as Record<string, unknown>,
-    friendlyName
+    friendlyName,
   );
 
   return passkey;
@@ -145,9 +141,7 @@ export async function registerPasskey(
  * const tokens = await authenticateWithPasskey();
  * ```
  */
-export async function authenticateWithPasskey(
-  email?: string
-): Promise<TokenResponse> {
+export async function authenticateWithPasskey(email?: string): Promise<TokenResponse> {
   // 1. Get authentication options from server
   const { options } = await authApi.getPasskeyLoginOptions(email);
 
@@ -163,7 +157,7 @@ export async function authenticateWithPasskey(
   };
 
   const tokens = await authApi.verifyPasskeyLogin(
-    credentialWithKey as unknown as Record<string, unknown>
+    credentialWithKey as unknown as Record<string, unknown>,
   );
 
   return tokens;
@@ -194,7 +188,7 @@ export async function authenticateWithPasskey(
  */
 export async function startConditionalAuth(
   onSuccess: (tokens: TokenResponse) => void,
-  onError: (error: Error) => void
+  onError: (error: Error) => void,
 ): Promise<AbortController | null> {
   if (!(await isAutofillSupported())) {
     return null;
@@ -217,7 +211,7 @@ export async function startConditionalAuth(
     };
 
     const tokens = await authApi.verifyPasskeyLogin(
-      credentialWithKey as unknown as Record<string, unknown>
+      credentialWithKey as unknown as Record<string, unknown>,
     );
 
     onSuccess(tokens);

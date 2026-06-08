@@ -15,7 +15,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 class AuthApiError extends Error {
   constructor(
     message: string,
-    public status: number
+    public status: number,
   ) {
     super(message);
     this.name = "AuthApiError";
@@ -27,21 +27,26 @@ async function handleResponse<T>(response: Response): Promise<T> {
     const error: ApiError = await response.json().catch(() => ({
       detail: "An unexpected error occurred",
     }));
+
     throw new AuthApiError(error.detail, response.status);
   }
+
   if (response.status === 204) {
     return undefined as T;
   }
+
   return response.json();
 }
 
 function authHeaders(accessToken: string | null): HeadersInit {
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
+
   if (accessToken) {
-    headers["Authorization"] = `Bearer ${accessToken}`;
+    headers.Authorization = `Bearer ${accessToken}`;
   }
+
   return headers;
 }
 
@@ -67,9 +72,7 @@ export const authApi = {
   },
 
   // Passkey login - get options
-  async getPasskeyLoginOptions(
-    email?: string
-  ): Promise<{ options: PasskeyAuthOptions }> {
+  async getPasskeyLoginOptions(email?: string): Promise<{ options: PasskeyAuthOptions }> {
     const response = await fetch(`${API_BASE}/v1/auth/login/passkey/options`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -79,9 +82,7 @@ export const authApi = {
   },
 
   // Passkey login - verify
-  async verifyPasskeyLogin(
-    credential: Record<string, unknown>
-  ): Promise<TokenResponse> {
+  async verifyPasskeyLogin(credential: Record<string, unknown>): Promise<TokenResponse> {
     const response = await fetch(`${API_BASE}/v1/auth/login/passkey/verify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -91,16 +92,11 @@ export const authApi = {
   },
 
   // Passkey registration - get options (authenticated)
-  async getPasskeyRegisterOptions(
-    accessToken: string
-  ): Promise<{ options: PasskeyRegOptions }> {
-    const response = await fetch(
-      `${API_BASE}/v1/auth/passkeys/register/options`,
-      {
-        method: "POST",
-        headers: authHeaders(accessToken),
-      }
-    );
+  async getPasskeyRegisterOptions(accessToken: string): Promise<{ options: PasskeyRegOptions }> {
+    const response = await fetch(`${API_BASE}/v1/auth/passkeys/register/options`, {
+      method: "POST",
+      headers: authHeaders(accessToken),
+    });
     return handleResponse<{ options: PasskeyRegOptions }>(response);
   },
 
@@ -108,26 +104,21 @@ export const authApi = {
   async verifyPasskeyRegister(
     accessToken: string,
     credential: Record<string, unknown>,
-    friendlyName?: string
+    friendlyName?: string,
   ): Promise<PasskeyInfo> {
-    const response = await fetch(
-      `${API_BASE}/v1/auth/passkeys/register/verify`,
-      {
-        method: "POST",
-        headers: authHeaders(accessToken),
-        body: JSON.stringify({
-          credential,
-          friendly_name: friendlyName || null,
-        }),
-      }
-    );
+    const response = await fetch(`${API_BASE}/v1/auth/passkeys/register/verify`, {
+      method: "POST",
+      headers: authHeaders(accessToken),
+      body: JSON.stringify({
+        credential,
+        friendly_name: friendlyName || null,
+      }),
+    });
     return handleResponse<PasskeyInfo>(response);
   },
 
   // List passkeys (authenticated)
-  async listPasskeys(
-    accessToken: string
-  ): Promise<{ passkeys: PasskeyInfo[] }> {
+  async listPasskeys(accessToken: string): Promise<{ passkeys: PasskeyInfo[] }> {
     const response = await fetch(`${API_BASE}/v1/auth/passkeys`, {
       method: "GET",
       headers: authHeaders(accessToken),

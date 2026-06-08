@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth, type PasskeyInfo } from "@/lib/auth";
+import { useCallback, useEffect, useState } from "react";
+import { type PasskeyInfo, useAuth } from "@/lib/auth";
 
 export default function PasskeysPage() {
   const router = useRouter();
@@ -124,8 +124,8 @@ export default function PasskeysPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Passkeys</h1>
           <p className="mt-2 text-gray-600">
-            Manage your passkeys for passwordless login. Passkeys use biometrics
-            like Face ID or Touch ID, or a security key.
+            Manage your passkeys for passwordless login. Passkeys use biometrics like Face ID or
+            Touch ID, or a security key.
           </p>
         </div>
 
@@ -138,8 +138,8 @@ export default function PasskeysPage() {
         {!isPasskeySupported && (
           <div className="mb-6 rounded-md bg-yellow-50 p-4">
             <div className="text-sm text-yellow-700">
-              Your browser does not support passkeys. Try using a modern browser
-              like Chrome, Safari, or Edge.
+              Your browser does not support passkeys. Try using a modern browser like Chrome,
+              Safari, or Edge.
             </div>
           </div>
         )}
@@ -149,6 +149,7 @@ export default function PasskeysPage() {
           <div className="bg-white shadow rounded-lg p-6 mb-6">
             {!showAddForm ? (
               <button
+                type="button"
                 onClick={() => setShowAddForm(true)}
                 className="flex items-center gap-2 text-green-600 hover:text-green-700 font-medium"
               >
@@ -157,6 +158,7 @@ export default function PasskeysPage() {
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -170,10 +172,7 @@ export default function PasskeysPage() {
             ) : (
               <form onSubmit={handleAddPasskey} className="space-y-4">
                 <div>
-                  <label
-                    htmlFor="friendlyName"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label htmlFor="friendlyName" className="block text-sm font-medium text-gray-700">
                     Passkey name (optional)
                   </label>
                   <input
@@ -185,8 +184,7 @@ export default function PasskeysPage() {
                     className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                   />
                   <p className="mt-1 text-xs text-gray-500">
-                    Give your passkey a name to help identify which device it
-                    belongs to.
+                    Give your passkey a name to help identify which device it belongs to.
                   </p>
                 </div>
                 <div className="flex gap-3">
@@ -221,9 +219,7 @@ export default function PasskeysPage() {
           </div>
 
           {isLoading ? (
-            <div className="px-6 py-12 text-center text-gray-500">
-              Loading passkeys...
-            </div>
+            <div className="px-6 py-12 text-center text-gray-500">Loading passkeys...</div>
           ) : passkeys.length === 0 ? (
             <div className="px-6 py-12 text-center text-gray-500">
               <svg
@@ -231,6 +227,7 @@ export default function PasskeysPage() {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -240,17 +237,12 @@ export default function PasskeysPage() {
                 />
               </svg>
               <p className="mt-2">No passkeys registered yet.</p>
-              <p className="text-sm">
-                Add a passkey to enable passwordless login.
-              </p>
+              <p className="text-sm">Add a passkey to enable passwordless login.</p>
             </div>
           ) : (
             <ul className="divide-y divide-gray-200">
               {passkeys.map((passkey) => (
-                <li
-                  key={passkey.id}
-                  className="px-6 py-4 flex items-center justify-between"
-                >
+                <li key={passkey.id} className="px-6 py-4 flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex-shrink-0">
                       <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
@@ -259,6 +251,7 @@ export default function PasskeysPage() {
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
+                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -276,9 +269,7 @@ export default function PasskeysPage() {
                       <div className="flex gap-4 text-xs text-gray-500">
                         <span>Created {formatDate(passkey.created_at)}</span>
                         {passkey.last_used_at && (
-                          <span>
-                            Last used {formatDate(passkey.last_used_at)}
-                          </span>
+                          <span>Last used {formatDate(passkey.last_used_at)}</span>
                         )}
                       </div>
                       <div className="flex gap-2 mt-1">
@@ -296,6 +287,7 @@ export default function PasskeysPage() {
                     </div>
                   </div>
                   <button
+                    type="button"
                     onClick={() => handleDeletePasskey(passkey.id)}
                     disabled={deletingId === passkey.id}
                     className="text-red-600 hover:text-red-700 text-sm font-medium disabled:opacity-50"

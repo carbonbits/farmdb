@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 
 export default function LoginPage() {
@@ -26,11 +26,6 @@ export default function LoginPage() {
       router.push("/");
     }
   }, [isAuthenticated, router]);
-
-  // Clear error when inputs change
-  useEffect(() => {
-    clearError();
-  }, [email, password, clearError]);
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,10 +64,7 @@ export default function LoginPage() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{" "}
-            <Link
-              href="/register"
-              className="font-medium text-green-600 hover:text-green-500"
-            >
+            <Link href="/register" className="font-medium text-green-600 hover:text-green-500">
               create a new account
             </Link>
           </p>
@@ -97,7 +89,10 @@ export default function LoginPage() {
                 autoComplete="email webauthn"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  clearError();
+                }}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
               />
@@ -113,7 +108,10 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  clearError();
+                }}
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
               />
@@ -138,9 +136,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gray-50 text-gray-500">
-                  Or continue with
-                </span>
+                <span className="px-2 bg-gray-50 text-gray-500">Or continue with</span>
               </div>
             </div>
 
@@ -155,6 +151,7 @@ export default function LoginPage() {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"

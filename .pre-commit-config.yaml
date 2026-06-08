@@ -3,3 +3,11 @@ repos:
     rev: v0.9.0
     hooks:
       - id: ruff-format
+
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v2.4.16
+    hooks:
+      - id: biome-check
+        language_version: system
+        additional_dependencies: ["@biomejs/biome@2.4.16"]
+        files: ^src/apps/web/

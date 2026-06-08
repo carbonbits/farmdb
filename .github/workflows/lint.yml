@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  lint:
+  python:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,3 +26,25 @@ jobs:
 
       - name: Check linting
         run: uv run ruff check src
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/apps/web
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/apps/web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run biome check
+        run: npx biome ci .

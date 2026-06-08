@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 
 export default function RegisterPage() {
@@ -23,11 +23,11 @@ export default function RegisterPage() {
     }
   }, [isAuthenticated, router]);
 
-  // Clear errors when inputs change
-  useEffect(() => {
+  // Clear any errors when the user edits a field
+  const clearErrors = () => {
     clearError();
     setValidationError(null);
-  }, [email, password, confirmPassword, displayName, clearError]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,12 +35,14 @@ export default function RegisterPage() {
     // Validate passwords match
     if (password !== confirmPassword) {
       setValidationError("Passwords do not match");
+
       return;
     }
 
     // Validate password strength
     if (password.length < 8) {
       setValidationError("Password must be at least 8 characters");
+
       return;
     }
 
@@ -67,10 +69,7 @@ export default function RegisterPage() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Already have an account?{" "}
-            <Link
-              href="/login"
-              className="font-medium text-green-600 hover:text-green-500"
-            >
+            <Link href="/login" className="font-medium text-green-600 hover:text-green-500">
               Sign in
             </Link>
           </p>
@@ -85,10 +84,7 @@ export default function RegisterPage() {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label
-                htmlFor="displayName"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="displayName" className="block text-sm font-medium text-gray-700">
                 Display name (optional)
               </label>
               <input
@@ -97,17 +93,17 @@ export default function RegisterPage() {
                 type="text"
                 autoComplete="name"
                 value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
+                onChange={(e) => {
+                  setDisplayName(e.target.value);
+                  clearErrors();
+                }}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                 placeholder="John Doe"
               />
             </div>
 
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
               </label>
               <input
@@ -117,17 +113,17 @@ export default function RegisterPage() {
                 autoComplete="email"
                 required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  clearErrors();
+                }}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                 placeholder="you@example.com"
               />
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
               <input
@@ -137,17 +133,17 @@ export default function RegisterPage() {
                 autoComplete="new-password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  clearErrors();
+                }}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                 placeholder="At least 8 characters"
               />
             </div>
 
             <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
                 Confirm password
               </label>
               <input
@@ -157,7 +153,10 @@ export default function RegisterPage() {
                 autoComplete="new-password"
                 required
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  clearErrors();
+                }}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
                 placeholder="Confirm your password"
               />
