@@ -14,6 +14,7 @@ from core.config.service import ConfigService
 from core.container import build_container
 from core.storage.database import DB
 from features.apikey.router import router as api_keys_router
+from features.crop.router import router as crops_router
 from features.field.router import router as fields_router
 
 
@@ -42,14 +43,15 @@ application = FastAPI(
 application.include_router(fields_router)
 application.include_router(api_keys_router)
 application.include_router(auth_router)
+application.include_router(crops_router)
 application.add_middleware(SPAMiddleware)
 
-# Wire the DI container into the app. Must run after routers are registered so
-# wireup can see handlers that request Injected[...] dependencies.
 wireup.integration.fastapi.setup(build_container(), application)
 
 if spa_directory.exists():
-    application.mount("/_next", StaticFiles(directory=spa_directory / "_next"), name="next-static")
+    application.mount(
+        "/_next", StaticFiles(directory=spa_directory / "_next"), name="next-static"
+    )
 
 if __name__ == "__main__":
     uvicorn.run(application, host="0.0.0.0", port=5700)
