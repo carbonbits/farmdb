@@ -20,8 +20,12 @@ jobs:
       - name: Decode private key
         id: decode-key
         run: |
-          private_key=$(echo "${{ secrets.GH_APP_PRIVATE_KEY }}" | base64 -d | awk 'BEGIN {ORS="\\n"} {print}' | head -c -2)
-          echo "private-key=$private_key" >> "$GITHUB_OUTPUT"
+          private_key=$(echo "${{ secrets.GH_APP_PRIVATE_KEY }}" | base64 -d)
+          {
+            echo "private-key<<EOF"
+            echo "$private_key"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Generate GitHub App token
         id: app-token
