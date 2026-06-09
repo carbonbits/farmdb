@@ -7,7 +7,7 @@ Handles discovering, tracking, and applying migrations.
 import importlib.util
 from datetime import datetime
 from pathlib import Path
-from typing import Callable
+from types import ModuleType
 
 import duckdb
 import typer
@@ -56,8 +56,8 @@ def discover_migrations() -> list[tuple[str, Path]]:
     return migrations
 
 
-def load_migration(filepath: Path) -> Callable[[duckdb.DuckDBPyConnection], None]:
-    """Load a migration module and return its up() function."""
+def load_migration(filepath: Path) -> ModuleType:
+    """Load and return a migration module (must expose an up() function)."""
     spec = importlib.util.spec_from_file_location(filepath.stem, filepath)
     if spec is None or spec.loader is None:
         raise ImportError(f"Cannot load migration: {filepath}")
@@ -68,7 +68,7 @@ def load_migration(filepath: Path) -> Callable[[duckdb.DuckDBPyConnection], None
     if not hasattr(module, "up"):
         raise AttributeError(f"Migration {filepath.stem} is missing up() function")
 
-    return module.up
+    return module
 
 
 def apply_migrations(conn: duckdb.DuckDBPyConnection) -> int:
@@ -94,24 +94,37 @@ def apply_migrations(conn: duckdb.DuckDBPyConnection) -> int:
 
         try:
             # Load and execute migration
-            up_func = load_migration(filepath)
+            module = load_migration(filepath)
+            up_func = module.up
 
-            # Run migration in a transaction
-            conn.begin()
-            try:
+            # Migrations are atomic by default. A migration may set `atomic = False`
+            # for DDL that DuckDB cannot perform inside a transaction (e.g. dropping
+            # a column whose dependent indexes must be dropped first).
+            atomic = getattr(module, "atomic", True)
+
+            if atomic:
+                conn.begin()
+                try:
+                    up_func(conn)
+                    conn.execute(
+                        "INSERT INTO _migrations (name, applied_at) VALUES (?, ?)",
+                        [name, datetime.now()],
+                    )
+                    conn.commit()
+                except Exception:
+                    conn.rollback()
+                    raise
+            else:
+                # Statements auto-commit individually; a mid-migration failure may
+                # leave the migration partially applied and unrecorded.
                 up_func(conn)
-
-                # Record migration as applied
                 conn.execute(
                     "INSERT INTO _migrations (name, applied_at) VALUES (?, ?)",
                     [name, datetime.now()],
                 )
-                conn.commit()
-                typer.echo(" ✓")
-                applied_count += 1
-            except Exception:
-                conn.rollback()
-                raise
+
+            typer.echo(" ✓")
+            applied_count += 1
 
         except Exception as e:
             typer.echo(" ✗")
