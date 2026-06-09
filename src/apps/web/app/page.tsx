@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Logo } from "@/components/logo";
 import { useAuth } from "@/lib/auth";
 
 export default function Home() {
@@ -8,9 +9,18 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-green-600">FarmDB</h1>
+      <header className="bg-white shadow-sm max-h-16">
+        <div className="max-w-7xl mx-auto px-4 py-1 sm:px-6 lg:px-8 flex justify-between items-center">
+          <h1>
+            <Link href="/" className="flex items-center gap-2.5" aria-label="FarmDB home">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-900 p-px shadow-sm ring-1 ring-black/5">
+                <Logo className="h-full w-full" />
+              </span>
+              <span className="text-2xl font-extrabold tracking-tight text-gray-900">
+                Farm<span className="text-[#E87914]">DB</span>
+              </span>
+            </Link>
+          </h1>
           <nav className="flex gap-4">
             {isLoading ? (
               <span className="text-gray-400">Loading...</span>
