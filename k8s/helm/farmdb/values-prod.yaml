@@ -3,7 +3,7 @@ replicaCount: 2
 image:
   repository: carbonbitshq/farmdb
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: ""
 
 ingress:
   enabled: true
