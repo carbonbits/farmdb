@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: farmdb
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/carbonbits/infra-charts.git
+    targetRevision: main
+    path: charts/farmdb
+    helm:
+      releaseName: farmdb
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: farmdb
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

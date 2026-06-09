@@ -6,3 +6,4 @@ farmdb.egg-info
 .env
 
 *.tar
+/venv

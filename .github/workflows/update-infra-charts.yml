@@ -1,0 +1,83 @@
+name: Update infra-charts
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      infra_charts_ref:
+        required: false
+        type: string
+        default: main
+      infra_charts_path:
+        required: false
+        type: string
+        default: charts/farmdb
+
+permissions:
+  contents: read
+
+jobs:
+  update-infra-charts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Decode private key
+        id: decode-key
+        run: |
+          private_key=$(echo "${{ secrets.GH_APP_PRIVATE_KEY }}" | base64 -d | awk 'BEGIN {ORS="\\n"} {print}' | head -c -2)
+          echo "private-key=$private_key" >> "$GITHUB_OUTPUT"
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ steps.decode-key.outputs.private-key }}
+          owner: carbonbits
+          repositories: infra-charts
+
+      - name: Checkout farmdb
+        uses: actions/checkout@v6
+        with:
+          path: farmdb
+
+      - name: Checkout infra-charts
+        uses: actions/checkout@v6
+        with:
+          repository: carbonbits/infra-charts
+          ref: ${{ inputs.infra_charts_ref }}
+          path: infra-charts
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Update chart contents
+        env:
+          VERSION: ${{ inputs.version }}
+          TARGET_PATH: ${{ inputs.infra_charts_path }}
+        run: |
+          mkdir -p "infra-charts/$TARGET_PATH"
+          rm -rf "infra-charts/$TARGET_PATH"/*
+          cp -R farmdb/k8s/helm/farmdb/. "infra-charts/$TARGET_PATH/"
+
+          sed -i "s/^version: .*/version: ${VERSION}/" "infra-charts/$TARGET_PATH/Chart.yaml"
+          sed -i "s/^appVersion: .*/appVersion: \"${VERSION}\"/" "infra-charts/$TARGET_PATH/Chart.yaml"
+          sed -i "s/^  tag: .*/  tag: \"${VERSION}\"/" "infra-charts/$TARGET_PATH/values.yaml"
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          path: infra-charts
+          commit-message: "chore(farmdb): bump chart to ${{ inputs.version }}"
+          branch: chore/farmdb-${{ inputs.version }}
+          delete-branch: true
+          title: "chore(farmdb): release ${{ inputs.version }}"
+          body: |
+            Automated chart sync from carbonbits/farmdb.
+
+            - Updates Helm chart in `${{ inputs.infra_charts_path }}`
+            - Sets chart `version` and `appVersion` to `${{ inputs.version }}`
+            - Sets image tag to `${{ inputs.version }}`
+          labels: |
+            automation
+            release

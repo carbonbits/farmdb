@@ -20,17 +20,15 @@ jobs:
       - name: Decode private key
         id: decode-key
         run: |
-          KEY=$(echo "${{ secrets.GH_APP_PRIVATE_KEY }}" | base64 -d)
-          echo "DECODED_PRIVATE_KEY<<EOF" >> $GITHUB_ENV
-          echo "$KEY" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          private_key=$(echo "${{ secrets.GH_APP_PRIVATE_KEY }}" | base64 -d | awk 'BEGIN {ORS="\\n"} {print}' | head -c -2)
+          echo "private-key=$private_key" >> "$GITHUB_OUTPUT"
 
       - name: Generate GitHub App token
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ secrets.GH_APP_ID }}
-          private-key: ${{ env.DECODED_PRIVATE_KEY }}
+          client-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ steps.decode-key.outputs.private-key }}
 
       - uses: actions/checkout@v6
         with:
@@ -52,6 +50,16 @@ jobs:
     needs: release
     if: needs.release.outputs.released == 'true' && github.event.repository.visibility == 'public'
     uses: ./.github/workflows/docker-publish.yml
+    with:
+      version: ${{ needs.release.outputs.version }}
+    secrets: inherit
+
+  infra-charts:
+    needs:
+      - release
+      - docker
+    if: needs.release.outputs.released == 'true' && github.event.repository.visibility == 'public'
+    uses: ./.github/workflows/update-infra-charts.yml
     with:
       version: ${{ needs.release.outputs.version }}
     secrets: inherit
