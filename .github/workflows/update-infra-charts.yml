@@ -66,6 +66,7 @@ jobs:
           sed -i "s/^version: .*/version: ${VERSION}/" "infra-charts/$TARGET_PATH/Chart.yaml"
           sed -i "s/^appVersion: .*/appVersion: \"${VERSION}\"/" "infra-charts/$TARGET_PATH/Chart.yaml"
           sed -i "s/^  tag: .*/  tag: \"${VERSION}\"/" "infra-charts/$TARGET_PATH/values.yaml"
+          sed -i "s/^  tag: .*/  tag: \"${VERSION}\"/" "infra-charts/$TARGET_PATH/values-prod.yaml"
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v7
