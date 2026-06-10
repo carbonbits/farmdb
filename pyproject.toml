@@ -38,6 +38,8 @@ upload_to_pypi = false
 build_command = ""
 changelog_file = "CHANGELOG.md"
 commit_message = "{version}\n\n[skip ci]"
+allow_zero_version = true
+major_on_zero = false
 
 [tool.semantic_release.commit_parser_options]
 allowed_types = ["feat", "fix", "chore", "refactor", "perf", "docs"]
@@ -46,5 +48,6 @@ patch_types = ["fix", "perf"]
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.6.0",
     "ruff>=0.15.16",
 ]
