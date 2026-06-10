@@ -370,6 +370,7 @@ dependencies = [
     { name = "typer" },
     { name = "uvicorn" },
     { name = "webauthn" },
+    { name = "wireup" },
 ]
 
 [package.dev-dependencies]
@@ -397,6 +398,7 @@ requires-dist = [
     { name = "typer", specifier = ">=0.9.0" },
     { name = "uvicorn", specifier = ">=0.40.0" },
     { name = "webauthn", specifier = ">=2.5.0" },
+    { name = "wireup", specifier = ">=2.11.1" },
 ]
 
 [package.metadata.requires-dev]
@@ -550,21 +552,21 @@ wheels = [
 ]
 
 [[package]]
-name = "graphql-core"
-version = "3.2.9"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/59/d9/0fdd62794757580f0a9c1e4bf084a57f5d59e917a4488b9ac7db43900657/graphql_core-3.2.9.tar.gz", hash = "sha256:7368b30bc3e2fa90978c598ea96be589b37abf846971f404630ba6b9b596e259", size = 514851, upload-time = "2026-06-04T21:51:31.399Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/08/c8/939d3948eb3519aefb22133eb88e5f1e3bbb5a0f71db5c04f2e9b94294b7/graphql_core-3.2.9-py3-none-any.whl", hash = "sha256:5f7581879d2e934c4eaee46773010516b16502afe6a0cde96cacea07710b3528", size = 207959, upload-time = "2026-06-04T21:51:29.556Z" },
-]
-
-[[package]]
 name = "filelock"
 version = "3.29.1"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/1f/f9/f38573ed5844586db374d085911740a501ccfa373b455fc9413f09f85237/filelock-3.29.1.tar.gz", hash = "sha256:d97e6b1b9757569626c58caa07dc4beb1613f4a2938b1e8cc81afca398906c9e", size = 59335, upload-time = "2026-06-03T15:19:04.053Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4c/a0/614c5fe402fd88951df45f4dda2fa3b4e17a99ecd92340771929169b3b95/filelock-3.29.1-py3-none-any.whl", hash = "sha256:85199dfd706869641b72b2e8955d5416a4b2b7dc4b0e8e6d97b4cc1299a6983b", size = 40750, upload-time = "2026-06-03T15:19:02.959Z" },
+]
+
+[[package]]
+name = "graphql-core"
+version = "3.2.9"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/59/d9/0fdd62794757580f0a9c1e4bf084a57f5d59e917a4488b9ac7db43900657/graphql_core-3.2.9.tar.gz", hash = "sha256:7368b30bc3e2fa90978c598ea96be589b37abf846971f404630ba6b9b596e259", size = 514851, upload-time = "2026-06-04T21:51:31.399Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/08/c8/939d3948eb3519aefb22133eb88e5f1e3bbb5a0f71db5c04f2e9b94294b7/graphql_core-3.2.9-py3-none-any.whl", hash = "sha256:5f7581879d2e934c4eaee46773010516b16502afe6a0cde96cacea07710b3528", size = 207959, upload-time = "2026-06-04T21:51:29.556Z" },
 ]
 
 [[package]]
@@ -1595,4 +1597,16 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/b3/8f/705086c9d734d3b663af0e9bb3d4de6578d08f46b1b101c2442fd9aecaa2/win32_setctime-1.2.0.tar.gz", hash = "sha256:ae1fdf948f5640aae05c511ade119313fb6a30d7eabe25fef9764dca5873c4c0", size = 4867, upload-time = "2024-12-07T15:28:28.314Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e1/07/c6fe3ad3e685340704d314d765b7912993bcb8dc198f0e7a89382d37974b/win32_setctime-1.2.0-py3-none-any.whl", hash = "sha256:95d644c4e708aba81dc3704a116d8cbc974d70b3bdb8be1d150e36be6e9d1390", size = 4083, upload-time = "2024-12-07T15:28:26.465Z" },
+]
+
+[[package]]
+name = "wireup"
+version = "2.11.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/66/ad/3fc873a271b23db5a3fa817ef2d8937c9715b0bd483f05ecfe5b15e3211f/wireup-2.11.1.tar.gz", hash = "sha256:50fb39ba31723cbac14afc63eebee96813e755550ed454353a780bba8541eb19", size = 5707836, upload-time = "2026-06-05T18:29:40.069Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/08/87dcf108bb9da9e6b98506bc92fac2142a7f9ecd81c3b73dfab38e214db5/wireup-2.11.1-py3-none-any.whl", hash = "sha256:1c22a4b3ec1338e75096acf9145811dbce6bff72fd5ee0744e5d4112ed2a6ffe", size = 59672, upload-time = "2026-06-05T18:29:37.802Z" },
 ]

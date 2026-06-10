@@ -1,9 +1,10 @@
 from functools import lru_cache
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from core.auth.cookies import clear_access_cookie, set_access_cookie
 from core.auth.models import (
     LoginPasswordRequest,
     PasskeyAuthenticationOptionsRequest,
@@ -61,6 +62,7 @@ async def get_current_user(
 @router.post("/register", response_model=TokenResponse)
 async def register(
     request: RegisterRequest,
+    response: Response,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> TokenResponse:
     """Register a new user account."""
@@ -78,6 +80,7 @@ async def register(
     )
 
     access_token, refresh_token, expires_in = auth_service.create_tokens(user)
+    set_access_cookie(response, access_token, expires_in)
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -88,6 +91,7 @@ async def register(
 @router.post("/login/password", response_model=TokenResponse)
 async def login_password(
     request: LoginPasswordRequest,
+    response: Response,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> TokenResponse:
     """Login with email and password."""
@@ -111,6 +115,7 @@ async def login_password(
         )
 
     access_token, refresh_token, expires_in = auth_service.create_tokens(user)
+    set_access_cookie(response, access_token, expires_in)
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -133,6 +138,7 @@ async def login_passkey_options(
 @router.post("/login/passkey/verify", response_model=TokenResponse)
 async def login_passkey_verify(
     request: PasskeyAuthenticationVerifyRequest,
+    response: Response,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> TokenResponse:
     """Verify passkey authentication and login."""
@@ -161,6 +167,7 @@ async def login_passkey_verify(
         )
 
     access_token, refresh_token, expires_in = auth_service.create_tokens(user)
+    set_access_cookie(response, access_token, expires_in)
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -241,6 +248,7 @@ async def delete_passkey(
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(
     request: RefreshTokenRequest,
+    response: Response,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> TokenResponse:
     """Refresh access token using refresh token."""
@@ -252,6 +260,7 @@ async def refresh_token(
         )
 
     access_token, refresh_token, expires_in = result
+    set_access_cookie(response, access_token, expires_in)
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -262,10 +271,12 @@ async def refresh_token(
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
     request: RefreshTokenRequest,
+    response: Response,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> None:
     """Logout by revoking the refresh token."""
     auth_service.revoke_refresh_token(request.refresh_token)
+    clear_access_cookie(response)
 
 
 @router.get("/me", response_model=UserPublic)

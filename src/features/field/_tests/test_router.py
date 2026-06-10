@@ -7,8 +7,15 @@ from main import application
 
 
 @pytest_asyncio.fixture
-async def client():
-    """Unauthenticated client (no bearer token), for testing the auth gate."""
+async def client(tmp_path, monkeypatch):
+    """Unauthenticated client (no bearer token), for testing the auth gate.
+
+    Uses an isolated DB so the test never contends for the shared farm.db lock.
+    """
+    from config.settings import settings
+
+    monkeypatch.setattr(settings, "database_path", str(tmp_path / "unauth.db"))
+    DB.disconnect()
     DB.connect()
     async with AsyncClient(transport=ASGITransport(app=application), base_url="http://test") as ac:
         yield ac
@@ -39,6 +46,22 @@ async def test_create_field(auth_client):
     assert data["name"] == "North Field"
     assert data["description"] == "Primary wheat field"
     assert "id" in data
+
+
+@pytest.mark.asyncio
+async def test_cookie_auth(api_client):
+    # Register issues an httpOnly access cookie; the cookie jar reuses it.
+    reg = await api_client.post(
+        "/v1/auth/register",
+        json={"email": "cookie@example.com", "password": "supersecret123"},
+    )
+    assert reg.status_code == 200
+    assert reg.cookies.get("farmdb_access_token")
+
+    # No Authorization header — authentication rides on the cookie alone.
+    resp = await api_client.get("/v1/fields/")
+    assert resp.status_code == 200
+    assert resp.json() == []
 
 
 @pytest.mark.asyncio

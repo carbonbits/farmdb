@@ -17,7 +17,10 @@ class Settings(BaseSettings):
     version: Optional[str] = get_version_from_pyproject()
     database_path: Optional[str] = "farm.db"
 
-    # Platform API authz checks
+    # Authorization driver: "local" (open-core default) or "platform".
+    authz_driver: str = "local"
+
+    # Platform API authz checks (used by the "platform" authz driver)
     platform_api_url: str = "https://api.carbonbits.work"
     cf_access_client_id: Optional[str] = None
     cf_access_client_secret: Optional[str] = None

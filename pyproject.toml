@@ -19,6 +19,7 @@ dependencies = [
     "argon2-cffi>=25.0.0",
     "pyjwt[crypto]>=2.11.0",
     "python-multipart>=0.0.9",
+    "wireup>=2.11.1",
 ]
 
 [project.scripts]
@@ -42,6 +43,13 @@ commit_message = "{version}\n\n[skip ci]"
 allowed_tags = ["feat", "fix", "chore", "refactor", "perf", "docs"]
 minor_tags = ["feat"]
 patch_tags = ["fix", "perf"]
+
+[tool.pytest.ini_options]
+# importlib mode lets feature suites share the test_router.py basename;
+# pythonpath makes `src` importable without exporting PYTHONPATH.
+addopts = "--import-mode=importlib"
+pythonpath = ["src"]
+testpaths = ["src"]
 
 [dependency-groups]
 dev = [

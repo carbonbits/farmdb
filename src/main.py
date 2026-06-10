@@ -1,17 +1,19 @@
 from contextlib import asynccontextmanager
 
 import uvicorn
+import wireup.integration.fastapi
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from ulid import ULID
 
-from apps.api.middleware.auth import AuthHeaderMiddleware
 from apps.api.middleware.spa import SPAMiddleware, spa_directory
 from apps.api.utilities import api_tags_metadata
 from config.settings import settings
 from core.auth.router import router as auth_router
 from core.config.service import ConfigService
+from core.container import build_container
 from core.storage.database import DB
+from features.apikey.router import router as api_keys_router
 from features.field.router import router as fields_router
 
 
@@ -38,9 +40,13 @@ application = FastAPI(
 )
 
 application.include_router(fields_router)
+application.include_router(api_keys_router)
 application.include_router(auth_router)
 application.add_middleware(SPAMiddleware)
-application.add_middleware(AuthHeaderMiddleware)
+
+# Wire the DI container into the app. Must run after routers are registered so
+# wireup can see handlers that request Injected[...] dependencies.
+wireup.integration.fastapi.setup(build_container(), application)
 
 if spa_directory.exists():
     application.mount("/_next", StaticFiles(directory=spa_directory / "_next"), name="next-static")

@@ -2,9 +2,8 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 
 
-@pytest_asyncio.fixture
-async def auth_client(tmp_path, monkeypatch):
-    """An AsyncClient wired to an isolated, migrated DB and a valid bearer token."""
+def _setup_db(tmp_path, monkeypatch):
+    """Point the app at an isolated, migrated database."""
     from config.settings import settings
 
     monkeypatch.setattr(settings, "database_path", str(tmp_path / "test.db"))
@@ -16,7 +15,12 @@ async def auth_client(tmp_path, monkeypatch):
     DB.connect()
     apply_migrations(DB.get_connection())
 
-    # Seed a user and mint an access token for it.
+
+@pytest_asyncio.fixture
+async def auth_client(tmp_path, monkeypatch):
+    """Client with a valid bearer token against an isolated, migrated DB."""
+    _setup_db(tmp_path, monkeypatch)
+
     from core.auth.service import AuthService
 
     auth_service = AuthService()
@@ -31,5 +35,24 @@ async def auth_client(tmp_path, monkeypatch):
         headers={"Authorization": f"Bearer {access_token}"},
     ) as client:
         yield client
+
+    from core.storage.database import DB
+
+    DB.disconnect()
+
+
+@pytest_asyncio.fixture
+async def api_client(tmp_path, monkeypatch):
+    """Plain client on a migrated DB — no bearer; cookies persist across requests."""
+    _setup_db(tmp_path, monkeypatch)
+
+    from main import application
+
+    async with AsyncClient(
+        transport=ASGITransport(app=application), base_url="http://test"
+    ) as client:
+        yield client
+
+    from core.storage.database import DB
 
     DB.disconnect()
