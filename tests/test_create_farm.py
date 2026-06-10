@@ -21,8 +21,8 @@ from core.storage.database import DB
 
 @pytest.fixture(autouse=True)
 def in_memory_db(tmp_path):
-    import settings as s
-    s.settings.database_path = str(tmp_path / "test.db")
+    from config.settings import settings
+    settings.database_path = str(tmp_path / "test.db")
     DB.connect()
     conn = DB.get_connection()
     conn.execute("CREATE SCHEMA IF NOT EXISTS v1")
@@ -51,15 +51,6 @@ def headers():
     }
 
 
-@pytest.fixture
-def graphql_headers():
-    return {
-        "x-user-id": "user-abc",
-        "x-account-id": "org-xyz",
-        "Content-Type": "application/json",
-    }
-
-
 def farm_count(conn: duckdb.DuckDBPyConnection) -> int:
     return conn.execute("SELECT COUNT(*) FROM v1.farms").fetchone()[0]
 
@@ -71,11 +62,7 @@ def farm_count(conn: duckdb.DuckDBPyConnection) -> int:
 @pytest.mark.asyncio
 async def test_rest_allowed_creates_farm(headers, in_memory_db):
     with patch(
-        "features.farm.handlers.create.handler.get_org_authz",
-        new_callable=AsyncMock,
-        return_value=("store-123", "model-123"),
-    ), patch(
-        "features.farm.handlers.create.handler.fga_client.can",
+        "features.farm.handlers.create.handler.authz_client.can",
         new_callable=AsyncMock,
         return_value=True,
     ):
@@ -102,11 +89,7 @@ async def test_rest_allowed_creates_farm(headers, in_memory_db):
 @pytest.mark.asyncio
 async def test_rest_denied_returns_403_no_row_written(headers, in_memory_db):
     with patch(
-        "features.farm.handlers.create.handler.get_org_authz",
-        new_callable=AsyncMock,
-        return_value=("store-123", "model-123"),
-    ), patch(
-        "features.farm.handlers.create.handler.fga_client.can",
+        "features.farm.handlers.create.handler.authz_client.can",
         new_callable=AsyncMock,
         return_value=False,
     ):
@@ -130,82 +113,3 @@ async def test_rest_missing_headers_returns_422(in_memory_db):
     ) as client:
         resp = await client.post("/v1/farms/", json={"name": "No Headers"})
     assert resp.status_code == 422
-
-
-# ---------------------------------------------------------------------------
-# GraphQL — createFarm mutation
-# ---------------------------------------------------------------------------
-
-MUTATION = """
-mutation {
-  createFarm(input: {
-    name: "Sunrise Farm"
-    description: "Test farm"
-  }) {
-    id
-    name
-    description
-    orgId
-    createdBy
-    isActive
-  }
-}
-"""
-
-
-@pytest.mark.asyncio
-async def test_graphql_allowed_creates_farm(graphql_headers, in_memory_db):
-    with patch(
-        "features.farm.handlers.create.handler.get_org_authz",
-        new_callable=AsyncMock,
-        return_value=("store-123", "model-123"),
-    ), patch(
-        "features.farm.handlers.create.handler.fga_client.can",
-        new_callable=AsyncMock,
-        return_value=True,
-    ):
-        async with AsyncClient(
-            transport=ASGITransport(app=application), base_url="http://test"
-        ) as client:
-            resp = await client.post(
-                "/graphql",
-                json={"query": MUTATION},
-                headers=graphql_headers,
-            )
-
-    assert resp.status_code == 200
-    data = resp.json()
-    assert "errors" not in data
-    farm = data["data"]["createFarm"]
-    assert farm["name"] == "Sunrise Farm"
-    assert farm["orgId"] == "org-xyz"
-    assert farm["createdBy"] == "user-abc"
-    assert farm["isActive"] is True
-    assert farm_count(in_memory_db) == 1
-
-
-@pytest.mark.asyncio
-async def test_graphql_denied_returns_permission_denied_no_row(graphql_headers, in_memory_db):
-    with patch(
-        "features.farm.handlers.create.handler.get_org_authz",
-        new_callable=AsyncMock,
-        return_value=("store-123", "model-123"),
-    ), patch(
-        "features.farm.handlers.create.handler.fga_client.can",
-        new_callable=AsyncMock,
-        return_value=False,
-    ):
-        async with AsyncClient(
-            transport=ASGITransport(app=application), base_url="http://test"
-        ) as client:
-            resp = await client.post(
-                "/graphql",
-                json={"query": MUTATION},
-                headers=graphql_headers,
-            )
-
-    assert resp.status_code == 200
-    data = resp.json()
-    errors = data.get("errors", [])
-    assert any("PERMISSION_DENIED" in str(e) for e in errors)
-    assert farm_count(in_memory_db) == 0

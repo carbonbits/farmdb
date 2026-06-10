@@ -6,3 +6,7 @@ farmdb.egg-info
 .env
 
 *.tar
+
+farm.db.wal
+
+notebooks

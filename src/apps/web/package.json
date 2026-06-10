@@ -6,20 +6,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "check": "biome check --write ."
   },
   "dependencies": {
-    "next": "16.1.6",
-    "react": "19.2.3",
+    "@simplewebauthn/browser": "^13.1.0",
+    "next": "16.2.7",
+    "react": "19.2.7",
     "react-dom": "19.2.7"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.4.16",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^10",
-    "eslint-config-next": "16.2.7",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
