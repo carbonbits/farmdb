@@ -1,33 +1,25 @@
 from __future__ import annotations
 
 import json
-import logging
 from datetime import datetime, timezone
 
 import duckdb
 from ulid import ULID
 
-from core.auth.models.user import UserPublic
+from core.auth.principal import Principal
 from features.crop.handlers.create.input import CreateCropInput
 from features.crop.models.crop import CropModel
 
-logger = logging.getLogger(__name__)
 
-
-class PermissionDenied(Exception):
-    pass
-
-
-def _build_description(user: UserPublic, crop_name: str, at: datetime) -> str:
-    actor = user.display_name or user.email
+def _build_description(principal: Principal, crop_name: str, at: datetime) -> str:
     timestamp = at.strftime("%Y-%m-%d %I:%M %p")
-    return f"User {actor} created crop {crop_name} at {timestamp}"
+    return f"User {principal.email} created crop {crop_name} at {timestamp}"
 
 
-def create_crop(
+async def create_crop(
     input_: CreateCropInput,
     conn: duckdb.DuckDBPyConnection,
-    current_user: UserPublic,
+    principal: Principal,
 ) -> CropModel:
     crop_id = str(ULID())
     activity_id = str(ULID())
@@ -44,7 +36,7 @@ def create_crop(
             input_.name,
             input_.variety,
             input_.description,
-            current_user.id,
+            principal.user_id,
         ],
     )
 
@@ -74,12 +66,12 @@ def create_crop(
         """,
         [
             activity_id,
-            current_user.id,
-            current_user.email,
+            principal.user_id,
+            principal.email,
             "crop.created",
             "crop",
             crop_id,
-            _build_description(current_user, input_.name, now),
+            _build_description(principal, input_.name, now),
             metadata,
             now,
         ],
