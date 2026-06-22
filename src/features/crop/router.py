@@ -12,18 +12,18 @@ from core.authz.base import AuthzService, AuthzTuple
 from core.storage.database import db
 from features.crop.handlers.create.handler import create_crop
 from features.crop.handlers.create.input import CreateCropInput
-from features.crop.models.crop import CropModel
+from features.crop.models.crop import Crop
 
 router = APIRouter(prefix="/v1/crops", tags=["crops"])
 
 
-@router.post("/", response_model=CropModel, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=Crop, status_code=status.HTTP_201_CREATED)
 async def create_crop_route(
     input_: CreateCropInput,
     conn: Annotated[duckdb.DuckDBPyConnection, Depends(db)],
     principal: Annotated[Principal, Depends(require_principal)],
     authz: Injected[AuthzService],
-) -> CropModel:
+) -> Crop:
     allowed = await authz.can(
         AuthzTuple(
             user=f"user:{principal.user_id}",

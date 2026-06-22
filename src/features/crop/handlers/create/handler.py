@@ -8,14 +8,14 @@ from ulid import ULID
 
 from core.auth.principal import Principal
 from features.crop.handlers.create.input import CreateCropInput
-from features.crop.models.crop import CropModel
+from features.crop.models.crop import Crop
 
 
 async def create_crop(
     input_: CreateCropInput,
     conn: duckdb.DuckDBPyConnection,
     principal: Principal,
-) -> CropModel:
+) -> Crop:
     crop_id = str(ULID())
     activity_id = str(ULID())
     now = datetime.now(timezone.utc)
@@ -80,7 +80,7 @@ async def create_crop(
         [crop_id],
     ).fetchone()
 
-    return CropModel(
+    return Crop(
         id=row[0],
         field_id=row[1],
         name=row[2],
