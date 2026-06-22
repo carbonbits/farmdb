@@ -7,7 +7,7 @@ import strawberry
 from pydantic import BaseModel
 
 
-class CropModel(BaseModel):
+class Crop(BaseModel):
     id: str
     field_id: Optional[str] = None
     name: str
@@ -19,6 +19,6 @@ class CropModel(BaseModel):
     updated_at: datetime
 
 
-@strawberry.experimental.pydantic.type(model=CropModel, all_fields=True)
-class Crop:
+@strawberry.experimental.pydantic.type(model=Crop, all_fields=True)
+class CropType:
     pass
