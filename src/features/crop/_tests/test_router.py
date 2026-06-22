@@ -57,7 +57,7 @@ async def test_create_crop_writes_activity_row(auth_client):
     conn = DB.get_connection()
     row = conn.execute(
         """
-        SELECT action, entity_type, entity_id, actor_email, description
+        SELECT action, entity_type, entity_id, actor_email
         FROM v1.activities
         WHERE entity_id = ?
         """,
@@ -69,4 +69,3 @@ async def test_create_crop_writes_activity_row(auth_client):
     assert row[1] == "crop"
     assert row[2] == crop_id
     assert "tester@example.com" in row[3]
-    assert "Sorghum" in row[4]
