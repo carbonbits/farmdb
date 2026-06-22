@@ -11,11 +11,6 @@ from features.crop.handlers.create.input import CreateCropInput
 from features.crop.models.crop import CropModel
 
 
-def _build_description(principal: Principal, crop_name: str, at: datetime) -> str:
-    timestamp = at.strftime("%Y-%m-%d %I:%M %p")
-    return f"User {principal.email} created crop {crop_name} at {timestamp}"
-
-
 async def create_crop(
     input_: CreateCropInput,
     conn: duckdb.DuckDBPyConnection,
@@ -59,10 +54,9 @@ async def create_crop(
             action,
             entity_type,
             entity_id,
-            description,
             metadata,
             created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             activity_id,
@@ -71,7 +65,6 @@ async def create_crop(
             "crop.created",
             "crop",
             crop_id,
-            _build_description(principal, input_.name, now),
             metadata,
             now,
         ],
