@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 import wireup.integration.fastapi
+from duckling import init_duckling
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from ulid import ULID
@@ -26,6 +27,9 @@ def _ensure_farm_id() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     DB.connect()
+    # Bind Duckling to the shared connection. No document_models: schemas are
+    # owned by the migration runner, so we skip Duckling's auto CREATE TABLE.
+    await init_duckling(connection=DB.get_connection())
     _ensure_farm_id()
     yield
     DB.disconnect()

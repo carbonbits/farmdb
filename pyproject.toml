@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "duckdb>=1.4.3",
+    "duckling-orm>=0.0.3",
     "fastapi[standard]>=0.128.0",
     "httpx>=0.27.0",
     "loguru>=0.7.3",

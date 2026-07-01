@@ -1,4 +1,5 @@
 import pytest_asyncio
+from duckling import init_duckling_sync
 from httpx import ASGITransport, AsyncClient
 
 
@@ -14,6 +15,8 @@ def _setup_db(tmp_path, monkeypatch):
     DB.disconnect()
     DB.connect()
     apply_migrations(DB.get_connection())
+    # ASGITransport doesn't run lifespan, so wire Duckling here.
+    init_duckling_sync(connection=DB.get_connection())
 
 
 @pytest_asyncio.fixture
