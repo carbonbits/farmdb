@@ -339,6 +339,19 @@ wheels = [
 ]
 
 [[package]]
+name = "duckling-orm"
+version = "0.0.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "duckdb" },
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c6/30/9b78642c4214990f798382937df1d02480b60e0d3d4cbaa65442eb25b94e/duckling_orm-0.0.3.tar.gz", hash = "sha256:5685be5441484e0a72fdb72dd09531940b8123afeceb2506f636e06658d9afbc", size = 27027, upload-time = "2026-07-01T00:15:12.691Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0f/f1/ad0fbbb2f8c119b761add0be892f0d89718269c088244ebdbd14cf154051/duckling_orm-0.0.3-py3-none-any.whl", hash = "sha256:fb59cd0c4042d086651b1e78c1cd0452df684777ec61253cdf30de75bd4144f3", size = 24085, upload-time = "2026-07-01T00:15:11.262Z" },
+]
+
+[[package]]
 name = "email-validator"
 version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -358,6 +371,7 @@ source = { editable = "." }
 dependencies = [
     { name = "argon2-cffi" },
     { name = "duckdb" },
+    { name = "duckling-orm" },
     { name = "fastapi", extra = ["standard"] },
     { name = "httpx" },
     { name = "loguru" },
@@ -385,6 +399,7 @@ dev = [
 requires-dist = [
     { name = "argon2-cffi", specifier = ">=25.0.0" },
     { name = "duckdb", specifier = ">=1.4.3" },
+    { name = "duckling-orm", specifier = ">=0.0.3" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.128.0" },
     { name = "httpx", specifier = ">=0.27.0" },
     { name = "loguru", specifier = ">=0.7.3" },
