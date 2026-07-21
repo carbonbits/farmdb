@@ -4,7 +4,7 @@ Manage your farm professionally
 
 ```bash
 cp .env.example .env
-python -c "import secrets; print(secrets.token_urlsafe(32))"  # paste the output into JWT_SECRET_KEY in .env
+python3 -c "import secrets; print(secrets.token_urlsafe(32))"  # paste the output into JWT_SECRET_KEY in .env
 docker compose up
 ```
 
