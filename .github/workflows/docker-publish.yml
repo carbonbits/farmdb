@@ -33,9 +33,12 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: carbonbitshq/farmdb
+          # Only the version tag — it's always a new tag per release, so it never
+          # hits Docker Hub's immutable-tags rejection. Don't add a `latest` (or any
+          # other rolling) tag here; that requires overwriting an existing tag on
+          # every release, which immutability rejects outright.
           tags: |
             type=raw,value=${{ steps.version.outputs.version }}
-            type=raw,value=latest
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
