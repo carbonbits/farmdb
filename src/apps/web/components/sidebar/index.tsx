@@ -89,7 +89,9 @@ export function Sidebar() {
 							type="button"
 							aria-label="Settings"
 							className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#C8BA9F] hover:bg-white/5 hover:text-[#EADFCB]"
+						>
 							<Settings size={16} aria-hidden="true" />
+						</button>
 					)}
 				</div>
 			</div>
