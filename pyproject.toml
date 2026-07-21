@@ -26,6 +26,12 @@ dependencies = [
 [project.scripts]
 farmdb = "cli:app"
 
+[tool.pytest.ini_options]
+# Resolve test modules by file path instead of constructing a dotted name from
+# __init__.py ancestry — avoids "import file mismatch" collisions between
+# same-named test files (e.g. test_router.py) across different feature dirs.
+addopts = "--import-mode=importlib"
+
 [tool.uv]
 package = true
 
