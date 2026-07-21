@@ -1,5 +1,16 @@
 Manage your farm professionally
 
+### Run with Docker Compose
+
+```bash
+cp .env.example .env
+python -c "import secrets; print(secrets.token_urlsafe(32))"  # paste the output into JWT_SECRET_KEY in .env
+docker compose up
+```
+
+Open [http://localhost:5700](http://localhost:5700). Migrations run automatically on
+startup; the DuckDB file persists in a named volume across restarts.
+
 ### Migrations
 Example
 

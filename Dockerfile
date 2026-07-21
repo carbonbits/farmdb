@@ -17,12 +17,13 @@ WORKDIR /app
 COPY --chown=mkulima:shamba pyproject.toml uv.lock README.md ./
 COPY --chown=mkulima:shamba src/ ./src/
 COPY --from=web-builder --chown=mkulima:shamba /web/out ./src/apps/web/out
+COPY --chown=mkulima:shamba docker-entrypoint.sh ./
 
-RUN uv sync --frozen --no-dev && chown -R mkulima:shamba /app
+RUN uv sync --frozen --no-dev && mkdir -p /app/data && chown -R mkulima:shamba /app && chmod +x docker-entrypoint.sh
 
 USER mkulima
 ENV PYTHONPATH=/app/src
 
 EXPOSE 5700
 
-CMD ["uv", "run", "src/main.py"]
+ENTRYPOINT ["./docker-entrypoint.sh"]
