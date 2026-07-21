@@ -21,6 +21,8 @@ export function NavItem({ item, pathname, collapsed }: NavItemProps) {
 		<Link
 			href={item.href}
 			title={collapsed ? item.label : undefined}
+			aria-label={collapsed ? item.label : undefined}
+			aria-current={active ? "page" : undefined}
 			className={`flex items-center gap-2.5 rounded-[9px] px-2.5 py-2.5 text-[13.5px] font-medium transition-colors ${
 				active
 					? "bg-[#346B41] text-[#F4EAD4]"
