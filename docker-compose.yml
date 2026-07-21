@@ -1,0 +1,16 @@
+services:
+  farmdb:
+    image: carbonbitshq/farmdb:latest
+    # Uncomment to build from source instead of the published image:
+    # build: .
+    ports:
+      - "5700:5700"
+    volumes:
+      - farmdb-data:/app/data
+    env_file:
+      - .env
+    environment:
+      - DATABASE_PATH=/app/data/farm.db
+
+volumes:
+  farmdb-data:
