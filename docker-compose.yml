@@ -1,6 +1,6 @@
 services:
   farmdb:
-    image: carbonbitshq/farmdb:latest
+    image: carbonbitshq/farmdb:${FARMDB_IMAGE_TAG:-latest}
     # Uncomment to build from source instead of the published image:
     # build: .
     ports:
