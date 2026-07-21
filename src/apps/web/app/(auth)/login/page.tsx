@@ -23,7 +23,7 @@ export default function LoginPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/");
+      router.push("/dashboard");
     }
   }, [isAuthenticated, router]);
 
@@ -33,7 +33,7 @@ export default function LoginPage() {
 
     try {
       await loginWithPassword(email, password);
-      router.push("/");
+      router.push("/dashboard");
     } catch {
       // Error is handled by context
     } finally {
@@ -47,7 +47,7 @@ export default function LoginPage() {
     try {
       // Pass email if provided to filter credentials, otherwise use discoverable
       await loginWithPasskey(email || undefined);
-      router.push("/");
+      router.push("/dashboard");
     } catch {
       // Error is handled by context
     } finally {
