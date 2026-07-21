@@ -1,11 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Logo } from "@/components/logo";
 import { useAuth } from "@/lib/auth";
 
 export default function Home() {
+  const router = useRouter();
   const { user, isAuthenticated, isLoading, logout } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router]);
 
   return (
     <div className="min-h-screen bg-gray-50">
