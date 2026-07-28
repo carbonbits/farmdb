@@ -2,7 +2,7 @@ services:
   farmdb:
     # No `latest` tag is published (Docker Hub immutable tags reject repushes to it) —
     # pin to the current release and bump FARMDB_IMAGE_TAG default on each release.
-    image: carbonbitshq/farmdb:${FARMDB_IMAGE_TAG:-0.6.2}
+    image: carbonbitshq/farmdb:${FARMDB_IMAGE_TAG:-0.6.3}
     # Uncomment to build from source instead of the published image:
     # build: .
     ports:
