@@ -1,11 +1,13 @@
 "use client";
 
 import { Settings, Sprout } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { useEntitlements } from "@/lib/entitlements";
 import { CollapseToggle } from "./collapse-toggle";
 import { NAV_SECTIONS } from "./nav-config";
+import { isNavItemActive } from "./nav-item";
 import { NavSection } from "./nav-section";
 import { useSidebarCollapsed } from "./use-sidebar-collapsed";
 
@@ -85,13 +87,20 @@ export function Sidebar() {
 						)}
 					</div>
 					{!collapsed && (
-						<button
-							type="button"
+						<Link
+							href="/settings"
 							aria-label="Settings"
-							className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#C8BA9F] hover:bg-white/5 hover:text-[#EADFCB]"
+							aria-current={
+								isNavItemActive(pathname, "/settings") ? "page" : undefined
+							}
+							className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+								isNavItemActive(pathname, "/settings")
+									? "bg-[#346B41] text-[#F4EAD4]"
+									: "text-[#C8BA9F] hover:bg-white/5 hover:text-[#EADFCB]"
+							}`}
 						>
 							<Settings size={16} aria-hidden="true" />
-						</button>
+						</Link>
 					)}
 				</div>
 			</div>

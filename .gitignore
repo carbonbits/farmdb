@@ -10,3 +10,7 @@ farmdb.egg-info
 farm.db.wal
 
 notebooks
+
+# Large generated design-tool export; docs/design/*.md are the durable,
+# reviewable extraction of its content.
+docs/design/Wakulima Farm Management.html
