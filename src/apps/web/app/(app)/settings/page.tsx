@@ -1,19 +1,122 @@
 "use client";
 
-import { SlidersHorizontal, User } from "lucide-react";
+import {
+	Bell,
+	Building2,
+	CreditCard,
+	SlidersHorizontal,
+	User,
+	Users,
+} from "lucide-react";
 import { useState } from "react";
 import { FormField } from "@/components/ui/form-field";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/lib/auth";
 
-type SettingsTab = "profile" | "preferences";
+type SettingsTab =
+	| "profile"
+	| "farm"
+	| "team"
+	| "notify"
+	| "billing"
+	| "preferences";
 
 const SETTINGS_TABS: { key: SettingsTab; label: string; icon: typeof User }[] =
 	[
 		{ key: "profile", label: "Profile & account", icon: User },
+		{ key: "farm", label: "Farm details", icon: Building2 },
+		{ key: "team", label: "Team & roles", icon: Users },
+		{ key: "notify", label: "Notifications", icon: Bell },
+		{ key: "billing", label: "Billing & plan", icon: CreditCard },
 		{ key: "preferences", label: "Preferences", icon: SlidersHorizontal },
 	];
+
+const TEAM = [
+	{
+		name: "Amina Njoroge",
+		email: "amina@wakulima.co.ke",
+		role: "Owner",
+		owner: true,
+		initials: "AN",
+	},
+	{
+		name: "Joseph Kimani",
+		email: "joseph@wakulima.co.ke",
+		role: "Manager",
+		owner: false,
+		initials: "JK",
+	},
+	{
+		name: "Grace Wanjiru",
+		email: "grace@wakulima.co.ke",
+		role: "Farm hand",
+		owner: false,
+		initials: "GW",
+	},
+	{
+		name: "Dr Peter Otieno",
+		email: "peter@vetlink.co.ke",
+		role: "Vet · external",
+		owner: false,
+		initials: "PO",
+	},
+] as const;
+
+const NOTIF_CATEGORIES = [
+	{
+		key: "pest",
+		label: "Pest & disease alerts",
+		app: true,
+		sms: true,
+		email: false,
+	},
+	{
+		key: "inventory",
+		label: "Inventory & reorder",
+		app: true,
+		sms: false,
+		email: true,
+	},
+	{
+		key: "finance",
+		label: "Payments & finance",
+		app: true,
+		sms: true,
+		email: true,
+	},
+	{
+		key: "weather",
+		label: "Weather warnings",
+		app: true,
+		sms: true,
+		email: false,
+	},
+	{
+		key: "tasks",
+		label: "Task reminders",
+		app: true,
+		sms: false,
+		email: false,
+	},
+	{
+		key: "livestock",
+		label: "Livestock health",
+		app: true,
+		sms: false,
+		email: true,
+	},
+] as const;
+
+type NotifChannel = "app" | "sms" | "email";
+type NotifMatrix = Record<string, Record<NotifChannel, boolean>>;
+
+const INITIAL_NOTIF_MATRIX: NotifMatrix = Object.fromEntries(
+	NOTIF_CATEGORIES.map((c) => [
+		c.key,
+		{ app: c.app, sms: c.sms, email: c.email },
+	]),
+);
 
 function getInitials(
 	name: string | null | undefined,
@@ -45,6 +148,22 @@ export default function SettingsPage() {
 	const [dateFormat, setDateFormat] = useState("8 July 2026");
 	const [weekStart, setWeekStart] = useState<"mon" | "sun">("mon");
 	const [weeklyDigest, setWeeklyDigest] = useState(true);
+
+	const [farmName, setFarmName] = useState("Mkulima Farm");
+	const [farmRegion, setFarmRegion] = useState("Nakuru");
+	const [farmArea, setFarmArea] = useState("12.4 ha");
+	const [farmEnterprise, setFarmEnterprise] = useState("Mixed · crops + dairy");
+
+	const [notifMatrix, setNotifMatrix] =
+		useState<NotifMatrix>(INITIAL_NOTIF_MATRIX);
+	const [quietHours, setQuietHours] = useState(true);
+
+	const toggleNotif = (category: string, channel: NotifChannel) => {
+		setNotifMatrix((prev) => ({
+			...prev,
+			[category]: { ...prev[category], [channel]: !prev[category][channel] },
+		}));
+	};
 
 	return (
 		<div className="p-8">
@@ -188,6 +307,288 @@ export default function SettingsPage() {
 								</div>
 							</div>
 						</>
+					)}
+
+					{tab === "farm" && (
+						<>
+							<div className="rounded-2xl border border-[#EADFCB] bg-white p-[22px]">
+								<div className="mb-4 flex items-center gap-3">
+									<div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#4A8A54] to-[#2C5A38] text-base font-bold text-[#F4EAD4]">
+										MK
+									</div>
+									<div>
+										<h2 className="text-[17px] font-semibold text-[#20160F]">
+											{farmName}
+										</h2>
+										<div className="text-xs text-[#957A5C]">
+											{farmRegion} · {farmArea}
+										</div>
+									</div>
+								</div>
+								<div className="grid grid-cols-2 gap-x-4">
+									<FormField
+										id="farm-name"
+										label="Farm name"
+										value={farmName}
+										onChange={(e) => setFarmName(e.target.value)}
+									/>
+									<FormField
+										id="farm-region"
+										label="County / region"
+										value={farmRegion}
+										onChange={(e) => setFarmRegion(e.target.value)}
+									/>
+									<FormField
+										id="farm-area"
+										label="Total area"
+										value={farmArea}
+										onChange={(e) => setFarmArea(e.target.value)}
+									/>
+									<FormField
+										id="farm-enterprise"
+										label="Primary enterprise"
+										value={farmEnterprise}
+										onChange={(e) => setFarmEnterprise(e.target.value)}
+									/>
+									<FormField
+										id="farm-established"
+										label="Established"
+										defaultValue="2014"
+									/>
+									<div className="mb-3.5">
+										<label
+											htmlFor="farm-currency"
+											className="mb-[5px] block text-xs font-semibold text-[#3F2D22]"
+										>
+											Currency
+										</label>
+										<select
+											id="farm-currency"
+											defaultValue="KES"
+											className="w-full rounded-[10px] border-[1.5px] border-[#EADFCB] bg-white px-3 py-2.5 text-[13.5px] text-[#20160F]"
+										>
+											<option value="KES">KES — Kenyan Shilling</option>
+										</select>
+									</div>
+								</div>
+								<div className="mt-1.5 flex justify-end">
+									<button
+										type="button"
+										className="rounded-[10px] bg-[#346B41] px-4 py-2.5 text-[13.5px] font-semibold text-[#F4EAD4] shadow-[0_1px_2px_rgba(0,0,0,0.28)]"
+									>
+										Save farm details
+									</button>
+								</div>
+							</div>
+
+							<div className="rounded-2xl border border-[#E6C4B4] bg-[#FBF1EC] p-[22px]">
+								<h2 className="mb-1 text-[17px] font-semibold text-[#20160F]">
+									Danger zone
+								</h2>
+								<p className="mb-4 text-[12.5px] text-[#957A5C]">
+									This affects the whole farm workspace.
+								</p>
+								<div className="flex items-center justify-between gap-4 border-t border-[#E6C4B4] pt-3.5">
+									<div>
+										<div className="text-[13.5px] font-semibold text-[#20160F]">
+											Archive this farm
+										</div>
+										<div className="mt-0.5 text-xs text-[#957A5C]">
+											Hide it from your farms list — records are kept.
+										</div>
+									</div>
+									<button
+										type="button"
+										className="rounded-[7px] border border-[#E6C4B4] bg-white px-3 py-[7px] text-[12.5px] font-semibold text-[#B46038]"
+									>
+										Archive farm
+									</button>
+								</div>
+							</div>
+						</>
+					)}
+
+					{tab === "team" && (
+						<div className="rounded-2xl border border-[#EADFCB] bg-white p-[22px]">
+							<div className="flex items-center justify-between">
+								<div>
+									<h2 className="text-[17px] font-semibold text-[#20160F]">
+										Team & roles
+									</h2>
+									<p className="mt-1 text-[12.5px] text-[#957A5C]">
+										People with access to {farmName}.
+									</p>
+								</div>
+								<button
+									type="button"
+									className="rounded-[10px] bg-[#346B41] px-3.5 py-2 text-[13px] font-semibold text-[#F4EAD4]"
+								>
+									Invite member
+								</button>
+							</div>
+							<div className="mt-2.5">
+								{TEAM.map((member) => (
+									<div
+										key={member.email}
+										className="flex items-center gap-3 border-t border-[#EADFCB] py-3.5 first:border-t-0"
+									>
+										<div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#4A8A54] to-[#2C5A38] text-[13.5px] font-bold text-[#F4EAD4]">
+											{member.initials}
+										</div>
+										<div className="min-w-0 flex-1">
+											<div className="text-[13.5px] font-semibold text-[#20160F]">
+												{member.name}
+											</div>
+											<div className="text-xs text-[#957A5C]">
+												{member.email}
+											</div>
+										</div>
+										<span
+											className={`rounded-full px-2.5 py-1 text-[11.5px] font-bold ${
+												member.owner
+													? "bg-[#E7F0E2] text-[#2C5A38]"
+													: "bg-[#F4EAD4] text-[#3F2D22]"
+											}`}
+										>
+											{member.role}
+										</span>
+									</div>
+								))}
+							</div>
+						</div>
+					)}
+
+					{tab === "notify" && (
+						<>
+							<div className="rounded-2xl border border-[#EADFCB] bg-white p-[22px]">
+								<h2 className="mb-1 text-[17px] font-semibold text-[#20160F]">
+									Notification preferences
+								</h2>
+								<p className="mb-4 text-[12.5px] text-[#957A5C]">
+									Choose how you want to be alerted for each category.
+								</p>
+								<div className="grid grid-cols-[1.6fr_72px_72px_72px] gap-2 pb-2 text-[11px] font-bold uppercase tracking-[0.5px] text-[#957A5C]">
+									<div>Category</div>
+									<div className="text-center">In-app</div>
+									<div className="text-center">SMS</div>
+									<div className="text-center">Email</div>
+								</div>
+								{NOTIF_CATEGORIES.map((cat) => (
+									<div
+										key={cat.key}
+										className="grid grid-cols-[1.6fr_72px_72px_72px] items-center gap-2 border-t border-[#EADFCB] py-3.5"
+									>
+										<div className="text-[13px] font-semibold text-[#20160F]">
+											{cat.label}
+										</div>
+										{(["app", "sms", "email"] as const).map((channel) => (
+											<div key={channel} className="flex justify-center">
+												<Switch
+													checked={notifMatrix[cat.key][channel]}
+													onChange={() => toggleNotif(cat.key, channel)}
+													aria-label={`${cat.label} · ${channel}`}
+												/>
+											</div>
+										))}
+									</div>
+								))}
+							</div>
+							<div className="rounded-2xl border border-[#EADFCB] bg-white p-[22px]">
+								<div className="flex items-center justify-between gap-4">
+									<div>
+										<div className="text-[13.5px] font-semibold text-[#20160F]">
+											Quiet hours
+										</div>
+										<div className="mt-0.5 text-xs text-[#957A5C]">
+											Pause non-urgent alerts 21:00 – 05:00
+										</div>
+									</div>
+									<Switch
+										checked={quietHours}
+										onChange={setQuietHours}
+										aria-label="Quiet hours"
+									/>
+								</div>
+							</div>
+						</>
+					)}
+
+					{tab === "billing" && (
+						<div className="rounded-2xl border border-[#EADFCB] bg-white p-[22px]">
+							<h2 className="mb-1 text-[17px] font-semibold text-[#20160F]">
+								Plan & usage
+							</h2>
+							<p className="mb-4 text-[12.5px] text-[#957A5C]">
+								Manage your Wakulima Cloud subscription.
+							</p>
+							<div className="mb-1.5 flex items-center gap-4 rounded-[14px] bg-gradient-to-br from-[#2C5A38] to-[#1F3F28] p-[18px] text-[#F4EAD4]">
+								<div className="flex-1">
+									<div className="text-[11px] font-bold uppercase tracking-[1.2px] opacity-80">
+										Current plan
+									</div>
+									<div className="font-serif text-[22px] font-semibold">
+										Cloud Pro
+									</div>
+									<div className="mt-0.5 text-[12.5px] opacity-85">
+										4 of 10 farms · unlimited records
+									</div>
+								</div>
+								<div className="text-right">
+									<div className="font-serif text-[22px] font-semibold">
+										KES 4,500
+									</div>
+									<div className="text-xs opacity-85">per month</div>
+								</div>
+							</div>
+							<div className="flex items-center justify-between gap-4 border-t border-[#EADFCB] py-3.5">
+								<div>
+									<div className="text-[13.5px] font-semibold text-[#20160F]">
+										Next billing date
+									</div>
+									<div className="mt-0.5 text-xs text-[#957A5C]">
+										1 August 2026
+									</div>
+								</div>
+								<button
+									type="button"
+									className="rounded-[7px] border border-[#EADFCB] bg-white px-3 py-[7px] text-[12.5px] font-semibold text-[#3F2D22]"
+								>
+									Change plan
+								</button>
+							</div>
+							<div className="flex items-center justify-between gap-4 border-t border-[#EADFCB] py-3.5">
+								<div>
+									<div className="text-[13.5px] font-semibold text-[#20160F]">
+										Payment method
+									</div>
+									<div className="mt-0.5 text-xs text-[#957A5C]">
+										M-Pesa · +254 712 ••• 678
+									</div>
+								</div>
+								<button
+									type="button"
+									className="rounded-[7px] border border-[#EADFCB] bg-white px-3 py-[7px] text-[12.5px] font-semibold text-[#3F2D22]"
+								>
+									Update
+								</button>
+							</div>
+							<div className="flex items-center justify-between gap-4 border-t border-[#EADFCB] py-3.5">
+								<div>
+									<div className="text-[13.5px] font-semibold text-[#20160F]">
+										Billing history
+									</div>
+									<div className="mt-0.5 text-xs text-[#957A5C]">
+										Download past invoices
+									</div>
+								</div>
+								<button
+									type="button"
+									className="rounded-[7px] border border-[#EADFCB] bg-white px-3 py-[7px] text-[12.5px] font-semibold text-[#3F2D22]"
+								>
+									View invoices
+								</button>
+							</div>
+						</div>
 					)}
 
 					{tab === "preferences" && (
