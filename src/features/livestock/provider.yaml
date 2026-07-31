@@ -1,0 +1,11 @@
+version: 0.1.17
+name: Livestock
+publisher:
+  name: Bee keepers
+  address:
+    street: gsgsg
+description: ssusu
+documentation_url: sudurur
+source:
+  type: git
+  url: git://ssj:ddd@github
