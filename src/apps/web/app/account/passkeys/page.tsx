@@ -1,8 +1,8 @@
 "use client";
 
+import { type PasskeyInfo, useAuth } from "@farmdb/api-client";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { type PasskeyInfo, useAuth } from "@/lib/auth";
 
 export default function PasskeysPage() {
   const router = useRouter();

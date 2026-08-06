@@ -10,3 +10,9 @@ farmdb.egg-info
 farm.db.wal
 
 notebooks
+
+# Node / pnpm workspace
+node_modules/
+*.tsbuildinfo
+.next/
+out/

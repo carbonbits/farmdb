@@ -1,8 +1,8 @@
 "use client";
 
+import { useAuth } from "@farmdb/api-client";
+import { Logo } from "@farmdb/ui";
 import Link from "next/link";
-import { Logo } from "@/components/logo";
-import { useAuth } from "@/lib/auth";
 
 export default function Home() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();

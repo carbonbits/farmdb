@@ -1,9 +1,9 @@
 "use client";
 
+import { useAuth } from "@farmdb/api-client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useAuth } from "@/lib/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
