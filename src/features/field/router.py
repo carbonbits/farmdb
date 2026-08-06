@@ -1,11 +1,10 @@
 from typing import Annotated
 
 import duckdb
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 
 from core.auth.principal import Principal
-from core.auth.resolver import require_principal
-from core.authz.base import AuthzService, get_authz_service
+from core.authz.service import require_permission
 from core.storage.database import db
 from features.field.handlers.create.handler import create_field
 from features.field.handlers.create.input import CreateFarmFieldInput
@@ -19,24 +18,16 @@ router = APIRouter(prefix="/v1/fields", tags=["fields"])
 async def create_farm_field(
     input_: CreateFarmFieldInput,
     conn: Annotated[duckdb.DuckDBPyConnection, Depends(db)],
-    principal: Annotated[Principal, Depends(require_principal)],
-    authz: Annotated[AuthzService, Depends(get_authz_service)],
+    principal: Annotated[Principal, Depends(require_permission("create_field"))],
 ) -> FarmField:
     """Create a farm field for the authenticated user."""
-    allowed = await authz.can(principal.user_id, "create_field")
-    if not allowed:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Permission denied: create_field",
-        )
-
     return await create_field(input_=input_, conn=conn, user_id=principal.user_id)
 
 
 @router.get("/", response_model=list[FarmField])
 async def list_farm_fields(
     conn: Annotated[duckdb.DuckDBPyConnection, Depends(db)],
-    principal: Annotated[Principal, Depends(require_principal)],
+    principal: Annotated[Principal, Depends(require_permission("list_fields"))],
 ) -> list[FarmField]:
     """List the authenticated user's fields."""
     return await list_fields(conn=conn, user_id=principal.user_id)

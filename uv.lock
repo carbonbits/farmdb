@@ -340,15 +340,15 @@ wheels = [
 
 [[package]]
 name = "duckling-orm"
-version = "0.0.3"
+version = "0.0.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "duckdb" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c6/30/9b78642c4214990f798382937df1d02480b60e0d3d4cbaa65442eb25b94e/duckling_orm-0.0.3.tar.gz", hash = "sha256:5685be5441484e0a72fdb72dd09531940b8123afeceb2506f636e06658d9afbc", size = 27027, upload-time = "2026-07-01T00:15:12.691Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f9/dd/7cdd92a6a9030a77f615d72adb899c4408cfcfb290471de895b43b10779d/duckling_orm-0.0.4.tar.gz", hash = "sha256:49bf5cbf5b486666bae6d9cf088673e67c6e2c90d24f93b6734d8a863d16fdb2", size = 29095, upload-time = "2026-07-09T02:30:06.987Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0f/f1/ad0fbbb2f8c119b761add0be892f0d89718269c088244ebdbd14cf154051/duckling_orm-0.0.3-py3-none-any.whl", hash = "sha256:fb59cd0c4042d086651b1e78c1cd0452df684777ec61253cdf30de75bd4144f3", size = 24085, upload-time = "2026-07-01T00:15:11.262Z" },
+    { url = "https://files.pythonhosted.org/packages/80/3b/f4c0609f76410344cd361dc10aead62e53fabfc59c3660e69d598424e1b1/duckling_orm-0.0.4-py3-none-any.whl", hash = "sha256:7774d60edd42643179e49cb7698cd8291e22cf2879a32119ac02e8d3fa5d9c5c", size = 25365, upload-time = "2026-07-09T02:30:05.758Z" },
 ]
 
 [[package]]
@@ -398,7 +398,7 @@ dev = [
 requires-dist = [
     { name = "argon2-cffi", specifier = ">=25.0.0" },
     { name = "duckdb", specifier = ">=1.4.3" },
-    { name = "duckling-orm", specifier = ">=0.0.3" },
+    { name = "duckling-orm", specifier = ">=0.0.4" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.128.0" },
     { name = "httpx", specifier = ">=0.27.0" },
     { name = "loguru", specifier = ">=0.7.3" },
