@@ -24,6 +24,7 @@ from webauthn.helpers.structs import (
 
 from config.settings import settings
 from core.auth.models import PasskeyInfo, User, UserPublic
+from core.authz.models import Role, UserRole
 from core.service import Service
 from core.storage.database import db
 
@@ -40,7 +41,10 @@ class AuthService(Service):
 
     # User management
     def create_user(
-        self, email: str, password: Optional[str] = None, display_name: Optional[str] = None
+        self,
+        email: str,
+        password: Optional[str] = None,
+        display_name: Optional[str] = None,
     ) -> User:
         conn = db()
         user_id = str(uuid.uuid4())
@@ -58,7 +62,30 @@ class AuthService(Service):
         if password:
             self.set_password(user_id, password)
 
+        self._grant_owner_role(user_id)
+
         return self.get_user_by_id(user_id)
+
+    def _grant_owner_role(self, user_id: str) -> None:
+        """
+        Grant the seeded "owner" role to every new user.
+
+        There is no invite/admin-designation flow yet, so every registered
+        user is treated as a trusted farm operator. Uses duckling's sync API
+        since create_user is sync; duckling is already bound to the shared
+        connection by the time any user is created.
+        """
+        role = Role.find_one_sync(Role.name == "owner")
+        if role is None:
+            return
+
+        existing = UserRole.find_one_sync(
+            UserRole.user_id == user_id, UserRole.role_id == role.id
+        )
+        if existing is not None:
+            return
+
+        UserRole(user_id=user_id, role_id=role.id).insert_sync()
 
     def get_user_by_email(self, email: str) -> Optional[User]:
         conn = db()
@@ -175,7 +202,9 @@ class AuthService(Service):
             [user.id],
         ).fetchall()
 
-        exclude_credentials = [PublicKeyCredentialDescriptor(id=row[0]) for row in existing_creds]
+        exclude_credentials = [
+            PublicKeyCredentialDescriptor(id=row[0]) for row in existing_creds
+        ]
 
         options = generate_registration_options(
             rp_id=settings.webauthn_rp_id,
@@ -211,11 +240,14 @@ class AuthService(Service):
             ],
             "timeout": options.timeout,
             "excludeCredentials": [
-                {"type": "public-key", "id": bytes_to_base64url(c.id)} for c in exclude_credentials
+                {"type": "public-key", "id": bytes_to_base64url(c.id)}
+                for c in exclude_credentials
             ],
             "authenticatorSelection": {
                 "residentKey": enum_val(options.authenticator_selection.resident_key),
-                "userVerification": enum_val(options.authenticator_selection.user_verification),
+                "userVerification": enum_val(
+                    options.authenticator_selection.user_verification
+                ),
             },
             "attestation": enum_val(options.attestation),
         }
@@ -252,7 +284,9 @@ class AuthService(Service):
             return str(v)
 
         # Store passkey credential
-        transports_json = json.dumps(credential.get("response", {}).get("transports", []))
+        transports_json = json.dumps(
+            credential.get("response", {}).get("transports", [])
+        )
         device_type = (
             enum_val(verification.credential_device_type)
             if verification.credential_device_type
@@ -290,7 +324,9 @@ class AuthService(Service):
             last_used_at=None,
         )
 
-    def generate_passkey_authentication_options(self, email: Optional[str] = None) -> dict:
+    def generate_passkey_authentication_options(
+        self, email: Optional[str] = None
+    ) -> dict:
         conn = db()
         allow_credentials = []
 
@@ -345,7 +381,9 @@ class AuthService(Service):
 
         return result
 
-    def verify_passkey_authentication(self, credential: dict, challenge_key: str) -> User:
+    def verify_passkey_authentication(
+        self, credential: dict, challenge_key: str
+    ) -> User:
         conn = db()
         challenge = self._challenges.pop(challenge_key, None)
         if not challenge:
@@ -424,7 +462,9 @@ class AuthService(Service):
     # JWT management
     def create_tokens(self, user: User) -> tuple[str, str, int]:
         now = datetime.now(timezone.utc)
-        access_expires = now + timedelta(minutes=settings.jwt_access_token_expire_minutes)
+        access_expires = now + timedelta(
+            minutes=settings.jwt_access_token_expire_minutes
+        )
         refresh_expires = now + timedelta(days=settings.jwt_refresh_token_expire_days)
 
         access_payload = {
@@ -463,7 +503,11 @@ class AuthService(Service):
             [token_id, user.id, token_hash, refresh_expires, now],
         )
 
-        return access_token, refresh_token, settings.jwt_access_token_expire_minutes * 60
+        return (
+            access_token,
+            refresh_token,
+            settings.jwt_access_token_expire_minutes * 60,
+        )
 
     def verify_access_token(self, token: str) -> Optional[dict]:
         try:
@@ -479,7 +523,9 @@ class AuthService(Service):
     def refresh_tokens(self, refresh_token: str) -> Optional[tuple[str, str, int]]:
         try:
             payload = jwt.decode(
-                refresh_token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
+                refresh_token,
+                settings.jwt_secret_key,
+                algorithms=[settings.jwt_algorithm],
             )
 
             if payload.get("type") != "refresh":
@@ -497,7 +543,9 @@ class AuthService(Service):
                 return None
 
             # Revoke old token
-            conn.execute("UPDATE v1.refresh_tokens SET revoked = TRUE WHERE id = ?", [result[0]])
+            conn.execute(
+                "UPDATE v1.refresh_tokens SET revoked = TRUE WHERE id = ?", [result[0]]
+            )
 
             # Get user and create new tokens
             user = self.get_user_by_id(payload["sub"])

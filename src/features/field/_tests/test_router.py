@@ -76,3 +76,14 @@ async def test_list_fields(auth_client):
     assert isinstance(data, list)
     names = {field["name"] for field in data}
     assert {"North Field", "South Field"} <= names
+
+
+@pytest.mark.asyncio
+async def test_list_fields_denied_without_permission(auth_client):
+    from core.authz.models import Role, UserRole
+
+    role = await Role.find_one(Role.name == "owner")
+    await UserRole.find(UserRole.role_id == role.id).delete()
+
+    response = await auth_client.get("/v1/fields/")
+    assert response.status_code == 403
