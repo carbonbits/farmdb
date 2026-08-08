@@ -123,7 +123,9 @@ async def login_password(
     )
 
 
-@router.post("/login/passkey/options", response_model=PasskeyAuthenticationOptionsResponse)
+@router.post(
+    "/login/passkey/options", response_model=PasskeyAuthenticationOptionsResponse
+)
 async def login_passkey_options(
     request: PasskeyAuthenticationOptionsRequest,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
@@ -175,7 +177,9 @@ async def login_passkey_verify(
     )
 
 
-@router.post("/passkeys/register/options", response_model=PasskeyRegistrationOptionsResponse)
+@router.post(
+    "/passkeys/register/options", response_model=PasskeyRegistrationOptionsResponse
+)
 async def passkey_register_options(
     current_user: Annotated[UserPublic, Depends(get_current_user)],
     auth_service: Annotated[AuthService, Depends(get_auth_service)],

@@ -4,7 +4,9 @@ import pytest
 @pytest.mark.asyncio
 async def test_api_keys_require_authorization(api_client):
     assert (await api_client.get("/v1/api-keys/")).status_code == 401
-    assert (await api_client.post("/v1/api-keys/", json={"name": "ci"})).status_code == 401
+    assert (
+        await api_client.post("/v1/api-keys/", json={"name": "ci"})
+    ).status_code == 401
 
 
 @pytest.mark.asyncio
@@ -19,7 +21,9 @@ async def test_create_and_use_api_key(auth_client):
     assert body["info"]["prefix"] == key[:10]
 
     # The key authenticates API calls (sent as a bearer credential), no JWT.
-    resp = await auth_client.get("/v1/fields/", headers={"Authorization": f"Bearer {key}"})
+    resp = await auth_client.get(
+        "/v1/fields/", headers={"Authorization": f"Bearer {key}"}
+    )
     assert resp.status_code == 200
     assert resp.json() == []
 
@@ -37,7 +41,9 @@ async def test_list_and_revoke_api_key(auth_client):
 
     # Revoke, then the key no longer authenticates.
     assert (await auth_client.delete(f"/v1/api-keys/{key_id}")).status_code == 204
-    resp = await auth_client.get("/v1/fields/", headers={"Authorization": f"Bearer {key}"})
+    resp = await auth_client.get(
+        "/v1/fields/", headers={"Authorization": f"Bearer {key}"}
+    )
     assert resp.status_code == 401
 
     # Revoking again is a 404.

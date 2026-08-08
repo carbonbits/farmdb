@@ -29,22 +29,21 @@ jobs:
 
   web:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src/apps/web
 
     steps:
       - uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Set up Node
         uses: actions/setup-node@v6
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: src/apps/web/package-lock.json
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: pnpm install --frozen-lockfile
 
       - name: Run biome check
-        run: npx biome ci .
+        run: pnpm exec biome ci .

@@ -27,5 +27,9 @@ def up(conn: duckdb.DuckDBPyConnection) -> None:
         )
     """)
 
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON v1.api_keys(user_id)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_api_keys_key_hash ON v1.api_keys(key_hash)")
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON v1.api_keys(user_id)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_api_keys_key_hash ON v1.api_keys(key_hash)"
+    )

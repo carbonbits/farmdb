@@ -1,4 +1,9 @@
-from .auth import LoginPasswordRequest, RefreshTokenRequest, RegisterRequest, TokenResponse
+from .auth import (
+    LoginPasswordRequest,
+    RefreshTokenRequest,
+    RegisterRequest,
+    TokenResponse,
+)
 from .error import AuthError
 from .passkey import (
     PasskeyAuthenticationOptionsRequest,
