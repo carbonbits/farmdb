@@ -13,6 +13,9 @@ export {
   registerPasskey,
   startConditionalAuth,
 } from "./passkeys";
+export type { LoginFormValues, RegisterFormValues } from "./schemas";
+// Validation
+export { emailSchema, loginSchema, passwordSchema, registerSchema } from "./schemas";
 
 // Types
 export type {

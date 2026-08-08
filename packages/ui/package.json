@@ -7,10 +7,12 @@
     ".": "./src/index.ts"
   },
   "peerDependencies": {
+    "next": "^16",
     "react": "^19"
   },
   "devDependencies": {
     "@types/react": "^19",
+    "next": "16.2.9",
     "typescript": "^5"
   }
 }
