@@ -1,178 +1,105 @@
 "use client";
 
-import { useAuth } from "@farmdb/api-client";
+import { type RegisterFormValues, registerSchema, useAuth } from "@farmdb/api-client";
+import { EmailField, PasswordField, TextField } from "@farmdb/ui";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, isAuthenticated, error, clearError } = useAuth();
+  const { register: registerUser, isAuthenticated, error, clearError } = useAuth();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [validationError, setValidationError] = useState<string | null>(null);
-
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       router.push("/");
     }
   }, [isAuthenticated, router]);
 
-  // Clear any errors when the user edits a field
-  const clearErrors = () => {
-    clearError();
-    setValidationError(null);
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Validate passwords match
-    if (password !== confirmPassword) {
-      setValidationError("Passwords do not match");
-
-      return;
-    }
-
-    // Validate password strength
-    if (password.length < 8) {
-      setValidationError("Password must be at least 8 characters");
-
-      return;
-    }
-
-    setIsSubmitting(true);
-
+  const onSubmit = async (values: RegisterFormValues) => {
     try {
-      await register(email, password, displayName || undefined);
-      router.push("/");
+      await registerUser(values.email, values.password, values.displayName || undefined);
     } catch {
-      // Error is handled by context
-    } finally {
-      setIsSubmitting(false);
+      // Error is surfaced via context
     }
   };
-
-  const displayError = validationError || error;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Already have an account?{" "}
-            <Link href="/login" className="font-medium text-green-600 hover:text-green-500">
-              Sign in
-            </Link>
-          </p>
-        </div>
+    <div className="flex min-h-screen items-center justify-center bg-[#fcf8f0] px-6 py-16">
+      <div className="w-full max-w-sm">
+        <Link href="/" className="mb-8 flex justify-center" aria-label="FarmDB home">
+          <Image
+            src="https://cdn.farmdb.uk/farmdb-rectangle-1-brown-text.png"
+            alt="FarmDB"
+            width={160}
+            height={40}
+            className="h-9 w-auto"
+          />
+        </Link>
 
-        {displayError && (
-          <div className="rounded-md bg-red-50 p-4">
-            <div className="text-sm text-red-700">{displayError}</div>
+        <h1 className="text-center text-[26px] font-bold text-[#20160f]">Create your account</h1>
+        <p className="mt-2 text-center text-sm text-[#75583f]">
+          One account covers every farm you manage.
+        </p>
+
+        {error && (
+          <div className="mt-4 rounded-lg border border-[#eccfbe] bg-[#fbeee7] px-3 py-2.5 text-sm text-[#8a3f1e]">
+            {error}
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="displayName" className="block text-sm font-medium text-gray-700">
-                Display name (optional)
-              </label>
-              <input
-                id="displayName"
-                name="displayName"
-                type="text"
-                autoComplete="name"
-                value={displayName}
-                onChange={(e) => {
-                  setDisplayName(e.target.value);
-                  clearErrors();
-                }}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                placeholder="John Doe"
-              />
-            </div>
+        <form className="mt-4 flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+          <TextField
+            label="Display name (optional)"
+            placeholder="Amina Njoroge"
+            autoComplete="name"
+            {...register("displayName", { onChange: clearError })}
+          />
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  clearErrors();
-                }}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                placeholder="you@example.com"
-              />
-            </div>
+          <EmailField
+            error={errors.email?.message}
+            {...register("email", { onChange: clearError })}
+          />
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  clearErrors();
-                }}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                placeholder="At least 8 characters"
-              />
-            </div>
+          <PasswordField
+            autoComplete="new-password"
+            placeholder="At least 8 characters"
+            error={errors.password?.message}
+            {...register("password", { onChange: clearError })}
+          />
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm password
-              </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                required
-                value={confirmPassword}
-                onChange={(e) => {
-                  setConfirmPassword(e.target.value);
-                  clearErrors();
-                }}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
-                placeholder="Confirm your password"
-              />
-            </div>
-          </div>
+          <PasswordField
+            label="Confirm password"
+            autoComplete="new-password"
+            placeholder="Confirm your password"
+            error={errors.confirmPassword?.message}
+            {...register("confirmPassword", { onChange: clearError })}
+          />
 
-          <div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? "Creating account..." : "Create account"}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="mt-1 flex w-full items-center justify-center gap-2 rounded-md bg-[#346b41] py-3 text-[15px] font-semibold text-white hover:bg-[#2c5a38] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isSubmitting ? "Creating account…" : "Create account"}
+          </button>
         </form>
+
+        <p className="mt-6 text-center text-sm text-[#75583f]">
+          Already have an account?{" "}
+          <Link href="/login" className="font-semibold text-[#2c5a38] hover:text-[#346b41]">
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -2,5 +2,8 @@ packages:
   - "src/apps/*"
   - "packages/*"
 
+allowBuilds:
+  sharp: true
+
 onlyBuiltDependencies:
   - sharp

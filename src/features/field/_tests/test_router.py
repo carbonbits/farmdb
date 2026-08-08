@@ -17,7 +17,9 @@ async def client(tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "database_path", str(tmp_path / "unauth.db"))
     DB.disconnect()
     DB.connect()
-    async with AsyncClient(transport=ASGITransport(app=application), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=application), base_url="http://test"
+    ) as ac:
         yield ac
     DB.disconnect()
 
@@ -25,7 +27,8 @@ async def client(tmp_path, monkeypatch):
 @pytest.mark.asyncio
 async def test_create_field_requires_authorization(client):
     response = await client.post(
-        "/v1/fields/", json={"name": "North Field", "description": "Primary wheat field"}
+        "/v1/fields/",
+        json={"name": "North Field", "description": "Primary wheat field"},
     )
     assert response.status_code == 401
 
@@ -39,7 +42,8 @@ async def test_list_fields_requires_authorization(client):
 @pytest.mark.asyncio
 async def test_create_field(auth_client):
     response = await auth_client.post(
-        "/v1/fields/", json={"name": "North Field", "description": "Primary wheat field"}
+        "/v1/fields/",
+        json={"name": "North Field", "description": "Primary wheat field"},
     )
     assert response.status_code == 200
     data = response.json()
