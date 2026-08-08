@@ -57,7 +57,9 @@ def up(conn: duckdb.DuckDBPyConnection) -> None:
 '''
 
     filepath.write_text(template.format(name=name))
-    typer.echo(f"✓ Created migration: {filepath.relative_to(migrations_dir.parent.parent)}")
+    typer.echo(
+        f"✓ Created migration: {filepath.relative_to(migrations_dir.parent.parent)}"
+    )
 
 
 @app.command()

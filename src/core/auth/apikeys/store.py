@@ -52,7 +52,9 @@ class ApiKeyStore:
         if not row or row[2]:
             return None
 
-        db().execute("UPDATE v1.api_keys SET last_used_at = now() WHERE id = ?", [row[0]])
+        db().execute(
+            "UPDATE v1.api_keys SET last_used_at = now() WHERE id = ?", [row[0]]
+        )
         return row[1]
 
     def list_for_user(self, user_id: str) -> list[ApiKeyInfo]:

@@ -45,11 +45,15 @@ def up(conn: duckdb.DuckDBPyConnection) -> None:
         )
     """)
 
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_geospatial_farm_id ON v1.geospatial(farm_id)")
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_geospatial_farm_id ON v1.geospatial(farm_id)"
+    )
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_geospatial_feature_type ON v1.geospatial(feature_type)"
     )
 
     # Fields reference a geospatial row going forward. Additive only: geom stays.
     conn.execute("ALTER TABLE v1.fields ADD COLUMN geospatial_id TEXT")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_fields_geospatial_id ON v1.fields(geospatial_id)")
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_fields_geospatial_id ON v1.fields(geospatial_id)"
+    )

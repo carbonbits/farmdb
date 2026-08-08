@@ -9,7 +9,9 @@ app.add_typer(migrations_app, name="migration", help="Database migration command
 
 @app.command()
 def create(
-    resource: str = typer.Argument(..., help="Resource type to create (e.g., 'migration')"),
+    resource: str = typer.Argument(
+        ..., help="Resource type to create (e.g., 'migration')"
+    ),
     name: str = typer.Argument(..., help="Name of the resource"),
 ):
     """Create a new resource (e.g., migration)."""
