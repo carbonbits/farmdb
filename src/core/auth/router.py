@@ -17,9 +17,11 @@ from core.auth.models import (
     RefreshTokenRequest,
     RegisterRequest,
     TokenResponse,
+    UserMe,
     UserPublic,
 )
 from core.auth.service import AuthService
+from core.authz.service import AuthzService, get_authz_service
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 security = HTTPBearer(auto_error=False)
@@ -283,9 +285,15 @@ async def logout(
     clear_access_cookie(response)
 
 
-@router.get("/me", response_model=UserPublic)
+@router.get("/me", response_model=UserMe)
 async def get_current_user_info(
     current_user: Annotated[UserPublic, Depends(get_current_user)],
-) -> UserPublic:
-    """Get current authenticated user info."""
-    return current_user
+    authz: Annotated[AuthzService, Depends(get_authz_service)],
+) -> UserMe:
+    """Current user plus their roles and effective permissions, so the client
+    can show or hide features."""
+    return UserMe(
+        **current_user.model_dump(),
+        roles=authz.get_user_roles(current_user.id),
+        permissions=authz.get_user_permissions(current_user.id),
+    )

@@ -32,6 +32,12 @@ class DB:
 
 def db() -> duckdb.DuckDBPyConnection:
     """
-    Returns the shared database connection.
+    Returns a fresh cursor over the shared database.
+
+    DuckDB's own connection object is not safe for concurrent use, so each
+    caller gets an independent cursor (a separate connection to the same
+    database). DuckDB then manages concurrency at the database level — reads
+    run in parallel, writes are serialized — instead of multiple requests
+    corrupting one another's results on a single shared connection.
     """
-    return DB.get_connection()
+    return DB.get_connection().cursor()

@@ -45,13 +45,14 @@ async def test_can_false_when_user_has_no_roles_or_groups(migrated_db):
 
 
 @pytest.mark.asyncio
-async def test_owner_role_seeded_by_migration(migrated_db):
+async def test_administrator_role_seeded_by_migration(migrated_db):
     authz = AuthzService()
-    role = await Role.find_one(Role.name == "owner")
+    role = await Role.find_one(Role.name == "administrator")
     assert role is not None
 
-    await authz.assign_role_to_user("owner-user", role.id)
+    await authz.assign_role_to_user("admin-user", role.id)
 
-    assert await authz.can("owner-user", "create_crop") is True
-    assert await authz.can("owner-user", "create_field") is True
-    assert await authz.can("owner-user", "list_fields") is True
+    assert await authz.can("admin-user", "fields.view") is True
+    assert await authz.can("admin-user", "fields.edit") is True
+    assert await authz.can("admin-user", "crops.log") is True
+    assert await authz.can("admin-user", "roles.manage") is True

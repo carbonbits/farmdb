@@ -11,7 +11,7 @@ async def test_create_crop_requires_authorization(api_client):
 async def test_create_crop_denied_without_permission(auth_client):
     from core.authz.models import Role, UserRole
 
-    role = await Role.find_one(Role.name == "owner")
+    role = await Role.find_one(Role.name == "administrator")
     await UserRole.find(UserRole.role_id == role.id).delete()
 
     resp = await auth_client.post("/v1/crops/", json={"name": "Maize"})

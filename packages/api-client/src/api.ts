@@ -10,7 +10,7 @@ import type {
 } from "./types";
 
 // Empty string = relative URLs, requests go to the same origin serving the static files
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
 class AuthApiError extends Error {
   constructor(
@@ -22,7 +22,7 @@ class AuthApiError extends Error {
   }
 }
 
-async function handleResponse<T>(response: Response): Promise<T> {
+export async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const error: ApiError = await response.json().catch(() => ({
       detail: "An unexpected error occurred",
@@ -38,7 +38,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json();
 }
 
-function authHeaders(accessToken: string | null): HeadersInit {
+export function authHeaders(accessToken: string | null): HeadersInit {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };

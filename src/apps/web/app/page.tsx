@@ -1,16 +1,17 @@
 "use client";
 
 import { useAuth } from "@farmdb/api-client";
-import Image from "next/image";
-import Link from "next/link";
+import { AppShell } from "./_components/app-shell";
 import { SignInScreen } from "./_components/sign-in-screen";
 
 export default function Home() {
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-gray-400">Loading...</div>
+      <div className="flex min-h-screen items-center justify-center bg-[#f8f2e5] text-[#957a5c]">
+        Loading…
+      </div>
     );
   }
 
@@ -19,50 +20,32 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm max-h-16">
-        <div className="max-w-7xl mx-auto px-4 py-1 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1>
-            <Link href="/" className="flex items-center" aria-label="FarmDB home">
-              <Image
-                src="https://cdn.farmdb.uk/farmdb-rectangle-1-brown-text.png"
-                alt="FarmDB"
-                width={160}
-                height={40}
-                className="h-10 w-auto"
-                priority
-              />
-            </Link>
-          </h1>
-          <nav className="flex gap-4">
-            <Link href="/account/passkeys" className="text-gray-600 hover:text-gray-900">
-              Passkeys
-            </Link>
-            <button
-              type="button"
-              onClick={() => logout()}
-              className="text-gray-600 hover:text-gray-900"
+    <AppShell active="dashboard" eyebrow="Overview" title="Dashboard">
+      <div className="mx-auto max-w-[1320px]">
+        <div className="rounded-[10px] border border-[#eadfcb] bg-white p-6">
+          <div className="font-serif text-[17px] font-semibold">
+            Welcome back{user?.display_name ? `, ${user.display_name}` : ""}
+          </div>
+          <p className="mt-1.5 text-[13px] text-[#75583f]">
+            Signed in as {user?.email}. Fields, crops, tasks and finances land here next — for now,
+            head to <span className="font-semibold text-[#346b41]">Settings → Access control</span>{" "}
+            to manage roles and permissions.
+          </p>
+        </div>
+
+        {/* Placeholder module tiles */}
+        <div className="mt-[18px] grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[18px]">
+          {["Fields", "Crops", "Tasks", "Finances"].map((m) => (
+            <div
+              key={m}
+              className="rounded-[10px] border border-dashed border-[#d8c9a9] bg-[#fcf8f0] p-[18px] text-[#957a5c]"
             >
-              Logout
-            </button>
-          </nav>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Welcome to FarmDB</h2>
-          <p className="text-xl text-gray-600 mb-8">Professional farm management tooling</p>
-
-          {user && (
-            <div className="bg-white rounded-lg shadow p-6 max-w-md mx-auto">
-              <p className="text-gray-600">Logged in as</p>
-              <p className="text-lg font-medium text-gray-900">{user.email}</p>
-              {user.display_name && <p className="text-gray-500">{user.display_name}</p>}
+              <div className="text-[13.5px] font-semibold text-[#3f2d22]">{m}</div>
+              <div className="mt-1 text-[12.5px]">Coming soon</div>
             </div>
-          )}
+          ))}
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

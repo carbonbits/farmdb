@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 
 class UserBase(BaseModel):
@@ -27,3 +27,17 @@ class UserPublic(BaseModel):
     display_name: Optional[str] = None
     is_active: bool
     is_verified: bool
+
+
+class RoleRef(BaseModel):
+    id: str
+    name: str
+    display_name: Optional[str] = None
+
+
+class UserMe(UserPublic):
+    """`/me` payload — the public user plus the roles they hold and their
+    effective permission names, so the client can show or hide features."""
+
+    roles: list[RoleRef] = Field(default_factory=list)
+    permissions: list[str] = Field(default_factory=list)

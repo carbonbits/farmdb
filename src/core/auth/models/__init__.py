@@ -15,7 +15,7 @@ from .passkey import (
     PasskeyRegistrationOptionsResponse,
     PasskeyRegistrationVerifyRequest,
 )
-from .user import User, UserBase, UserCreate, UserPublic
+from .user import RoleRef, User, UserBase, UserCreate, UserMe, UserPublic
 
 __all__ = [
     # User models
@@ -23,6 +23,8 @@ __all__ = [
     "UserCreate",
     "User",
     "UserPublic",
+    "UserMe",
+    "RoleRef",
     # Auth models
     "RegisterRequest",
     "LoginPasswordRequest",

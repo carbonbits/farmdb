@@ -20,6 +20,8 @@ interface AuthContextType extends AuthState {
 
   // Utilities
   isPasskeySupported: boolean;
+  /** True if the current user's effective permissions include `permission`. */
+  hasPermission: (permission: string) => boolean;
   error: string | null;
   clearError: () => void;
 }
@@ -270,6 +272,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const clearError = useCallback(() => setError(null), []);
 
+  const hasPermission = useCallback(
+    (permission: string) => state.user?.permissions?.includes(permission) ?? false,
+    [state.user],
+  );
+
   const value: AuthContextType = {
     ...state,
     register,
@@ -280,6 +287,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     listPasskeys,
     removePasskey,
     isPasskeySupported,
+    hasPermission,
     error,
     clearError,
   };

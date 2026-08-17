@@ -10,6 +10,7 @@ from apps.api.middleware.spa import SPAMiddleware, spa_directory
 from apps.api.utilities import api_tags_metadata
 from config.settings import settings
 from core.auth.router import router as auth_router
+from core.authz.router import router as authz_router
 from core.config.service import ConfigService
 from core.storage.database import DB
 from features.apikey.router import router as api_keys_router
@@ -45,10 +46,11 @@ application = FastAPI(
 application.include_router(fields_router)
 application.include_router(api_keys_router)
 application.include_router(auth_router)
+application.include_router(authz_router)
 application.include_router(crops_router)
 application.add_middleware(SPAMiddleware)
 
-if spa_directory.exists():
+if (spa_directory / "_next").exists():
     application.mount(
         "/_next", StaticFiles(directory=spa_directory / "_next"), name="next-static"
     )

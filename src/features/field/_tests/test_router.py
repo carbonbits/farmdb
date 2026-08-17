@@ -86,7 +86,7 @@ async def test_list_fields(auth_client):
 async def test_list_fields_denied_without_permission(auth_client):
     from core.authz.models import Role, UserRole
 
-    role = await Role.find_one(Role.name == "owner")
+    role = await Role.find_one(Role.name == "administrator")
     await UserRole.find(UserRole.role_id == role.id).delete()
 
     response = await auth_client.get("/v1/fields/")

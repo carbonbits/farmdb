@@ -8,6 +8,7 @@ from typing import Optional
 import jwt
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
+from ulid import ULID
 from webauthn import (
     generate_authentication_options,
     generate_registration_options,
@@ -24,7 +25,6 @@ from webauthn.helpers.structs import (
 
 from config.settings import settings
 from core.auth.models import PasskeyInfo, User, UserPublic
-from core.authz.models import Role, UserRole
 from core.service import Service
 from core.storage.database import db
 
@@ -62,30 +62,47 @@ class AuthService(Service):
         if password:
             self.set_password(user_id, password)
 
-        self._grant_owner_role(user_id)
+        self._grant_initial_role(user_id)
 
         return self.get_user_by_id(user_id)
 
-    def _grant_owner_role(self, user_id: str) -> None:
+    def _grant_initial_role(self, user_id: str) -> None:
         """
-        Grant the seeded "owner" role to every new user.
+        Grant a new user their initial role.
 
-        There is no invite/admin-designation flow yet, so every registered
-        user is treated as a trusted farm operator. Uses duckling's sync API
-        since create_user is sync; duckling is already bound to the shared
-        connection by the time any user is created.
+        The first registrant (while no one yet holds "administrator") becomes
+        the Administrator — the all-access system role. Every subsequent
+        registrant gets the baseline "authenticated" role, which grants nothing
+        on its own; the Administrator then assigns real roles via Access
+        control. Raw SQL (not duckling) so it never contends on the shared
+        connection with concurrent requests.
         """
-        role = Role.find_one_sync(Role.name == "owner")
-        if role is None:
-            return
+        conn = db()
+        admin = conn.execute(
+            "SELECT id FROM v1.roles WHERE name = 'administrator'"
+        ).fetchone()
+        if admin is None:
+            return  # roles not seeded yet (nothing to grant)
+        admin_id = admin[0]
 
-        existing = UserRole.find_one_sync(
-            UserRole.user_id == user_id, UserRole.role_id == role.id
+        admin_taken = conn.execute(
+            "SELECT 1 FROM v1.user_roles WHERE role_id = ? LIMIT 1", [admin_id]
+        ).fetchone()
+
+        if admin_taken is None:
+            role_id = admin_id
+        else:
+            other = conn.execute(
+                "SELECT id FROM v1.roles WHERE name = 'authenticated'"
+            ).fetchone()
+            if other is None:
+                return
+            role_id = other[0]
+
+        conn.execute(
+            "INSERT INTO v1.user_roles (id, user_id, role_id) VALUES (?, ?, ?)",
+            [str(ULID()), user_id, role_id],
         )
-        if existing is not None:
-            return
-
-        UserRole(user_id=user_id, role_id=role.id).insert_sync()
 
     def get_user_by_email(self, email: str) -> Optional[User]:
         conn = db()

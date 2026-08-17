@@ -2,6 +2,7 @@
 
 // API client
 export { AuthApiError, authApi } from "./api";
+export { authzApi } from "./authz";
 export { AuthProvider, useAuth } from "./context";
 
 // Passkey utilities
@@ -21,6 +22,13 @@ export { emailSchema, loginSchema, passwordSchema, registerSchema } from "./sche
 export type {
   ApiError,
   AuthState,
+  AuthzPermission,
+  AuthzRoleDetail,
+  AuthzRoleMember,
+  AuthzRoleSummary,
+  AuthzUserRoleRef,
+  AuthzUserWithRoles,
+  CreateRoleInput,
   LoginRequest,
   PasskeyAuthOptions,
   PasskeyInfo,
@@ -28,4 +36,5 @@ export type {
   RegisterRequest,
   TokenResponse,
   User,
+  UserRoleRef,
 } from "./types";

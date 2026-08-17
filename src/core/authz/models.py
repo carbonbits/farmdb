@@ -16,20 +16,29 @@ def _now_utc() -> datetime:
 
 
 class Role(Document):
+    # NOTE: field order must match the physical column order — duckling maps
+    # `SELECT *` rows to fields positionally. Columns added by migration 0011
+    # (display_name, is_system, is_locked) are therefore declared last.
     id: str = Field(default_factory=_new_ulid)
     name: str
     description: str | None = None
     created_at: datetime = Field(default_factory=_now_utc)
+    display_name: str | None = None
+    is_system: bool = False
+    is_locked: bool = False
 
     class Settings:
         table_name = 'v1"."roles'
 
 
 class Permission(Document):
+    # Field order matches physical column order (see Role note); `group_name`
+    # was appended by migration 0011.
     id: str = Field(default_factory=_new_ulid)
     name: str
     description: str | None = None
     created_at: datetime = Field(default_factory=_now_utc)
+    group_name: str | None = None
 
     class Settings:
         table_name = 'v1"."permissions'

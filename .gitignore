@@ -9,6 +9,12 @@ farmdb.egg-info
 
 farm.db.wal
 
+# Local visual-test DB and evidence (screenshots, driver scripts, scratch logs)
+.visualtest.db
+.visualtest.db.wal
+visual-test-evidence/
+scratch_*.log
+
 notebooks
 
 # Node / pnpm workspace

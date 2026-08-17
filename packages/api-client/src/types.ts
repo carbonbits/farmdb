@@ -1,9 +1,18 @@
+export interface UserRoleRef {
+  id: string;
+  name: string;
+  display_name: string | null;
+}
+
 export interface User {
   id: string;
   email: string;
   display_name: string | null;
   is_active: boolean;
   is_verified: boolean;
+  // Populated by /v1/auth/me so the client can gate features.
+  roles: UserRoleRef[];
+  permissions: string[];
 }
 
 export interface TokenResponse {
@@ -70,4 +79,54 @@ export interface PasskeyRegOptions {
 
 export interface ApiError {
   detail: string;
+}
+
+// --- Access control (RBAC) ---
+
+export interface AuthzPermission {
+  name: string;
+  group: string | null;
+  description: string | null;
+}
+
+export interface AuthzRoleSummary {
+  id: string;
+  name: string;
+  display_name: string | null;
+  description: string | null;
+  is_system: boolean;
+  is_locked: boolean;
+  permissions: string[];
+  member_count: number;
+}
+
+export interface AuthzRoleMember {
+  id: string;
+  email: string;
+  display_name: string | null;
+}
+
+export interface AuthzRoleDetail extends AuthzRoleSummary {
+  members: AuthzRoleMember[];
+}
+
+export interface AuthzUserRoleRef {
+  id: string;
+  name: string;
+  display_name: string | null;
+}
+
+export interface AuthzUserWithRoles {
+  id: string;
+  email: string;
+  display_name: string | null;
+  is_active: boolean;
+  roles: AuthzUserRoleRef[];
+}
+
+export interface CreateRoleInput {
+  name: string;
+  display_name?: string;
+  description?: string;
+  permissions: string[];
 }
