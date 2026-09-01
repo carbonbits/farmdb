@@ -17,6 +17,7 @@ from features.apikey.router import router as api_keys_router
 from features.crop.router import router as crops_router
 from features.field.router import router as fields_router
 from features.geo.router import router as geo_router
+from features.geo.tiles import router as geo_tiles_router
 
 
 def _ensure_farm_id() -> None:
@@ -50,6 +51,7 @@ application.include_router(auth_router)
 application.include_router(authz_router)
 application.include_router(crops_router)
 application.include_router(geo_router)
+application.include_router(geo_tiles_router)
 application.add_middleware(SPAMiddleware)
 
 if (spa_directory / "_next").exists():
