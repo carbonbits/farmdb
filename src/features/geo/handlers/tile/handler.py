@@ -1,14 +1,12 @@
 """
 Render a vector tile (MVT) for one map layer straight from DuckDB.
 
-One SQL round trip builds the tile: transform each shape to web mercator,
-simplify it for the zoom when far out, clip it to the tile, and encode the tile
-with ST_AsMVT. The same query returns a feature count so an empty tile can be
-served as a 204 instead of an all but empty protobuf.
-
-Each tile also carries an ETag built from the layer's latest change time and
-the tile coordinates, so a caller holding the current ETag gets a cheap 304 and
-we skip building the tile at all.
+A small query first reads the layer's latest change time to build the ETag, so
+a caller holding the current ETag gets a cheap 304 and no tile is built. On a
+cache miss, one SQL query builds the tile: transform each shape to web mercator,
+simplify it for the zoom when far out, clip it to the tile, and encode it with
+ST_AsMVT. That tile query also returns a feature count so an empty tile is served
+as a 204 instead of an all but empty protobuf.
 """
 from __future__ import annotations
 
