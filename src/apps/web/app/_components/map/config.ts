@@ -114,10 +114,18 @@ export const BASE_STYLE: StyleSpecification = {
 export const FALLBACK_CENTER: [number, number] = [0, 0];
 export const FALLBACK_ZOOM = 1;
 
+function apiOrigin(): string {
+  return process.env.NEXT_PUBLIC_API_URL || window.location.origin;
+}
+
 export const TILE_PATH = "/v1/tiles";
 
 export function tileUrl(layerId: string): string {
-  return `${window.location.origin}${TILE_PATH}/${layerId}/{z}/{x}/{y}.mvt`;
+  return `${apiOrigin()}${TILE_PATH}/${layerId}/{z}/{x}/{y}.mvt`;
+}
+
+export function tilePrefix(): string {
+  return `${apiOrigin()}${TILE_PATH}/`;
 }
 
 export const WORKER_URL = "/maplibre-gl-worker.mjs";

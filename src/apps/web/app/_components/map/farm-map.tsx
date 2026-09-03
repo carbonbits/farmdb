@@ -17,7 +17,7 @@ import {
   FIT_MAX_ZOOM,
   FIT_PADDING,
   mapLayerIds,
-  TILE_PATH,
+  tilePrefix,
   tileUrl,
   WORKER_URL,
 } from "./config";
@@ -49,8 +49,7 @@ export function FarmMap() {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
     const initLayers = useMapLayers.getState().layers.filter((l) => permRef.current(l.view));
-    // Only same origin tile requests carry the token, never the basemap or another host.
-    const tilePrefix = `${window.location.origin}${TILE_PATH}/`;
+    const prefix = tilePrefix();
 
     const map = new maplibregl.Map({
       container: containerRef.current,
@@ -58,7 +57,7 @@ export function FarmMap() {
       center: FALLBACK_CENTER,
       zoom: FALLBACK_ZOOM,
       transformRequest: (url) => {
-        if (tokenRef.current && url.startsWith(tilePrefix)) {
+        if (tokenRef.current && url.startsWith(prefix)) {
           return { url, headers: { Authorization: `Bearer ${tokenRef.current}` } };
         }
         return { url };
