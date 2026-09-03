@@ -4,7 +4,7 @@
 export { AuthApiError, authApi } from "./api";
 export { authzApi } from "./authz";
 export { AuthProvider, useAuth } from "./context";
-
+export { geoApi } from "./geo";
 // Passkey utilities
 export {
   authenticateWithPasskey,
@@ -17,7 +17,6 @@ export {
 export type { LoginFormValues, RegisterFormValues } from "./schemas";
 // Validation
 export { emailSchema, loginSchema, passwordSchema, registerSchema } from "./schemas";
-
 // Types
 export type {
   ApiError,
@@ -29,6 +28,9 @@ export type {
   AuthzUserRoleRef,
   AuthzUserWithRoles,
   CreateRoleInput,
+  GeoFeature,
+  GeoFeatureCollection,
+  GeoJsonGeometry,
   LoginRequest,
   PasskeyAuthOptions,
   PasskeyInfo,
