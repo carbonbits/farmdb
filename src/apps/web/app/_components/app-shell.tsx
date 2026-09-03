@@ -1,10 +1,8 @@
 "use client";
-
 import { useAuth } from "@farmdb/api-client";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useState } from "react";
 
-/** Sidebar destinations from the Wakulima design. Only Settings is wired this pass. */
 const NAV: Array<{ key: string; label: string; d: string; href?: string }> = [
   {
     key: "dashboard",
@@ -14,6 +12,12 @@ const NAV: Array<{ key: string; label: string; d: string; href?: string }> = [
   },
   { key: "fields", label: "Fields", d: "M3 17l6-11 6 11M2 20h20" },
   {
+    key: "map",
+    label: "Map",
+    href: "/map",
+    d: "M3 7l6-4 6 4 6-4v14l-6 4-6-4-6 4z",
+  },
+  {
     key: "crops",
     label: "Crops",
     d: "M12 20v-8M12 12c-1-4-4-6-8-5 1 4 4 6 8 5zM12 11c1-3.5 4-5 8-4.5-1 3.5-4 5-8 4.5z",
@@ -21,7 +25,11 @@ const NAV: Array<{ key: string; label: string; d: string; href?: string }> = [
   { key: "tasks", label: "Tasks", d: "M4 6h16M4 12h16M4 18h10" },
   { key: "inventory", label: "Inventory", d: "M3 7l9-4 9 4v10l-9 4-9-4z" },
   { key: "finances", label: "Finances", d: "M3 7h18v12H3zM3 11h18" },
-  { key: "audit", label: "Audit log", d: "M12 8v4l3 2M12 21a9 9 0 100-18 9 9 0 000 18z" },
+  {
+    key: "audit",
+    label: "Audit log",
+    d: "M12 8v4l3 2M12 21a9 9 0 100-18 9 9 0 000 18z",
+  },
   {
     key: "settings",
     label: "Settings",
@@ -84,12 +92,13 @@ function NavList({ active, onNavigate }: { active: string; onNavigate: (href?: s
 }
 
 export interface AppShellProps {
-  /** nav key to highlight, e.g. "settings" */
   active?: string;
   eyebrow?: string;
   title?: string;
-  /** optional content on the right of the top bar (chips, actions) */
   topRight?: ReactNode;
+  /** Let the content area fill the viewport instead of scrolling with padding.
+   *  Used by pages that own their whole surface, like the map. */
+  contentFill?: boolean;
   children: ReactNode;
 }
 
@@ -98,20 +107,21 @@ export function AppShell({
   eyebrow,
   title,
   topRight,
+  contentFill = false,
   children,
 }: AppShellProps) {
   const router = useRouter();
   const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-
   const go = (href?: string) => {
     setMenuOpen(false);
     if (href) router.push(href);
   };
-
   const displayName = user?.display_name || user?.email || "Signed in";
   const avatar = user ? initials(user.display_name, user.email) : "··";
-
+  const contentClass = contentFill
+    ? "flex min-h-0 flex-1 flex-col"
+    : "flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-7";
   return (
     <div className="flex h-screen overflow-hidden bg-[#f8f2e5] text-[#20160f]">
       {/* Desktop sidebar */}
@@ -138,7 +148,6 @@ export function AppShell({
           </div>
         </div>
       </aside>
-
       {/* Main column */}
       <div className="flex h-screen min-w-0 flex-1 flex-col">
         <header className="flex flex-none flex-wrap items-center gap-3 border-b border-[#eadfcb] bg-[#f8f2e5]/90 px-4 py-3 backdrop-blur md:px-7">
@@ -174,10 +183,8 @@ export function AppShell({
           </div>
           {topRight ? <div className="ml-auto flex items-center gap-2.5">{topRight}</div> : null}
         </header>
-
-        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-7">{children}</div>
+        <div className={contentClass}>{children}</div>
       </div>
-
       {/* Mobile menu drawer */}
       {menuOpen ? (
         <div className="md:hidden">

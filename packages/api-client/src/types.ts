@@ -81,7 +81,6 @@ export interface ApiError {
   detail: string;
 }
 
-// --- Access control (RBAC) ---
 
 export interface AuthzPermission {
   name: string;
@@ -129,4 +128,24 @@ export interface CreateRoleInput {
   display_name?: string;
   description?: string;
   permissions: string[];
+}
+
+// --- Geospatial features ---
+export interface GeoJsonGeometry {
+  type: string;
+  coordinates: unknown;
+}
+
+export interface GeoFeature {
+  type: "Feature";
+  id: string;
+  layer: string;
+  season: string | null;
+  geometry: GeoJsonGeometry;
+  properties: Record<string, unknown>;
+}
+
+export interface GeoFeatureCollection {
+  type: "FeatureCollection";
+  features: GeoFeature[];
 }
