@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/maplibre-worker.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "biome check .",
@@ -14,10 +15,12 @@
     "@farmdb/api-client": "workspace:*",
     "@farmdb/ui": "workspace:*",
     "@hookform/resolvers": "^5",
+    "maplibre-gl": "^6.6.0",
     "next": "16.3.3",
     "react": "19.2.7",
     "react-dom": "19.2.7",
-    "react-hook-form": "^7"
+    "react-hook-form": "^7",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.11",
