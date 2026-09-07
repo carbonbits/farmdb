@@ -16,8 +16,8 @@ const apiTarget = process.env.API_PROXY_TARGET || "http://localhost:5700";
 const nextConfig: NextConfig = {
   output: "export",
   distDir: "out",
-  transpilePackages: ["@farmdb/ui", "@farmdb/api-client"],
-.  images: {
+  transpilePackages: ["@farmdb/ui", "@farmdb/api-client", "@farmdb/geo"],
+  images: {
     unoptimized: true,
   },
   // Next 16 writes AGENTS.md and CLAUDE.md into this folder on every dev run.
