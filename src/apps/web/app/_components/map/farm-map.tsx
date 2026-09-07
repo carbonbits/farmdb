@@ -2,13 +2,14 @@
 
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import type { GeoFeature } from "@farmdb/api-client";
-import { geoApi, useAuth } from "@farmdb/api-client";
+import { useAuth } from "@farmdb/api-client";
+import { featuresToBbox, type GeoFeature, GeoFeatureClient } from "@farmdb/geo";
 import { useEffect, useRef, useState } from "react";
 import { FeatureDetail } from "./components/feature-detail";
 import { LayerToggle } from "./components/layer-toggle";
 import type { MapLayer } from "./config";
 import {
+  apiOrigin,
   BASE_STYLE,
   buildMaplibreLayers,
   clickLayerId,
@@ -21,7 +22,6 @@ import {
   tileUrl,
   WORKER_URL,
 } from "./config";
-import { featuresToBbox } from "./lib/bounds";
 import { useMapLayers } from "./store";
 
 maplibregl.setWorkerUrl(WORKER_URL);
@@ -50,6 +50,7 @@ export function FarmMap() {
     if (!containerRef.current || mapRef.current) return;
     const initLayers = useMapLayers.getState().layers.filter((l) => permRef.current(l.view));
     const prefix = tilePrefix();
+    const geoClient = new GeoFeatureClient(apiOrigin());
 
     const map = new maplibregl.Map({
       container: containerRef.current,
@@ -104,7 +105,7 @@ export function FarmMap() {
             }
           }
 
-          geoApi
+          geoClient
             .getFeature(tokenRef.current, id)
             .then(setSelected)
             .catch(() => setSelected(null));
@@ -112,7 +113,7 @@ export function FarmMap() {
       }
 
       setReady(true);
-      void fitToData(map, tokenRef.current, initLayers);
+      void fitToData(map, geoClient, tokenRef.current, initLayers);
     });
 
     return () => {
@@ -146,6 +147,7 @@ export function FarmMap() {
 
 async function fitToData(
   map: maplibregl.Map,
+  client: GeoFeatureClient,
   token: string | null,
   layers: MapLayer[],
 ): Promise<void> {
@@ -153,9 +155,11 @@ async function fitToData(
   const features: GeoFeature[] = [];
   for (const layer of layers) {
     try {
-      const fc = await geoApi.listFeatures(token, layer.id);
+      const fc = await client.listFeatures(token, layer.id);
       features.push(...fc.features);
-    } catch {}
+    } catch {
+      // A layer the user cannot read contributes nothing to the view.
+    }
   }
   const bbox = featuresToBbox(features);
   if (!bbox) return;

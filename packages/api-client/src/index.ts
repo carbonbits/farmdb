@@ -1,10 +1,8 @@
 // Context and hooks
-
 // API client
 export { AuthApiError, authApi } from "./api";
 export { authzApi } from "./authz";
 export { AuthProvider, useAuth } from "./context";
-export { geoApi } from "./geo";
 // Passkey utilities
 export {
   authenticateWithPasskey,
@@ -28,9 +26,6 @@ export type {
   AuthzUserRoleRef,
   AuthzUserWithRoles,
   CreateRoleInput,
-  GeoFeature,
-  GeoFeatureCollection,
-  GeoJsonGeometry,
   LoginRequest,
   PasskeyAuthOptions,
   PasskeyInfo,

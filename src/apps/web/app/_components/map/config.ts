@@ -114,7 +114,7 @@ export const BASE_STYLE: StyleSpecification = {
 export const FALLBACK_CENTER: [number, number] = [0, 0];
 export const FALLBACK_ZOOM = 1;
 
-function apiOrigin(): string {
+export function apiOrigin(): string {
   return process.env.NEXT_PUBLIC_API_URL || window.location.origin;
 }
 
