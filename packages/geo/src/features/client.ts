@@ -1,23 +1,25 @@
-import type { GeoFeature, GeoFeatureCollection } from "../types";
+import type { GeoFeature, GeoFeatureCollection } from "@farmdb/geo/types";
+import { GeoApiError } from "@farmdb/geo/utils/errors/geo_api";
 
-export class GeoApiError extends Error {
-  constructor(
-    message: string,
-    readonly status: number,
-  ) {
-    super(message);
-    this.name = "GeoApiError";
-  }
-}
-
-export class GeoFeatureClient {
+/**
+ * HTTP client for the geo feature API.
+ *
+ * Wraps the /v1/geo/features endpoints. Pass the API origin as baseUrl
+ * so the same class works in same-origin deployments (empty string) and
+ * cross-origin setups (full URL).
+ * Every request needs a valid Bearer token.
+ */
+export class ApiClient {
   constructor(private readonly baseUrl: string = "") {}
 
   async getFeature(accessToken: string, id: string): Promise<GeoFeature> {
-    const response = await fetch(`${this.baseUrl}/v1/geo/features/${encodeURIComponent(id)}`, {
-      method: "GET",
-      headers: this.authHeaders(accessToken),
-    });
+    const response = await fetch(
+      `${this.baseUrl}/v1/geo/features/${encodeURIComponent(id)}`,
+      {
+        method: "GET",
+        headers: this.authHeaders(accessToken),
+      },
+    );
     return this.parse<GeoFeature>(response);
   }
 
@@ -28,10 +30,13 @@ export class GeoFeatureClient {
   ): Promise<GeoFeatureCollection> {
     const params = new URLSearchParams({ layer });
     if (season) params.set("season", season);
-    const response = await fetch(`${this.baseUrl}/v1/geo/features/?${params.toString()}`, {
-      method: "GET",
-      headers: this.authHeaders(accessToken),
-    });
+    const response = await fetch(
+      `${this.baseUrl}/v1/geo/features/?${params.toString()}`,
+      {
+        method: "GET",
+        headers: this.authHeaders(accessToken),
+      },
+    );
     return this.parse<GeoFeatureCollection>(response);
   }
 
@@ -46,3 +51,5 @@ export class GeoFeatureClient {
     return (await response.json()) as T;
   }
 }
+
+export default ApiClient;
