@@ -1,9 +1,9 @@
 "use client";
-
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useAuth } from "@farmdb/api-client";
-import { featuresToBbox, type GeoFeature, GeoFeatureClient } from "@farmdb/geo";
+import { featuresToBbox, type GeoFeature } from "@farmdb/geo";
+import { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import { useEffect, useRef, useState } from "react";
 import { FeatureDetail } from "./components/feature-detail";
 import { LayerToggle } from "./components/layer-toggle";
@@ -23,35 +23,26 @@ import {
   WORKER_URL,
 } from "./config";
 import { useMapLayers } from "./store";
-
 maplibregl.setWorkerUrl(WORKER_URL);
-
 export function FarmMap() {
   const { accessToken, hasPermission } = useAuth();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-
   const tokenRef = useRef<string | null>(accessToken);
   tokenRef.current = accessToken;
-
   const permRef = useRef(hasPermission);
   permRef.current = hasPermission;
-
   const layers = useMapLayers((s) => s.layers);
   const visible = useMapLayers((s) => s.visible);
   const setVisible = useMapLayers((s) => s.setVisible);
-
   const [ready, setReady] = useState(false);
   const [selected, setSelected] = useState<GeoFeature | null>(null);
-
   const visibleLayers = layers.filter((l) => hasPermission(l.view));
-
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
     const initLayers = useMapLayers.getState().layers.filter((l) => permRef.current(l.view));
     const prefix = tilePrefix();
-    const geoClient = new GeoFeatureClient(apiOrigin());
-
+    const geoClient = new GeoApiClient(apiOrigin());
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: BASE_STYLE,
@@ -66,14 +57,11 @@ export function FarmMap() {
     });
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl(), "top-right");
-
     const resizeObserver = new ResizeObserver(() => map.resize());
     resizeObserver.observe(containerRef.current);
-
     map.on("load", () => {
       map.resize();
       const clickable: string[] = [];
-
       for (const layer of initLayers) {
         map.addSource(`src-${layer.id}`, {
           type: "vector",
@@ -84,7 +72,6 @@ export function FarmMap() {
         }
         clickable.push(clickLayerId(layer));
       }
-
       for (const id of clickable) {
         map.on("mouseenter", id, () => {
           map.getCanvas().style.cursor = "pointer";
@@ -93,36 +80,30 @@ export function FarmMap() {
           map.getCanvas().style.cursor = "";
         });
       }
-
       if (clickable.length > 0) {
         map.on("click", clickable, (e) => {
           const id = e.features?.[0]?.properties?.id;
           if (typeof id !== "string" || !tokenRef.current) return;
-
           for (const layer of initLayers) {
             if (layer.geometry === "polygon") {
               map.setFilter(`${layer.id}-selected`, ["==", ["get", "id"], id]);
             }
           }
-
           geoClient
             .getFeature(tokenRef.current, id)
             .then(setSelected)
             .catch(() => setSelected(null));
         });
       }
-
       setReady(true);
       void fitToData(map, geoClient, tokenRef.current, initLayers);
     });
-
     return () => {
       resizeObserver.disconnect();
       map.remove();
       mapRef.current = null;
     };
   }, []);
-
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
@@ -135,7 +116,6 @@ export function FarmMap() {
       }
     }
   }, [visible, ready, layers]);
-
   return (
     <div className="absolute inset-0">
       <div ref={containerRef} className="h-full w-full" />
@@ -144,10 +124,9 @@ export function FarmMap() {
     </div>
   );
 }
-
 async function fitToData(
   map: maplibregl.Map,
-  client: GeoFeatureClient,
+  client: GeoApiClient,
   token: string | null,
   layers: MapLayer[],
 ): Promise<void> {

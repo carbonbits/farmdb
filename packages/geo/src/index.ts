@@ -1,5 +1,6 @@
 export { featuresToBbox } from "./core/geometry";
-export { GeoApiError, GeoFeatureClient } from "./features/client";
+export { ApiClient } from "./features/client";
+export { GeoApiError } from "./utils/errors/geo_api";
 export type {
   GeoFeature,
   GeoFeatureCollection,
