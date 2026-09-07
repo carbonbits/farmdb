@@ -1,4 +1,4 @@
-import type { GeoFeature } from "@farmdb/api-client";
+import type { GeoFeature } from "@farmdb/geo";
 
 export function FeatureDetail({ feature, onClose }: { feature: GeoFeature; onClose: () => void }) {
   const name = typeof feature.properties.name === "string" ? feature.properties.name : "Feature";
