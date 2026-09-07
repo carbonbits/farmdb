@@ -1,4 +1,4 @@
-import type { GeoFeature, GeoFeatureCollection } from "./types";
+import type { GeoFeature, GeoFeatureCollection } from "../types";
 
 export class GeoApiError extends Error {
   constructor(
