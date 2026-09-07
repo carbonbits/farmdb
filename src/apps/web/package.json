@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@farmdb/api-client": "workspace:*",
+    "@farmdb/geo": "workspace:*",
     "@farmdb/ui": "workspace:*",
     "@hookform/resolvers": "^5",
     "maplibre-gl": "^6.6.0",

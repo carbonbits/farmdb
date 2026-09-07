@@ -34,6 +34,16 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  packages/geo:
+    dependencies:
+      '@types/geojson':
+        specifier: ^7946.0.14
+        version: 7946.0.16
+    devDependencies:
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
   packages/ui:
     dependencies:
       react:
@@ -55,6 +65,9 @@ importers:
       '@farmdb/api-client':
         specifier: workspace:*
         version: link:../../../packages/api-client
+      '@farmdb/geo':
+        specifier: workspace:*
+        version: link:../../../packages/geo
       '@farmdb/ui':
         specifier: workspace:*
         version: link:../../../packages/ui
