@@ -1,4 +1,4 @@
-import type { GeoFeature } from "./types";
+import type { GeoFeature } from "../types";
 
 type BBox = [west: number, south: number, east: number, north: number];
 

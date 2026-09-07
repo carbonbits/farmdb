@@ -1,5 +1,5 @@
-export { GeoApiError, GeoFeatureClient } from "./features";
-export { featuresToBbox } from "./geometry";
+export { featuresToBbox } from "./core/geometry";
+export { GeoApiError, GeoFeatureClient } from "./features/client";
 export type {
   GeoFeature,
   GeoFeatureCollection,
