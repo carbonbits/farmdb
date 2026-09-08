@@ -1,5 +1,4 @@
-import type { MapLayer } from "../config";
-
+import type { MapLayer } from "@/app/_components/map/lib/layers";
 export function LayerToggle({
   layers,
   visible,

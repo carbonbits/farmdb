@@ -7,21 +7,19 @@ import { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import { useEffect, useRef, useState } from "react";
 import { FeatureDetail } from "./components/feature-detail";
 import { LayerToggle } from "./components/layer-toggle";
-import type { MapLayer } from "./config";
 import {
   BASE_STYLE,
-  buildMaplibreLayers,
-  clickLayerId,
   FALLBACK_CENTER,
   FALLBACK_ZOOM,
   featuresUrl,
   FIT_MAX_ZOOM,
   FIT_PADDING,
-  mapLayerIds,
   tilePrefix,
   tileUrl,
   WORKER_URL,
-} from "./config";
+} from "./lib/config";
+import type { MapLayer } from "./lib/layers";
+import { buildMaplibreLayers, clickLayerId, mapLayerIds } from "./lib/rendering";
 import { useMapLayers } from "./store";
 maplibregl.setWorkerUrl(WORKER_URL);
 export function FarmMap() {
