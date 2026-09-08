@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FarmDB web
 
-## Getting Started
+The web app for FarmDB, built with Next.js. It is exported to static files and
+served by the FarmDB API, so in normal use you reach it at http://localhost:5700,
+not on its own port.
 
-First, run the development server:
+## Shared packages
+
+It uses the workspace packages:
+
+- `@farmdb/api-client` for auth and API calls
+- `@farmdb/geo` for the geo feature client and map types
+- `@farmdb/ui` for shared interface pieces
+
+## Working on it
+
+From this folder:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm build      # produces the static build the API serves
+pnpm dev        # runs the app on its own for development
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Set `NEXT_PUBLIC_API_URL` to point the app at a different API host. Left unset,
+it uses the current origin, which is what you want when the API serves the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Linting and formatting
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm check      # Biome check and fix
+pnpm lint       # Biome check without writing
+pnpm format     # Biome format
+```
 
-## Learn More
+## Maps
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The map uses MapLibre. Its worker file is copied into `public/` by
+`scripts/maplibre-worker.mjs`, which the `predev` and `prebuild` scripts run
+automatically, so you do not need to run it by hand.
