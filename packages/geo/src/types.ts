@@ -22,3 +22,7 @@ export type GeoFeature = Feature<GeoGeometry, GeoFeatureProperties> & {
 export interface GeoFeatureCollection extends FeatureCollection<GeoGeometry, GeoFeatureProperties> {
   features: GeoFeature[];
 }
+
+export interface GeoApiConfig {
+  featuresUrl: string;
+}

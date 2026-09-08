@@ -9,12 +9,12 @@ import { FeatureDetail } from "./components/feature-detail";
 import { LayerToggle } from "./components/layer-toggle";
 import type { MapLayer } from "./config";
 import {
-  apiOrigin,
   BASE_STYLE,
   buildMaplibreLayers,
   clickLayerId,
   FALLBACK_CENTER,
   FALLBACK_ZOOM,
+  featuresUrl,
   FIT_MAX_ZOOM,
   FIT_PADDING,
   mapLayerIds,
@@ -42,7 +42,7 @@ export function FarmMap() {
     if (!containerRef.current || mapRef.current) return;
     const initLayers = useMapLayers.getState().layers.filter((l) => permRef.current(l.view));
     const prefix = tilePrefix();
-    const geoClient = new GeoApiClient(apiOrigin());
+    const geoClient = new GeoApiClient({ featuresUrl: featuresUrl() });
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: BASE_STYLE,
