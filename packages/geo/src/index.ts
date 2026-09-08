@@ -6,5 +6,4 @@ export type {
   GeoFeatureCollection,
   GeoFeatureProperties,
   GeoGeometry,
-  GeoJsonGeometry,
 } from "./types";
