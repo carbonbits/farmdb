@@ -1,26 +1,27 @@
-import type { GeoFeature, GeoFeatureCollection } from "@farmdb/geo/types";
+import type { GeoApiConfig, GeoFeature, GeoFeatureCollection } from "@farmdb/geo/types";
 import { GeoApiError } from "@farmdb/geo/utils/errors/geo_api";
 
+
+
 /**
- * HTTP client for the geo feature API.
+ * Reads farm features from the geo API.
  *
- * Wraps the /v1/geo/features endpoints. Pass the API origin as baseUrl
- * so the same class works in same-origin deployments (empty string) and
- * cross-origin setups (full URL).
- * Every request needs a valid Bearer token.
+ * The app builds it with a config that says where the feature endpoints live,
+ * so this class holds no path or version of its own and stays to one job:
+ * sending requests and returning features.
+ *
+ * Each call takes a bearer token, because the token is refreshed while the app
+ * runs and the freshest one is passed in every time.
  */
 export class ApiClient {
-  constructor(private readonly baseUrl: string = "") {}
+  constructor(private readonly config: GeoApiConfig) {}
 
   async getFeature(accessToken: string, id: string): Promise<GeoFeature> {
-    const response = await fetch(
-      `${this.baseUrl}/v1/geo/features/${encodeURIComponent(id)}`,
-      {
-        method: "GET",
-        headers: this.authHeaders(accessToken),
-      },
+    const response = await this.send(
+      `${this.config.featuresUrl}/${encodeURIComponent(id)}`,
+      accessToken,
     );
-    return this.parse<GeoFeature>(response);
+    return (await response.json()) as GeoFeature;
   }
 
   async listFeatures(
@@ -28,28 +29,22 @@ export class ApiClient {
     layer: string,
     season?: string,
   ): Promise<GeoFeatureCollection> {
-    const params = new URLSearchParams({ layer });
-    if (season) params.set("season", season);
-    const response = await fetch(
-      `${this.baseUrl}/v1/geo/features/?${params.toString()}`,
-      {
-        method: "GET",
-        headers: this.authHeaders(accessToken),
-      },
+    const query = new URLSearchParams({ layer });
+    if (season) query.set("season", season);
+    const response = await this.send(
+      `${this.config.featuresUrl}/?${query.toString()}`,
+      accessToken,
     );
-    return this.parse<GeoFeatureCollection>(response);
+    return (await response.json()) as GeoFeatureCollection;
   }
 
-  private authHeaders(accessToken: string): HeadersInit {
-    return { Authorization: `Bearer ${accessToken}` };
-  }
-
-  private async parse<T>(response: Response): Promise<T> {
+  private async send(url: string, accessToken: string): Promise<Response> {
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
     if (!response.ok) {
       throw new GeoApiError(`Geo request failed with ${response.status}`, response.status);
     }
-    return (await response.json()) as T;
+    return response;
   }
 }
-
-export default ApiClient;
