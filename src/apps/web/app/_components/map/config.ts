@@ -1,7 +1,5 @@
 import type { LayerSpecification, StyleSpecification } from "maplibre-gl";
-
 export type GeometryClass = "polygon" | "line" | "point";
-
 export interface MapLayer {
   id: string;
   label: string;
@@ -9,15 +7,12 @@ export interface MapLayer {
   seasonal: boolean;
   view: string;
 }
-
 const GREEN_FILL = "#4a8a54";
 const GREEN_DARK = "#2c5a38";
 const GREEN = "#346b41";
 const CREAM = "#f4ead4";
-
 export const SELECTED_COLOR = "#d8a43b";
 export const SELECTED_WIDTH = 3;
-
 export const LAYERS: MapLayer[] = [
   { id: "fields", label: "Fields", geometry: "polygon", seasonal: false, view: "fields.view" },
   {
@@ -29,20 +24,17 @@ export const LAYERS: MapLayer[] = [
   },
   { id: "markers", label: "Markers", geometry: "point", seasonal: false, view: "fields.view" },
 ];
-
 export function mapLayerIds(layer: MapLayer): string[] {
   if (layer.geometry === "polygon")
     return [`${layer.id}-fill`, `${layer.id}-outline`, `${layer.id}-selected`];
   if (layer.geometry === "line") return [`${layer.id}-line`];
   return [`${layer.id}-circle`];
 }
-
 export function clickLayerId(layer: MapLayer): string {
   if (layer.geometry === "polygon") return `${layer.id}-fill`;
   if (layer.geometry === "line") return `${layer.id}-line`;
   return `${layer.id}-circle`;
 }
-
 export function buildMaplibreLayers(layer: MapLayer): LayerSpecification[] {
   const src = `src-${layer.id}`;
   if (layer.geometry === "polygon") {
@@ -97,7 +89,6 @@ export function buildMaplibreLayers(layer: MapLayer): LayerSpecification[] {
     },
   ];
 }
-
 export const BASE_STYLE: StyleSpecification = {
   version: 8,
   sources: {
@@ -110,25 +101,22 @@ export const BASE_STYLE: StyleSpecification = {
   },
   layers: [{ id: "osm", type: "raster", source: "osm" }],
 };
-
 export const FALLBACK_CENTER: [number, number] = [0, 0];
 export const FALLBACK_ZOOM = 1;
-
 export function apiOrigin(): string {
   return process.env.NEXT_PUBLIC_API_URL || window.location.origin;
 }
-
 export const TILE_PATH = "/v1/tiles";
-
 export function tileUrl(layerId: string): string {
   return `${apiOrigin()}${TILE_PATH}/${layerId}/{z}/{x}/{y}.mvt`;
 }
-
 export function tilePrefix(): string {
   return `${apiOrigin()}${TILE_PATH}/`;
 }
-
+export const FEATURES_PATH = "/v1/geo/features";
+export function featuresUrl(): string {
+  return `${apiOrigin()}${FEATURES_PATH}`;
+}
 export const WORKER_URL = "/maplibre-gl-worker.mjs";
-
 export const FIT_PADDING = 60;
 export const FIT_MAX_ZOOM = 17;
