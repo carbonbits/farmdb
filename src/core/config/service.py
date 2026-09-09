@@ -3,14 +3,20 @@ ConfigService.
 
 Thin accessor over the v1.configuration key/value table. Centralises reads and
 writes of app-level configuration so callers don't hand-roll SQL.
-"""
 
-from __future__ import annotations
+Reads and writes go through the Configuration document, whose primary key is
+aliased onto the `key` column. The synchronous duckling calls are deliberate:
+they run straight on the shared connection, where the async ones hop through
+asyncio.to_thread and would race the way core/authz/service.py describes.
+"""
 
 from typing import Callable, Optional
 
+from duckling import DocumentAlreadyExists
+
+from core.config.models import Configuration
 from core.service import Service
-from core.storage.database import db
+from utils.time import now_utc
 
 
 class ConfigService(Service):
@@ -20,27 +26,28 @@ class ConfigService(Service):
 
     def get(self, key: str) -> Optional[str]:
         """Return the value for key, or None if it is not set."""
-        row = (
-            db()
-            .execute(
-                "SELECT value FROM v1.configuration WHERE key = ?",
-                [key],
-            )
-            .fetchone()
-        )
-        return row[0] if row else None
+        row = Configuration.get_sync(key)
+
+        return row.value if row else None
 
     def set(self, key: str, value: str, created_by: Optional[str] = None) -> None:
         """Insert or update a configuration value."""
-        db().execute(
-            """
-            INSERT INTO v1.configuration (key, value, created_by)
-            VALUES (?, ?, ?)
-            ON CONFLICT (key) DO UPDATE
-                SET value = excluded.value, updated_at = now()
-            """,
-            [key, value, created_by],
-        )
+        existing = Configuration.get_sync(key)
+
+        if existing is None:
+            try:
+                Configuration(id=key, value=value, created_by=created_by).insert_sync()
+
+                return
+            except DocumentAlreadyExists:
+                # Written between the read and the insert. Fall through and
+                # update it, so two processes booting at once cannot turn a
+                # first-boot default into a crash.
+                existing = Configuration.get_sync(key)
+
+        existing.value = value
+        existing.updated_at = now_utc()
+        existing.save_sync()
 
     def get_or_create(self, key: str, default_factory: Callable[[], str]) -> str:
         """Return the value for key, creating it from default_factory if absent."""

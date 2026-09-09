@@ -28,7 +28,31 @@ class Settings(BaseSettings):
     webauthn_rp_name: str = "FarmDB"
     webauthn_origin: str = "http://localhost:5700"
 
+    # Geospatial Configuration
+    # The storage CRS, as an SRID for the geometry column and as the URI the OGC
+    # documents quote. The default is CRS84 — EPSG:4326 with longitude first,
+    # the axis order GeoJSON uses and therefore the order this API speaks.
+    geo_srid: int = 4326
+    geo_crs: str = "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
+
+    # API Server
+    # Where main.py binds when it runs the app itself. api_reload left unset
+    # follows the environment — autoreload in dev, never in prod — so the usual
+    # case needs no .env entry; set API_RELOAD=false to hold it off in dev.
+    api_host: str = "0.0.0.0"
+    api_port: int = 5700
+    api_reload: Optional[bool] = None
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def is_dev(self) -> bool:
+        return self.environment is Environment.DEV
+
+    @property
+    def should_reload(self) -> bool:
+        """Whether uvicorn watches the source tree and restarts on a change."""
+        return self.is_dev if self.api_reload is None else self.api_reload
 
 
 settings = Settings()

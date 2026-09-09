@@ -23,17 +23,15 @@ from core.authz.models import Group, Permission, Role
 from core.storage.database import db
 
 
-def _new_id() -> str:
-    return str(ULID())
-
-
 class AuthzService:
     async def can(self, user_id: str, action: str) -> bool:
         # Single raw query on a private cursor. Kept off duckling deliberately:
         # duckling dispatches every query through asyncio.to_thread on one
         # shared connection, so concurrent authorization checks would race.
-        row = db().execute(
-            """
+        row = (
+            db()
+            .execute(
+                """
             SELECT 1
             FROM v1.permissions p
             JOIN v1.role_permissions rp ON rp.permission_id = p.id
@@ -48,8 +46,10 @@ class AuthzService:
               )
             LIMIT 1
             """,
-            [action, user_id, user_id],
-        ).fetchone()
+                [action, user_id, user_id],
+            )
+            .fetchone()
+        )
         return row is not None
 
     # Read models for the Access-control admin API. Raw SQL keeps the joins and
@@ -57,69 +57,90 @@ class AuthzService:
 
     def list_permissions(self) -> list[dict]:
         """The full permission catalog, ordered for grouped display."""
-        rows = db().execute(
-            """
+        rows = (
+            db()
+            .execute(
+                """
             SELECT name, group_name, description
             FROM v1.permissions
             ORDER BY group_name NULLS LAST, name
             """
-        ).fetchall()
+            )
+            .fetchall()
+        )
         return [{"name": r[0], "group": r[1], "description": r[2]} for r in rows]
 
     def list_roles(self) -> list[dict]:
         """Every role with its permission keys and how many people hold it."""
-        roles = db().execute(
-            """
+        roles = (
+            db()
+            .execute(
+                """
             SELECT id, name, display_name, description, is_system, is_locked
             FROM v1.roles
             ORDER BY is_system DESC, name
             """
-        ).fetchall()
+            )
+            .fetchall()
+        )
         return [self._role_summary(r) for r in roles]
 
     def get_role(self, role_id: str) -> dict | None:
         """One role with its permission keys and the members holding it."""
-        row = db().execute(
-            """
+        row = (
+            db()
+            .execute(
+                """
             SELECT id, name, display_name, description, is_system, is_locked
             FROM v1.roles WHERE id = ?
             """,
-            [role_id],
-        ).fetchone()
+                [role_id],
+            )
+            .fetchone()
+        )
         if not row:
             return None
 
         summary = self._role_summary(row)
-        members = db().execute(
-            """
+        members = (
+            db()
+            .execute(
+                """
             SELECT u.id, u.email, u.display_name
             FROM v1.user_roles ur
             JOIN v1.users u ON u.id = ur.user_id
             WHERE ur.role_id = ?
             ORDER BY u.display_name NULLS LAST, u.email
             """,
-            [role_id],
-        ).fetchall()
+                [role_id],
+            )
+            .fetchall()
+        )
         summary["members"] = [
             {"id": m[0], "email": m[1], "display_name": m[2]} for m in members
         ]
         return summary
 
     def get_role_by_name(self, name: str) -> dict | None:
-        row = db().execute(
-            """
+        row = (
+            db()
+            .execute(
+                """
             SELECT id, name, display_name, description, is_system, is_locked
             FROM v1.roles WHERE name = ?
             """,
-            [name],
-        ).fetchone()
+                [name],
+            )
+            .fetchone()
+        )
         return self._role_summary(row) if row else None
 
     def _role_summary(self, row: tuple) -> dict:
         role_id = row[0]
         permissions = [
             p[0]
-            for p in db().execute(
+            for p in db()
+            .execute(
                 """
                 SELECT p.name
                 FROM v1.role_permissions rp
@@ -128,11 +149,14 @@ class AuthzService:
                 ORDER BY p.name
                 """,
                 [role_id],
-            ).fetchall()
+            )
+            .fetchall()
         ]
-        member_count = db().execute(
-            "SELECT count(*) FROM v1.user_roles WHERE role_id = ?", [role_id]
-        ).fetchone()[0]
+        member_count = (
+            db()
+            .execute("SELECT count(*) FROM v1.user_roles WHERE role_id = ?", [role_id])
+            .fetchone()[0]
+        )
         return {
             "id": role_id,
             "name": row[1],
@@ -149,9 +173,7 @@ class AuthzService:
     ) -> None:
         """Replace a role's entire permission set with `permission_names`."""
         conn = db()
-        conn.execute(
-            "DELETE FROM v1.role_permissions WHERE role_id = ?", [role_id]
-        )
+        conn.execute("DELETE FROM v1.role_permissions WHERE role_id = ?", [role_id])
         for name in permission_names:
             perm = conn.execute(
                 "SELECT id FROM v1.permissions WHERE name = ?", [name]
@@ -161,7 +183,7 @@ class AuthzService:
             conn.execute(
                 "INSERT INTO v1.role_permissions (id, role_id, permission_id) "
                 "VALUES (?, ?, ?)",
-                [_new_id(), role_id, perm[0]],
+                [str(ULID()), role_id, perm[0]],
             )
 
     async def remove_role_from_user(self, user_id: str, role_id: str) -> None:
@@ -172,23 +194,29 @@ class AuthzService:
 
     def get_user_roles(self, user_id: str) -> list[dict]:
         """The roles a user holds directly (for display on /me)."""
-        rows = db().execute(
-            """
+        rows = (
+            db()
+            .execute(
+                """
             SELECT r.id, r.name, r.display_name
             FROM v1.user_roles ur
             JOIN v1.roles r ON r.id = ur.role_id
             WHERE ur.user_id = ?
             ORDER BY r.is_system DESC, r.name
             """,
-            [user_id],
-        ).fetchall()
+                [user_id],
+            )
+            .fetchall()
+        )
         return [{"id": r[0], "name": r[1], "display_name": r[2]} for r in rows]
 
     def get_user_permissions(self, user_id: str) -> list[str]:
         """A user's effective permission names — the union across roles held
         directly and roles granted through group membership."""
-        rows = db().execute(
-            """
+        rows = (
+            db()
+            .execute(
+                """
             SELECT DISTINCT p.name
             FROM v1.permissions p
             JOIN v1.role_permissions rp ON rp.permission_id = p.id
@@ -202,31 +230,41 @@ class AuthzService:
             )
             ORDER BY p.name
             """,
-            [user_id, user_id],
-        ).fetchall()
+                [user_id, user_id],
+            )
+            .fetchall()
+        )
         return [r[0] for r in rows]
 
     def list_users_with_roles(self) -> list[dict]:
         """All users, each with the roles they directly hold."""
-        users = db().execute(
-            """
+        users = (
+            db()
+            .execute(
+                """
             SELECT id, email, display_name, is_active
             FROM v1.users
             ORDER BY display_name NULLS LAST, email
             """
-        ).fetchall()
+            )
+            .fetchall()
+        )
         result = []
         for u in users:
-            roles = db().execute(
-                """
+            roles = (
+                db()
+                .execute(
+                    """
                 SELECT r.id, r.name, r.display_name
                 FROM v1.user_roles ur
                 JOIN v1.roles r ON r.id = ur.role_id
                 WHERE ur.user_id = ?
                 ORDER BY r.is_system DESC, r.name
                 """,
-                [u[0]],
-            ).fetchall()
+                    [u[0]],
+                )
+                .fetchall()
+            )
             result.append(
                 {
                     "id": u[0],
@@ -257,18 +295,26 @@ class AuthzService:
             [name],
         ).fetchone()
         if row is None:
-            role_id = _new_id()
+            role_id = str(ULID())
             conn.execute(
                 "INSERT INTO v1.roles (id, name, description, display_name) "
                 "VALUES (?, ?, ?, ?)",
                 [role_id, name, description, display_name],
             )
             return Role(
-                id=role_id, name=name, description=description, display_name=display_name
+                id=role_id,
+                name=name,
+                description=description,
+                display_name=display_name,
             )
         return Role(
-            id=row[0], name=row[1], description=row[2], created_at=row[3],
-            display_name=row[4], is_system=bool(row[5]), is_locked=bool(row[6]),
+            id=row[0],
+            name=row[1],
+            description=row[2],
+            created_at=row[3],
+            display_name=row[4],
+            is_system=bool(row[5]),
+            is_locked=bool(row[6]),
         )
 
     async def create_permission(
@@ -281,14 +327,17 @@ class AuthzService:
             [name],
         ).fetchone()
         if row is None:
-            perm_id = _new_id()
+            perm_id = str(ULID())
             conn.execute(
                 "INSERT INTO v1.permissions (id, name, description) VALUES (?, ?, ?)",
                 [perm_id, name, description],
             )
             return Permission(id=perm_id, name=name, description=description)
         return Permission(
-            id=row[0], name=row[1], description=row[2], created_at=row[3],
+            id=row[0],
+            name=row[1],
+            description=row[2],
+            created_at=row[3],
             group_name=row[4],
         )
 
@@ -299,7 +348,7 @@ class AuthzService:
             [name],
         ).fetchone()
         if row is None:
-            group_id = _new_id()
+            group_id = str(ULID())
             conn.execute(
                 "INSERT INTO v1.groups (id, name, description) VALUES (?, ?, ?)",
                 [group_id, name, description],
@@ -335,7 +384,7 @@ class AuthzService:
         placeholders = ", ".join(["?"] * (len(cols) + 1))
         conn.execute(
             f"INSERT INTO v1.{table} ({columns}) VALUES ({placeholders})",
-            [_new_id(), *values],
+            [str(ULID()), *values],
         )
 
 

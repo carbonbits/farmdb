@@ -100,3 +100,31 @@ Web (from `src/apps/web`):
 ```bash
 pnpm check
 ```
+
+### Layout todo
+`src/` reads as "the source", but it is really the Python distribution root
+(`pyproject.toml` sets `package-dir = {"" = "src"}`, so every top-level dir under
+it is an importable package) that happens to also contain a Next.js app. Three
+steps to sort that out, in order — the first is mechanical, the last is a design
+conversation.
+
+- [ ] **Move `src/apps/web` to `apps/web` at the repo root**, alongside
+      `packages/`. Today `pnpm-workspace.yaml` reaches into `src/apps/*` for it
+      while its siblings live in `packages/*`, so the frontend is addressed from
+      two directions at once; afterwards the globs are just `apps/*` and
+      `packages/*`, and no JS sits inside the Python package tree. No Python
+      changes. Touches `pnpm-workspace.yaml`, `spa_directory` in
+      `src/apps/api/middleware/spa.py` (a `parents[2]` hop that stops working
+      once `web` is not a sibling), the three `src/apps/web` paths in the
+      `Dockerfile`, and the watched directory in `.github/dependabot.yml`.
+- [ ] **Decide whether `src/apps/api` still needs to be under `apps/`** once it
+      is the only thing there. Probably flatten it.
+- [ ] **Revisit the `core/` vs `features/` boundary.** Both contain `geo`, and
+      `core/auth` sits next to `features/apikey`. The split seems to be "engine
+      vs HTTP feature", which is fine, but nothing in the names says so, so
+      anyone adding code has to guess. Name the rule, then move things to match.
+
+Also: `utils/` is a name that attracts anything homeless. Keep it to
+cross-cutting framework glue (the error handlers, middleware, maybe
+`config/utils.py`) and write that rule into `src/utils/__init__.py`, or it ends
+up as the drawer with the batteries and the dead pens in it.

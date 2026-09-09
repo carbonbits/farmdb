@@ -82,8 +82,12 @@ async def test_first_user_is_administrator_others_are_authenticated(api_client):
     admin_hdr = _bearer(first["access_token"])
     user_hdr = _bearer(second["access_token"])
 
-    assert (await api_client.get("/v1/authz/roles", headers=admin_hdr)).status_code == 200
-    assert (await api_client.get("/v1/authz/roles", headers=user_hdr)).status_code == 403
+    assert (
+        await api_client.get("/v1/authz/roles", headers=admin_hdr)
+    ).status_code == 200
+    assert (
+        await api_client.get("/v1/authz/roles", headers=user_hdr)
+    ).status_code == 403
     denied = await api_client.post(
         "/v1/fields/", json={"name": "North"}, headers=user_hdr
     )
@@ -92,8 +96,12 @@ async def test_first_user_is_administrator_others_are_authenticated(api_client):
     # Confirm the exact role assignments via the admin's view.
     users = (await api_client.get("/v1/authz/users", headers=admin_hdr)).json()
     by_email = {u["email"]: u for u in users}
-    assert [r["name"] for r in by_email["first@example.com"]["roles"]] == ["administrator"]
-    assert [r["name"] for r in by_email["second@example.com"]["roles"]] == ["authenticated"]
+    assert [r["name"] for r in by_email["first@example.com"]["roles"]] == [
+        "administrator"
+    ]
+    assert [r["name"] for r in by_email["second@example.com"]["roles"]] == [
+        "authenticated"
+    ]
 
 
 # --- Password login -------------------------------------------------------
@@ -200,9 +208,7 @@ async def test_me_rejects_refresh_token_as_access(api_client):
 
     # The refresh token is a valid JWT but carries type="refresh"; it must not
     # be accepted as a bearer access credential.
-    resp = await api_client.get(
-        "/v1/auth/me", headers=_bearer(tokens["refresh_token"])
-    )
+    resp = await api_client.get("/v1/auth/me", headers=_bearer(tokens["refresh_token"]))
     assert resp.status_code == 401
     assert resp.json()["detail"] == "Invalid or expired token"
 

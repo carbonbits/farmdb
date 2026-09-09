@@ -13,6 +13,13 @@ class DB:
         if cls._instance is None:
             cls._instance = duckdb.connect(settings.database_path)
 
+            # Most of what a farm records sits somewhere, so every connection
+            # needs the spatial extension, not just the geo endpoints. Cursors
+            # inherit it from here, which is why db() does not load it again.
+            # The migrations install it too; both are no-ops once it is present.
+            cls._instance.execute("INSTALL spatial")
+            cls._instance.execute("LOAD spatial")
+
     @classmethod
     def disconnect(cls):
         if cls._instance:

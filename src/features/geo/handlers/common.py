@@ -1,21 +1,22 @@
-"""Shared read helpers for the geo feature handlers."""
+"""Shared resolution for the item handlers."""
+
 from __future__ import annotations
 
-import json
-
-from features.geo.models.feature import GeoFeature
-
-# The columns every read selects, in this order, so a row maps straight onto
-# GeoFeature. ST_AsGeoJSON and the JSON properties column both come back as
-# strings, so both are parsed here.
-FEATURE_COLUMNS = "id, layer, season, ST_AsGeoJSON(geometry), properties"
+from core.geo.errors import FeatureNotFound
+from core.geo.layers import Layer, get_layer
+from core.geo.service import GeospatialService
 
 
-def row_to_feature(row: tuple) -> GeoFeature:
-    return GeoFeature(
-        id=row[0],
-        layer=row[1],
-        season=row[2],
-        geometry=json.loads(row[3]),
-        properties=json.loads(row[4]) if row[4] else {},
-    )
+def resolve_item(geo: GeospatialService, collection_id: str, feature_id: str) -> Layer:
+    """The layer an item belongs to, checked against the collection in the path.
+
+    A feature is addressed through its collection, so one that lives in another
+    layer is simply not at this URL — treating it as missing keeps the id space
+    of one collection from leaking into another.
+    """
+    layer = get_layer(collection_id)
+
+    if geo.layer_of(feature_id) != collection_id:
+        raise FeatureNotFound(feature_id)
+
+    return layer

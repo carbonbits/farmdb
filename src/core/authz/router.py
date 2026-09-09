@@ -58,7 +58,8 @@ async def create_role(
     """Create a custom role with an initial permission set."""
     if authz.get_role_by_name(request.name):
         raise HTTPException(
-            status.HTTP_409_CONFLICT, detail=f"A role named '{request.name}' already exists"
+            status.HTTP_409_CONFLICT,
+            detail=f"A role named '{request.name}' already exists",
         )
     role = await authz.create_role(
         name=request.name,
@@ -92,9 +93,7 @@ async def list_users(_: ManageDep, authz: AuthzDep) -> list[UserWithRoles]:
     return [UserWithRoles(**u) for u in authz.list_users_with_roles()]
 
 
-@router.post(
-    "/users/{user_id}/roles/{role_id}", status_code=status.HTTP_204_NO_CONTENT
-)
+@router.post("/users/{user_id}/roles/{role_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def assign_role(
     user_id: str, role_id: str, _: ManageDep, authz: AuthzDep
 ) -> None:

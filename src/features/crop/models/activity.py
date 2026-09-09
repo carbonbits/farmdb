@@ -1,23 +1,17 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 from duckling import Document
 from pydantic import Field
 from ulid import ULID
 
-
-def _new_ulid() -> str:
-    return str(ULID())
-
-
-def _now_utc() -> datetime:
-    return datetime.now(timezone.utc)
+from utils.time import now_utc
 
 
 class Activity(Document):
-    id: str = Field(default_factory=_new_ulid)
+    id: str = Field(default_factory=lambda: str(ULID()))
     actor_id: str
     actor_email: str
     action: str
@@ -25,7 +19,7 @@ class Activity(Document):
     entity_id: str
     description: str | None = None
     metadata: dict[str, Any] | None = None
-    created_at: datetime = Field(default_factory=_now_utc)
+    created_at: datetime = Field(default_factory=now_utc)
 
     class Settings:
         table_name = 'v1"."activities'

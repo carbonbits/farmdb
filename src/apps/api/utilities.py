@@ -11,4 +11,15 @@ api_tags_metadata = [
             "url": "https://agin.africa/docs/farmdb/fields",
         },
     },
+    {
+        "name": "maps",
+        "description": (
+            "Geospatial features, vector tiles and WMS. OGC API - Features and "
+            "OGC API - Tiles path layout; start at /v1/maps/."
+        ),
+        "externalDocs": {
+            "description": "OGC API - Features",
+            "url": "https://ogcapi.ogc.org/features/",
+        },
+    },
 ]

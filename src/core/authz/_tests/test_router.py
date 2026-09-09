@@ -59,7 +59,11 @@ async def test_list_roles_includes_seeded_roles(auth_client):
     assert roles["authenticated"]["permissions"] == []
     # A non-system role carries a curated subset.
     assert set(roles["worker"]["permissions"]) == {
-        "fields.view", "crops.view", "crops.log", "livestock.log", "tasks.view",
+        "fields.view",
+        "crops.view",
+        "crops.log",
+        "livestock.log",
+        "tasks.view",
     }
 
 
