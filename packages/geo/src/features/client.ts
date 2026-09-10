@@ -1,41 +1,46 @@
-import type { GeoApiConfig, GeoFeature, GeoFeatureCollection } from "@farmdb/geo/types";
+import type { Collection, GeoApiConfig, GeoFeature, TileSets } from "@farmdb/geo/types";
 import { GeoApiError } from "@farmdb/geo/utils/errors/geo_api";
-
-
+import { MVT_MEDIA_TYPE, TILE_ITEM_REL, TILESETS_VECTOR_REL } from "./ogc";
 
 /**
- * Reads farm features from the geo API.
- *
- * The app builds it with a config that says where the feature endpoints live,
- * so this class holds no path or version of its own and stays to one job:
- * sending requests and returning features.
- *
- * Each call takes a bearer token, because the token is refreshed while the app
- * runs and the freshest one is passed in every time.
+ * Reads farm layers and features from the OGC map API. This is the one place
+ * that speaks OGC in the app, so the app passes in where the API lives and a
+ * fresh bearer token on every call. To find the tiles for a layer the client
+ * follows the links the API returns instead of building a URL, and when a
+ * layer offers no tiles it returns null so the map skips it.
  */
 export class ApiClient {
   constructor(private readonly config: GeoApiConfig) {}
 
-  async getFeature(accessToken: string, id: string): Promise<GeoFeature> {
-    const response = await this.send(
-      `${this.config.featuresUrl}/${encodeURIComponent(id)}`,
-      accessToken,
-    );
+  async listCollections(accessToken: string): Promise<Collection[]> {
+    const response = await this.send(`${this.config.mapsUrl}/collections`, accessToken);
+    const document = (await response.json()) as { collections: Collection[] };
+    return document.collections;
+  }
+
+  async getFeature(
+    accessToken: string,
+    collectionId: string,
+    featureId: string,
+  ): Promise<GeoFeature> {
+    const url = `${this.config.mapsUrl}/collections/${encodeURIComponent(collectionId)}/items/${encodeURIComponent(featureId)}`;
+    const response = await this.send(url, accessToken);
     return (await response.json()) as GeoFeature;
   }
 
-  async listFeatures(
-    accessToken: string,
-    layer: string,
-    season?: string,
-  ): Promise<GeoFeatureCollection> {
-    const query = new URLSearchParams({ layer });
-    if (season) query.set("season", season);
-    const response = await this.send(
-      `${this.config.featuresUrl}/?${query.toString()}`,
-      accessToken,
+  async tileTemplate(accessToken: string, collection: Collection): Promise<string | null> {
+    const tilesetsLink = collection.links.find((link) => link.rel === TILESETS_VECTOR_REL);
+    if (!tilesetsLink) return null;
+
+    const response = await this.send(tilesetsLink.href, accessToken);
+    const document = (await response.json()) as TileSets;
+    const matrixSet = document.tilesets[0];
+    if (!matrixSet) return null;
+
+    const tile = matrixSet.links.find(
+      (link) => link.rel === TILE_ITEM_REL && link.type === MVT_MEDIA_TYPE,
     );
-    return (await response.json()) as GeoFeatureCollection;
+    return tile?.href ?? null;
   }
 
   private async send(url: string, accessToken: string): Promise<Response> {
