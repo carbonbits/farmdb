@@ -89,6 +89,12 @@ importers:
       react-hook-form:
         specifier: ^7
         version: 7.84.0(react@19.2.7)
+      terra-draw:
+        specifier: ^1.33.0
+        version: 1.33.0
+      terra-draw-maplibre-gl-adapter:
+        specifier: ^1.4.1
+        version: 1.4.1(maplibre-gl@6.6.0)(terra-draw@1.33.0)
       zustand:
         specifier: ^5.0.15
         version: 5.0.15(@types/react@19.2.18)(react@19.2.7)
@@ -1166,6 +1172,15 @@ packages:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
 
+  terra-draw-maplibre-gl-adapter@1.4.1:
+    resolution: {integrity: sha512-qZ/bc9bVPnyt0keLVTofV8xiTPkdkbO6RzqrfNLe9zH/edW5PsjvJw97m1EksPZeXNJtFxsVbhi12cPaoNiWfg==}
+    peerDependencies:
+      maplibre-gl: '>=4'
+      terra-draw: ^1.0.0
+
+  terra-draw@1.33.0:
+    resolution: {integrity: sha512-EOJpu0RaKfvFI2Mx48l/OsBpIGdNOpHbvMGzegDQzCepxnxrovxVHFbm85RQljJ6RV3EbLCuvMjZ0HWkJswphA==}
+
   tinyqueue@3.0.0:
     resolution: {integrity: sha512-gRa9gwYU3ECmQYv3lslts5hxuIa90veaEcxDYuu3QGOIAEM2mOZkVHp48ANJuu1CURtRdHKUBY5Lm1tHV+sD4g==}
 
@@ -1972,6 +1987,13 @@ snapshots:
   tailwindcss@4.3.3: {}
 
   tapable@2.3.3: {}
+
+  terra-draw-maplibre-gl-adapter@1.4.1(maplibre-gl@6.6.0)(terra-draw@1.33.0):
+    dependencies:
+      maplibre-gl: 6.6.0
+      terra-draw: 1.33.0
+
+  terra-draw@1.33.0: {}
 
   tinyqueue@3.0.0: {}
 
