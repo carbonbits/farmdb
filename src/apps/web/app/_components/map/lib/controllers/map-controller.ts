@@ -1,16 +1,19 @@
 import type { Collection, GeoFeature } from "@farmdb/geo";
 import type { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import * as maplibregl from "maplibre-gl";
-import { FIT_MAX_ZOOM, FIT_PADDING } from "./config";
-import { type MapLayer, toMapLayer } from "./layers";
-import { buildMaplibreLayers, clickLayerId, mapLayerIds, selectionLayerId } from "./rendering";
+import { FIT_MAX_ZOOM, FIT_PADDING } from "@/app/_components/map/lib/config";
+import { type MapLayer, toMapLayer } from "@/app/_components/map/lib/layers";
+import {
+  buildMaplibreLayers,
+  clickLayerId,
+  mapLayerIds,
+  selectionLayerId,
+} from "@/app/_components/map/lib/rendering";
 
 /**
  * The imperative side of the map: everything done to a live maplibre instance.
  * The hook holds the react lifecycle and calls in here to attach the token,
- * load the layers the api serves, and apply the toggle state. Keeping these out
- * of the hook lets the hook read as plain lifecycle and keeps the map mechanics
- * in one place.
+ * load the layers the api serves, and apply the toggle state.
  */
 
 type TokenRef = { current: string | null };
@@ -82,7 +85,7 @@ async function addLayersToMap(
   for (const { collection, layer } of renderable) {
     const tiles = await client.tileTemplate(accessToken, collection);
     if (!tiles) continue;
-    map.addSource(`src-${layer.id}`, { type: "vector", tiles: [tiles] });
+    map.addSource(sourceId(layer.id), { type: "vector", tiles: [tiles] });
     for (const spec of buildMaplibreLayers(layer)) {
       map.addLayer(spec);
     }
@@ -148,4 +151,20 @@ function fitToExtents(map: maplibregl.Map, collections: Collection[]): void {
   }
   if (!hasExtent) return;
   map.fitBounds(bounds, { padding: FIT_PADDING, maxZoom: FIT_MAX_ZOOM, duration: 0 });
+}
+
+// The id a layer vector source is registered under.
+function sourceId(layerId: string): string {
+  return `src-${layerId}`;
+}
+
+// Reloads a layer vector source so a just saved feature is fetched. Reading the
+// tiles from the style and setting them again drops the cached tiles.
+export function reloadLayerTiles(map: maplibregl.Map, layerId: string): void {
+  const id = sourceId(layerId);
+  const spec = map.getStyle().sources[id];
+  const source = map.getSource(id);
+  if (spec && "tiles" in spec && spec.tiles && source && "setTiles" in source) {
+    (source as maplibregl.VectorTileSource).setTiles(spec.tiles);
+  }
 }
