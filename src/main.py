@@ -18,6 +18,7 @@ from features.apikey.router import router as api_keys_router
 from features.crop.router import router as crops_router
 from features.field.router import router as fields_router
 from features.geo.router import router as maps_router
+from features.metadata.router import router as metadata_router
 from utils.errors import install_error_handlers
 
 
@@ -48,6 +49,7 @@ application.include_router(auth_router)
 application.include_router(authz_router)
 application.include_router(crops_router)
 application.include_router(maps_router)
+application.include_router(metadata_router)
 application.add_middleware(SPAMiddleware)
 
 # Services raise plain errors so they stay usable away from HTTP; this is where
