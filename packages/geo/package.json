@@ -10,7 +10,6 @@
     "./utils/errors/geo_api": "./src/utils/errors/geo_api/index.ts"
   },
   "dependencies": {
-    "@turf/bbox": "^7.4.0",
     "@types/geojson": "^7946.0.14"
   },
   "devDependencies": {

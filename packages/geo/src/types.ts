@@ -1,11 +1,10 @@
 /**
- * The shapes the geo API returns. A GeoFeature is a standard GeoJSON Feature
- * with three extra fields the backend adds: an id that is always present, the
- * layer the shape belongs to, and the season it applies to (null when the layer
- * is not seasonal). Properties lists only the fields the map actually reads, so
- * add new fields here as the map starts using them.
+ * The shapes the map API speaks. Two families live here: the GeoJSON features
+ * the API returns, and the OGC discovery documents (collections and tilesets) a
+ * client walks to reach the data. Properties lists only the fields the map
+ * reads, so add fields here as the map starts using them.
  */
-import type { Feature, FeatureCollection, Geometry, GeometryCollection } from "geojson";
+import type { Feature, Geometry, GeometryCollection } from "geojson";
 
 export type GeoGeometry = Exclude<Geometry, GeometryCollection>;
 
@@ -19,10 +18,41 @@ export type GeoFeature = Feature<GeoGeometry, GeoFeatureProperties> & {
   season: string | null;
 };
 
-export interface GeoFeatureCollection extends FeatureCollection<GeoGeometry, GeoFeatureProperties> {
-  features: GeoFeature[];
+/** A bounding box in the collection's CRS, ordered [minX, minY, maxX, maxY]. */
+export type BBox = [minX: number, minY: number, maxX: number, maxY: number];
+
+/**
+ * One link in an OGC document. rel says what the target is to this document;
+ * the client matches on it to walk from a collection to its tiles.
+ */
+export interface OgcLink {
+  href: string;
+  rel: string;
+  type?: string;
+  title?: string;
 }
 
+/**
+ * A layer as the map API describes it. The map reads its geometry class to
+ * style it, its extent to frame the opening view, and its links to find tiles.
+ * The extent's spatial is null until the layer holds something.
+ */
+export interface Collection {
+  id: string;
+  title: string;
+  geometryType: string;
+  seasonal: boolean;
+  extent: { spatial: { bbox: BBox[] } | null };
+  links: OgcLink[];
+}
+
+/** The tilesets document: the tile URLs a collection offers, per matrix set. */
+export interface TileSets {
+  tilesets: Array<{ tileMatrixSetId: string; links: OgcLink[] }>;
+  links: OgcLink[];
+}
+
+/** Where the map API lives. The app owns the base path; the client owns calls. */
 export interface GeoApiConfig {
-  featuresUrl: string;
+  mapsUrl: string;
 }
