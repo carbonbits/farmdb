@@ -30,6 +30,10 @@ class ConfigService(Service):
 
         return row.value if row else None
 
+    def get_row(self, key: str) -> Optional[Configuration]:
+        """Return the whole row for key, for callers that need its timestamps."""
+        return Configuration.get_sync(key)
+
     def set(self, key: str, value: str, created_by: Optional[str] = None) -> None:
         """Insert or update a configuration value."""
         existing = Configuration.get_sync(key)

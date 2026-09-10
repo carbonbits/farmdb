@@ -12,6 +12,13 @@ api_tags_metadata = [
         },
     },
     {
+        "name": "metadata",
+        "description": (
+            "Facts about this instance: which farm it is, when it was created, "
+            "the running build and the database's size on disk."
+        ),
+    },
+    {
         "name": "maps",
         "description": (
             "Geospatial features, vector tiles and WMS. OGC API - Features and "
