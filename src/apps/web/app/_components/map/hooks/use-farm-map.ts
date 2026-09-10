@@ -5,6 +5,7 @@ import { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
+import { useMapDrawing } from "@/app/_components/map/hooks/use-map-drawing";
 import {
   BASE_STYLE,
   FALLBACK_CENTER,
@@ -17,15 +18,16 @@ import {
   applyLayerVisibility,
   attachTokenToMapRequests,
   loadLayers,
-} from "@/app/_components/map/lib/map-controller";
+} from "@/app/_components/map/lib/controllers/map-controller";
 import { useMapLayers } from "@/app/_components/map/store";
 
 maplibregl.setWorkerUrl(WORKER_URL);
 
 /**
  * Owns the react lifecycle of the map: it creates the map once, loads the
- * layers the api serves when a token is ready, keeps the toggle state applied,
- * and exposes what a component needs to render the container and panels.
+ * layers the api serves when a token is ready, and keeps the toggle state
+ * applied. Drawing is wired by a companion hook, and the map component reads
+ * what it needs from the returned handles.
  */
 export function useFarmMap() {
   const { accessToken } = useAuth();
@@ -41,6 +43,7 @@ export function useFarmMap() {
   const setVisible = useMapLayers((state) => state.setVisible);
   const [ready, setReady] = useState(false);
   const [selected, setSelected] = useState<GeoFeature | null>(null);
+  const { startDrawing, cancelDrawing } = useMapDrawing(mapRef, clientRef, tokenRef, ready);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -92,5 +95,7 @@ export function useFarmMap() {
     setVisible,
     selected,
     clearSelected: () => setSelected(null),
+    startDrawing,
+    cancelDrawing,
   };
 }
