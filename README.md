@@ -50,6 +50,49 @@ pnpm install
 pnpm build
 ```
 
+## Working on it day to day
+
+Rebuilding the web app after every change is no way to work on it, so for
+development the API runs in a container and the web app runs on the host with
+hot reload:
+
+```bash
+make dev
+```
+
+That starts the API on http://localhost:5700 — applying any pending migrations
+on the way up — and the web app on http://localhost:3000. Work at :3000; the
+Next dev server proxies `/v1`, `/docs` and `/openapi.json` to the API, so the
+frontend reaches the backend at a relative URL exactly as it does in
+production, with no CORS and no second origin to configure.
+
+`make` on its own lists everything:
+
+```
+up        Start the API on http://localhost:5700 (applies migrations first)
+down      Stop the API
+logs      Follow the API logs
+dev       Start the API, then the web app on http://localhost:3000
+migrate   Apply pending migrations (stops the API for the write)
+key       Mint an all-permissions API key for local testing
+shell     A shell in the API container
+test      Run the Python tests in the container
+lint      Format and check Python, then the web workspace
+reset     Delete the container's database and start over
+```
+
+Two things worth knowing about the database. The container keeps its own
+DuckDB file in a named volume rather than the repo's `farm.db`, because DuckDB
+allows a single writer and its file lock does not cross the container boundary
+— pointing both at one file risks corrupting it. And since the API holds that
+single writer while it is up, anything that writes to the database (migrations,
+minting a key) runs in a one-off container with the API stopped, which is what
+the `make` targets above do for you.
+
+Prefer to run the API on the host instead? `uv run python src/main.py` still
+works, and `pnpm dev` proxies to whatever is on :5700. Run one or the other,
+not both.
+
 ## Configuration
 
 Settings are defined in `src/config/settings.py` and can be overridden with
@@ -122,6 +165,10 @@ so copy it there and then; revoke or list it like any other key.
 Apply the migrations first, because the command needs the `administrator` role
 to exist, and stop the API while it runs, because DuckDB takes a single writer.
 It refuses to run unless `ENVIRONMENT` is `dev`.
+
+Against the containerised API, `make key` runs the same command in a one-off
+container — stopping the API for the write and starting it again afterwards —
+and mints the key in the container's own database.
 
 To check a key, call the metadata endpoint. It needs a principal but no
 particular permission, which makes it the smallest thing a working credential
