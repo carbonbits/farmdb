@@ -101,6 +101,41 @@ Web (from `src/apps/web`):
 pnpm check
 ```
 
+## Contributing
+
+### A key for calling the API
+
+Every endpoint needs a credential, so working on one means holding a key.
+Instead of registering through the web app, mint a development key:
+
+```bash
+uv run farmdb apikey master
+```
+
+It creates (or reuses) a `dev@example.com` user, gives it the `administrator`
+role — the system role that holds every permission in the catalog — and prints
+an ordinary `fdb_` key. It also tops the role up with any permissions added
+since the catalog was seeded, so a key minted today clears the gate on an
+endpoint added today. The plaintext is shown once and only its hash is stored,
+so copy it there and then; revoke or list it like any other key.
+
+Apply the migrations first, because the command needs the `administrator` role
+to exist, and stop the API while it runs, because DuckDB takes a single writer.
+It refuses to run unless `ENVIRONMENT` is `dev`.
+
+To check a key, call the metadata endpoint. It needs a principal but no
+particular permission, which makes it the smallest thing a working credential
+can prove:
+
+```bash
+curl -H "Authorization: Bearer $FARMDB_KEY" http://localhost:5700/v1/metadata
+```
+
+It answers with this farm's id and creation date, the running version, and the
+database's size on disk. A 200 means the credential resolved; a 401 means it did
+not, and a 403 anywhere else means the key is fine but the role is missing a
+permission.
+
 ### Layout todo
 `src/` reads as "the source", but it is really the Python distribution root
 (`pyproject.toml` sets `package-dir = {"" = "src"}`, so every top-level dir under
