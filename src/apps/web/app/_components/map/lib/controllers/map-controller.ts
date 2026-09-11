@@ -158,29 +158,28 @@ function sourceId(layerId: string): string {
   return `src-${layerId}`;
 }
 
-// Moves on every reload so tile urls change and maplibre fetches them again.
-let tileReloadToken = 0;
-
-// Adds the current reload token to a tile url query while leaving the z x y
-// placeholders in the path untouched, so the same tile is fetched as new.
-function withReloadToken(tileUrl: string): string {
-  const [path, query] = tileUrl.split("?");
-  const params = new URLSearchParams(query);
-  params.set("reload", String(tileReloadToken));
-  return `${path}?${params.toString()}`;
-}
-
-// Reloads a layer vector source so a just changed feature is fetched again.
-// Setting the same tile urls can leave the drawn tiles in place, so each reload
-// moves a token in the url and maplibre fetches fresh tiles.
+// Reloads a layer vector source so a just changed feature shows. Calling
+// setTiles alone can leave fill and circle layers drawn from cached tiles, so
+// the source and its sublayers are removed and added back, which drops every
+// cached tile and fetches fresh ones. The sublayers go back in the same place
+// so the draw order does not change.
 export function reloadLayerTiles(map: maplibregl.Map, layerId: string): void {
   const id = sourceId(layerId);
-  const spec = map.getStyle().sources[id];
-  const source = map.getSource(id);
-  if (spec && "tiles" in spec && spec.tiles && source && "setTiles" in source) {
-    tileReloadToken += 1;
-    (source as maplibregl.VectorTileSource).setTiles(spec.tiles.map(withReloadToken));
-  }
+  const source = map.getStyle().sources[id];
+  if (!source) return;
+
+  const styleLayers = map.getStyle().layers;
+  const ownLayers = styleLayers.filter((layer) => "source" in layer && layer.source === id);
+  if (ownLayers.length === 0) return;
+
+  const lastOwnId = ownLayers[ownLayers.length - 1].id;
+  const followingLayer = styleLayers[styleLayers.findIndex((layer) => layer.id === lastOwnId) + 1];
+  const beforeId = followingLayer?.id;
+
+  for (const layer of ownLayers) map.removeLayer(layer.id);
+  map.removeSource(id);
+  map.addSource(id, source);
+  for (const layer of ownLayers) map.addLayer(layer, beforeId);
 }
 
 // Deletes a feature then reloads its layer tiles so it leaves the map.
