@@ -24,9 +24,18 @@ class Settings(BaseSettings):
     jwt_refresh_token_expire_days: int = 30
 
     # WebAuthn Configuration
+    # A passkey ceremony is checked against the origin the browser reports. That
+    # is the API's own origin in normal use, because the API serves the app; set
+    # WEBAUTHN_ORIGIN to the Next dev server's origin to work on passkeys from
+    # `pnpm dev`.
     webauthn_rp_id: str = "localhost"
     webauthn_rp_name: str = "FarmDB"
     webauthn_origin: str = "http://localhost:5700"
+
+    # Browser origins allowed to call this API cross-origin. Nothing needs it
+    # when the API serves the app, which is why the list is empty by default;
+    # add an origin to reach the API from a web app served elsewhere.
+    cors_origins: list[str] = []
 
     # Geospatial Configuration
     # The storage CRS, as an SRID for the geometry column and as the URI the OGC
