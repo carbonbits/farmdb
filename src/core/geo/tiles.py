@@ -17,7 +17,6 @@ the edge actually calls.
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Optional
 
 from core.geo.handler import GeoHandler
@@ -50,17 +49,21 @@ class TileHandler(GeoHandler):
     def handler_signature(self) -> str:
         return "geo_tiles"
 
-    def data_version(self, layer_name: str) -> Optional[datetime]:
-        """The latest change in a layer, or None if it holds nothing.
+    def data_version(self, layer_name: str) -> str:
+        """A stamp for the layer that changes on any write, for the tile ETag.
 
-        Deliberately layer-wide rather than per season or per tile: it is one
-        cheap indexed read, and a version that moves too often only costs a
-        re-render, while one that moves too rarely would serve a stale tile.
+        Combines the latest change time with the row count so inserts and updates
+        move it through the time and deletes move it through the count. A plain
+        max(updated_at) would miss a delete, because removing a row never moves
+        the latest time forward, so the cache would keep serving a tile that
+        still holds the deleted shape.
         """
-        return self._conn.execute(
-            "SELECT max(updated_at) FROM v1.geospatial WHERE layer = $layer",
+        max_updated_at, feature_count = self._conn.execute(
+            "SELECT max(updated_at), count(*) FROM v1.geospatial WHERE layer = $layer",
             {"layer": layer_name},
-        ).fetchone()[0]
+        ).fetchone()
+
+        return f"{max_updated_at}:{feature_count}"
 
     def render(
         self,
