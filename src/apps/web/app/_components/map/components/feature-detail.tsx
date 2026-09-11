@@ -1,17 +1,19 @@
 import type { GeoFeature } from "@farmdb/geo";
 import { useState } from "react";
 
-// Shows the selected feature and lets the user delete it. It asks for a confirm
-// first and shows a plain message when a delete is refused or fails.
+// Shows the selected feature and lets the user edit or delete it. It asks for a
+// confirm before delete and shows a plain message when a delete is refused or fails.
 export function FeatureDetail({
   feature,
   deleteError,
   onClose,
+  onEdit,
   onDelete,
 }: {
   feature: GeoFeature;
   deleteError: "forbidden" | "error" | null;
   onClose: () => void;
+  onEdit: () => void;
   onDelete: () => Promise<void>;
 }) {
   const name = typeof feature.properties.name === "string" ? feature.properties.name : "Feature";
@@ -29,7 +31,7 @@ export function FeatureDetail({
     deleteError === "forbidden"
       ? "You do not have permission to delete this feature."
       : deleteError === "error"
-        ? "Could not delete. try again."
+        ? "Could not delete. Please try again."
         : null;
 
   return (
@@ -94,13 +96,22 @@ export function FeatureDetail({
             </div>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => setConfirming(true)}
-            className="w-full rounded-md border border-[#e7c4c0] py-1.5 text-[12.5px] font-semibold text-[#b3261e] hover:bg-[#fbeae8]"
-          >
-            Delete
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onEdit}
+              className="flex-1 rounded-md border border-[#eadfcb] py-1.5 text-[12.5px] font-semibold text-[#3f2d22] hover:bg-[#f4ead4]"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirming(true)}
+              className="flex-1 rounded-md border border-[#e7c4c0] py-1.5 text-[12.5px] font-semibold text-[#b3261e] hover:bg-[#fbeae8]"
+            >
+              Delete
+            </button>
+          </div>
         )}
         {message ? <div className="mt-2 text-[12px] text-[#b3261e]">{message}</div> : null}
       </div>
