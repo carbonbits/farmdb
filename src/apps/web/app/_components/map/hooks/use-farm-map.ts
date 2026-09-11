@@ -28,8 +28,8 @@ maplibregl.setWorkerUrl(WORKER_URL);
 /**
  * Owns the react lifecycle of the map: it creates the map once, loads the
  * layers the api serves when a token is ready, and keeps the toggle state
- * applied. Drawing is wired by a companion hook, and the map component reads
- * what it needs from the returned handles.
+ * applied. Drawing and editing are wired by a companion hook, and the map
+ * component reads what it needs from the returned handles.
  */
 export function useFarmMap() {
   const { accessToken } = useAuth();
@@ -47,7 +47,12 @@ export function useFarmMap() {
   const setSelected = useSelection((state) => state.setSelected);
   const setDeleteError = useSelection((state) => state.setDeleteError);
   const [ready, setReady] = useState(false);
-  const { startDrawing, cancelDrawing } = useMapDrawing(mapRef, clientRef, tokenRef, ready);
+  const { startDrawing, cancelDrawing, startEditing, saveEdit, cancelEditing } = useMapDrawing(
+    mapRef,
+    clientRef,
+    tokenRef,
+    ready,
+  );
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -109,12 +114,22 @@ export function useFarmMap() {
     }
   };
 
+  const editSelected = (): void => {
+    if (!selected) return;
+    const layer = layers.find((entry) => entry.id === selected.layer);
+    if (!layer) return;
+    startEditing(selected, layer);
+  };
+
   return {
     containerRef,
     viewableLayers: layers,
     visible,
     setVisible,
     deleteSelected,
+    editSelected,
+    saveEdit,
+    cancelEditing,
     startDrawing,
     cancelDrawing,
   };
