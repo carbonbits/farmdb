@@ -1,16 +1,19 @@
 import type { Collection, GeoFeature } from "@farmdb/geo";
 import type { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import * as maplibregl from "maplibre-gl";
-import { FIT_MAX_ZOOM, FIT_PADDING } from "./config";
-import { type MapLayer, toMapLayer } from "./layers";
-import { buildMaplibreLayers, clickLayerId, mapLayerIds, selectionLayerId } from "./rendering";
+import { FIT_MAX_ZOOM, FIT_PADDING } from "@/app/_components/map/lib/config";
+import { type MapLayer, toMapLayer } from "@/app/_components/map/lib/layers";
+import {
+  buildMaplibreLayers,
+  clickLayerId,
+  mapLayerIds,
+  selectionLayerId,
+} from "@/app/_components/map/lib/rendering";
 
 /**
  * The imperative side of the map: everything done to a live maplibre instance.
  * The hook holds the react lifecycle and calls in here to attach the token,
- * load the layers the api serves, and apply the toggle state. Keeping these out
- * of the hook lets the hook read as plain lifecycle and keeps the map mechanics
- * in one place.
+ * load the layers the api serves, and apply the toggle state.
  */
 
 type TokenRef = { current: string | null };
@@ -82,7 +85,7 @@ async function addLayersToMap(
   for (const { collection, layer } of renderable) {
     const tiles = await client.tileTemplate(accessToken, collection);
     if (!tiles) continue;
-    map.addSource(`src-${layer.id}`, { type: "vector", tiles: [tiles] });
+    map.addSource(sourceId(layer.id), { type: "vector", tiles: [tiles] });
     for (const spec of buildMaplibreLayers(layer)) {
       map.addLayer(spec);
     }
@@ -148,4 +151,54 @@ function fitToExtents(map: maplibregl.Map, collections: Collection[]): void {
   }
   if (!hasExtent) return;
   map.fitBounds(bounds, { padding: FIT_PADDING, maxZoom: FIT_MAX_ZOOM, duration: 0 });
+}
+
+// The id a layer vector source is registered under.
+function sourceId(layerId: string): string {
+  return `src-${layerId}`;
+}
+
+// Reloads a layer vector source so a just changed feature shows. Calling
+// setTiles alone can leave fill and circle layers drawn from cached tiles, so
+// the source and its sublayers are removed and added back, which drops every
+// cached tile and fetches fresh ones. The sublayers go back in the same place
+// so the draw order does not change.
+export function reloadLayerTiles(map: maplibregl.Map, layerId: string): void {
+  const id = sourceId(layerId);
+  const source = map.getStyle().sources[id];
+  if (!source) return;
+
+  const styleLayers = map.getStyle().layers;
+  const ownLayers = styleLayers.filter((layer) => "source" in layer && layer.source === id);
+  if (ownLayers.length === 0) return;
+
+  const lastOwnId = ownLayers[ownLayers.length - 1].id;
+  const followingLayer = styleLayers[styleLayers.findIndex((layer) => layer.id === lastOwnId) + 1];
+  const beforeId = followingLayer?.id;
+
+  for (const layer of ownLayers) map.removeLayer(layer.id);
+  map.removeSource(id);
+  map.addSource(id, source);
+  for (const layer of ownLayers) map.addLayer(layer, beforeId);
+}
+
+// Deletes a feature then reloads its layer tiles so it leaves the map.
+export async function deleteSelectedFeature(
+  map: maplibregl.Map,
+  client: GeoApiClient,
+  accessToken: string,
+  feature: GeoFeature,
+): Promise<void> {
+  await client.deleteFeature(accessToken, feature.layer, feature.id);
+  reloadLayerTiles(map, feature.layer);
+}
+
+// Drops the selection highlight so nothing on the map still looks selected.
+export function clearSelectionHighlight(map: maplibregl.Map, layers: MapLayer[]): void {
+  for (const layer of layers) {
+    const selectionId = selectionLayerId(layer);
+    if (selectionId && map.getLayer(selectionId)) {
+      map.setFilter(selectionId, ["==", ["get", "id"], ""]);
+    }
+  }
 }

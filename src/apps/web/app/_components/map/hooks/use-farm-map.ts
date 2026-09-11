@@ -1,10 +1,11 @@
 "use client";
 import { useAuth } from "@farmdb/api-client";
-import type { GeoFeature } from "@farmdb/geo";
 import { ApiClient as GeoApiClient } from "@farmdb/geo/client";
+import { GeoApiError } from "@farmdb/geo/utils/errors/geo_api";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
+import { useMapDrawing } from "@/app/_components/map/hooks/use-map-drawing";
 import {
   BASE_STYLE,
   FALLBACK_CENTER,
@@ -16,16 +17,19 @@ import {
 import {
   applyLayerVisibility,
   attachTokenToMapRequests,
+  clearSelectionHighlight,
+  deleteSelectedFeature,
   loadLayers,
-} from "@/app/_components/map/lib/map-controller";
-import { useMapLayers } from "@/app/_components/map/store";
+} from "@/app/_components/map/lib/controllers/map-controller";
+import { useMapLayers, useSelection } from "@/app/_components/map/store";
 
 maplibregl.setWorkerUrl(WORKER_URL);
 
 /**
  * Owns the react lifecycle of the map: it creates the map once, loads the
- * layers the api serves when a token is ready, keeps the toggle state applied,
- * and exposes what a component needs to render the container and panels.
+ * layers the api serves when a token is ready, and keeps the toggle state
+ * applied. Drawing and editing are wired by a companion hook, and the map
+ * component reads what it needs from the returned handles.
  */
 export function useFarmMap() {
   const { accessToken } = useAuth();
@@ -39,8 +43,16 @@ export function useFarmMap() {
   const visible = useMapLayers((state) => state.visible);
   const setLayers = useMapLayers((state) => state.setLayers);
   const setVisible = useMapLayers((state) => state.setVisible);
+  const selected = useSelection((state) => state.selected);
+  const setSelected = useSelection((state) => state.setSelected);
+  const setDeleteError = useSelection((state) => state.setDeleteError);
   const [ready, setReady] = useState(false);
-  const [selected, setSelected] = useState<GeoFeature | null>(null);
+  const { startDrawing, cancelDrawing, startEditing, saveEdit, cancelEditing } = useMapDrawing(
+    mapRef,
+    clientRef,
+    tokenRef,
+    ready,
+  );
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -77,7 +89,7 @@ export function useFarmMap() {
     if (!map || !client || !ready || !accessToken || loadedRef.current) return;
     loadedRef.current = true;
     void loadLayers(map, client, accessToken, tokenRef, setLayers, setSelected);
-  }, [ready, accessToken, setLayers]);
+  }, [ready, accessToken, setLayers, setSelected]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -85,12 +97,40 @@ export function useFarmMap() {
     applyLayerVisibility(map, layers, visible);
   }, [visible, ready, layers]);
 
+  const deleteSelected = async (): Promise<void> => {
+    const map = mapRef.current;
+    const client = clientRef.current;
+    const token = tokenRef.current;
+    if (!selected || !map || !client || !token) {
+      setDeleteError("error");
+      return;
+    }
+    try {
+      await deleteSelectedFeature(map, client, token, selected);
+      clearSelectionHighlight(map, layers);
+      setSelected(null);
+    } catch (error) {
+      setDeleteError(error instanceof GeoApiError && error.status === 403 ? "forbidden" : "error");
+    }
+  };
+
+  const editSelected = (): void => {
+    if (!selected) return;
+    const layer = layers.find((entry) => entry.id === selected.layer);
+    if (!layer) return;
+    startEditing(selected, layer);
+  };
+
   return {
     containerRef,
     viewableLayers: layers,
     visible,
     setVisible,
-    selected,
-    clearSelected: () => setSelected(null),
+    deleteSelected,
+    editSelected,
+    saveEdit,
+    cancelEditing,
+    startDrawing,
+    cancelDrawing,
   };
 }

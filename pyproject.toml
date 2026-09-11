@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "duckdb>=1.4.3",
+    "duckdb>=1.4.3,<1.5.0",  # 1.5.x crashes on rtree index wal replay, the 1.4 line is the last correct one
     "duckling-orm>=0.1.1",
     "fastapi[standard]>=0.128.0",
     "httpx>=0.27.0",

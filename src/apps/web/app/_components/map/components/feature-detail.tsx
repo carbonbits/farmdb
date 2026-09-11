@@ -1,7 +1,39 @@
 import type { GeoFeature } from "@farmdb/geo";
+import { useState } from "react";
 
-export function FeatureDetail({ feature, onClose }: { feature: GeoFeature; onClose: () => void }) {
+// Shows the selected feature and lets the user edit or delete it. It asks for a
+// confirm before delete and shows a plain message when a delete is refused or fails.
+export function FeatureDetail({
+  feature,
+  deleteError,
+  onClose,
+  onEdit,
+  onDelete,
+}: {
+  feature: GeoFeature;
+  deleteError: "forbidden" | "error" | null;
+  onClose: () => void;
+  onEdit: () => void;
+  onDelete: () => Promise<void>;
+}) {
   const name = typeof feature.properties.name === "string" ? feature.properties.name : "Feature";
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const handleDelete = async () => {
+    setBusy(true);
+    await onDelete();
+    setBusy(false);
+    setConfirming(false);
+  };
+
+  const message =
+    deleteError === "forbidden"
+      ? "You do not have permission to delete this feature."
+      : deleteError === "error"
+        ? "Could not delete. Please try again."
+        : null;
+
   return (
     <div className="absolute right-3 top-3 z-10 w-[280px] rounded-[10px] border border-[#eadfcb] bg-white p-4 shadow-lg">
       <div className="flex items-start justify-between gap-2">
@@ -40,6 +72,49 @@ export function FeatureDetail({ feature, onClose }: { feature: GeoFeature; onClo
           <dd className="truncate font-mono text-[11px] text-[#3f2d22]">{feature.id}</dd>
         </div>
       </dl>
+      <div className="mt-3 border-t border-[#eadfcb] pt-3">
+        {confirming ? (
+          <div className="flex flex-col gap-2">
+            <div className="text-[12.5px] text-[#3f2d22]">Delete this feature?</div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirming(false)}
+                disabled={busy}
+                className="flex-1 rounded-md border border-[#eadfcb] py-1.5 text-[12.5px] text-[#3f2d22] hover:bg-[#f4ead4] disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={busy}
+                className="flex-1 rounded-md bg-[#b3261e] py-1.5 text-[12.5px] font-semibold text-white hover:bg-[#8f1e18] disabled:opacity-60"
+              >
+                {busy ? "Deleting" : "Delete"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onEdit}
+              className="flex-1 rounded-md border border-[#eadfcb] py-1.5 text-[12.5px] font-semibold text-[#3f2d22] hover:bg-[#f4ead4]"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirming(true)}
+              className="flex-1 rounded-md border border-[#e7c4c0] py-1.5 text-[12.5px] font-semibold text-[#b3261e] hover:bg-[#fbeae8]"
+            >
+              Delete
+            </button>
+          </div>
+        )}
+        {message ? <div className="mt-2 text-[12px] text-[#b3261e]">{message}</div> : null}
+      </div>
     </div>
   );
 }
