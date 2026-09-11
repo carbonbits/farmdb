@@ -158,13 +158,48 @@ function sourceId(layerId: string): string {
   return `src-${layerId}`;
 }
 
-// Reloads a layer vector source so a just saved feature is fetched. Reading the
-// tiles from the style and setting them again drops the cached tiles.
+// Moves on every reload so tile urls change and maplibre fetches them again.
+let tileReloadToken = 0;
+
+// Adds the current reload token to a tile url query while leaving the z x y
+// placeholders in the path untouched, so the same tile is fetched as new.
+function withReloadToken(tileUrl: string): string {
+  const [path, query] = tileUrl.split("?");
+  const params = new URLSearchParams(query);
+  params.set("reload", String(tileReloadToken));
+  return `${path}?${params.toString()}`;
+}
+
+// Reloads a layer vector source so a just changed feature is fetched again.
+// Setting the same tile urls can leave the drawn tiles in place, so each reload
+// moves a token in the url and maplibre fetches fresh tiles.
 export function reloadLayerTiles(map: maplibregl.Map, layerId: string): void {
   const id = sourceId(layerId);
   const spec = map.getStyle().sources[id];
   const source = map.getSource(id);
   if (spec && "tiles" in spec && spec.tiles && source && "setTiles" in source) {
-    (source as maplibregl.VectorTileSource).setTiles(spec.tiles);
+    tileReloadToken += 1;
+    (source as maplibregl.VectorTileSource).setTiles(spec.tiles.map(withReloadToken));
+  }
+}
+
+// Deletes a feature then reloads its layer tiles so it leaves the map.
+export async function deleteSelectedFeature(
+  map: maplibregl.Map,
+  client: GeoApiClient,
+  accessToken: string,
+  feature: GeoFeature,
+): Promise<void> {
+  await client.deleteFeature(accessToken, feature.layer, feature.id);
+  reloadLayerTiles(map, feature.layer);
+}
+
+// Drops the selection highlight so nothing on the map still looks selected.
+export function clearSelectionHighlight(map: maplibregl.Map, layers: MapLayer[]): void {
+  for (const layer of layers) {
+    const selectionId = selectionLayerId(layer);
+    if (selectionId && map.getLayer(selectionId)) {
+      map.setFilter(selectionId, ["==", ["get", "id"], ""]);
+    }
   }
 }
