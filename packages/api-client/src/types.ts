@@ -3,7 +3,6 @@ export interface UserRoleRef {
   name: string;
   display_name: string | null;
 }
-
 export interface User {
   id: string;
   email: string;
@@ -14,14 +13,12 @@ export interface User {
   roles: UserRoleRef[];
   permissions: string[];
 }
-
 export interface TokenResponse {
   access_token: string;
   refresh_token: string;
   token_type: string;
   expires_in: number;
 }
-
 export interface PasskeyInfo {
   id: string;
   friendly_name: string | null;
@@ -30,7 +27,6 @@ export interface PasskeyInfo {
   created_at: string;
   last_used_at: string | null;
 }
-
 export interface AuthState {
   user: User | null;
   accessToken: string | null;
@@ -38,18 +34,15 @@ export interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
 }
-
 export interface RegisterRequest {
   email: string;
   password: string;
   display_name?: string;
 }
-
 export interface LoginRequest {
   email: string;
   password: string;
 }
-
 export interface PasskeyAuthOptions {
   challenge: string;
   timeout: number;
@@ -62,7 +55,6 @@ export interface PasskeyAuthOptions {
   }>;
   _challenge_key: string;
 }
-
 export interface PasskeyRegOptions {
   challenge: string;
   rp: { id: string; name: string };
@@ -76,19 +68,14 @@ export interface PasskeyRegOptions {
   };
   attestation: string;
 }
-
 export interface ApiError {
   detail: string;
 }
-
-// --- Access control (RBAC) ---
-
 export interface AuthzPermission {
   name: string;
   group: string | null;
   description: string | null;
 }
-
 export interface AuthzRoleSummary {
   id: string;
   name: string;
@@ -99,23 +86,19 @@ export interface AuthzRoleSummary {
   permissions: string[];
   member_count: number;
 }
-
 export interface AuthzRoleMember {
   id: string;
   email: string;
   display_name: string | null;
 }
-
 export interface AuthzRoleDetail extends AuthzRoleSummary {
   members: AuthzRoleMember[];
 }
-
 export interface AuthzUserRoleRef {
   id: string;
   name: string;
   display_name: string | null;
 }
-
 export interface AuthzUserWithRoles {
   id: string;
   email: string;
@@ -123,7 +106,6 @@ export interface AuthzUserWithRoles {
   is_active: boolean;
   roles: AuthzUserRoleRef[];
 }
-
 export interface CreateRoleInput {
   name: string;
   display_name?: string;
