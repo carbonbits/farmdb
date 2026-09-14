@@ -57,7 +57,15 @@ async def test_collections_describe_the_registry(auth_client):
     resp = await auth_client.get("/v1/maps/collections")
     assert resp.status_code == 200, resp.text
     collections = {c["id"]: c for c in resp.json()["collections"]}
-    assert {"fields", "infrastructure", "markers"} == set(collections)
+    assert {
+        "farm",
+        "fields",
+        "paddocks",
+        "structures",
+        "water",
+        "fences",
+        "gates",
+    } == set(collections)
 
     fields = collections["fields"]
     assert fields["itemType"] == "feature"
@@ -69,7 +77,7 @@ async def test_collections_describe_the_registry(auth_client):
 
 
 @pytest.mark.asyncio
-async def test_collection_extent_follows_the_data(auth_client):
+async def test_collection_extent_follows_the_data(auth_client, farm_outline):
     await auth_client.post(
         "/v1/maps/collections/fields/items", json={"geometry": POLYGON}
     )

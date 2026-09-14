@@ -1,5 +1,23 @@
 import pytest
 
+# An outline with room around the shapes the tests draw, which all sit near
+# 36.80E 1.29S. Every contained layer is measured against this, so a test that
+# wants to store a field asks for the `farm` fixture first — the same order an
+# install does it in, because there is nowhere to put a field until the farm has
+# an edge.
+FARM = {
+    "type": "Polygon",
+    "coordinates": [
+        [[36.79, -1.30], [36.79, -1.27], [36.82, -1.27], [36.82, -1.30], [36.79, -1.30]]
+    ],
+}
+
+
+@pytest.fixture
+def farm(geo):
+    """The farm outline drawn, and the configuration pointing at it."""
+    return geo.create(layer="farm", geometry=FARM)
+
 
 @pytest.fixture
 def geo(tmp_path, monkeypatch):

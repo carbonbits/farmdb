@@ -62,7 +62,7 @@ async def test_list_requires_authentication(api_client):
 
 
 @pytest.mark.asyncio
-async def test_create_and_get_polygon(auth_client):
+async def test_create_and_get_polygon(auth_client, farm_outline):
     created = await auth_client.post(
         items("fields"), json={"geometry": POLYGON, "properties": {"name": "A1"}}
     )
@@ -83,14 +83,14 @@ async def test_create_and_get_polygon(auth_client):
 
 @pytest.mark.asyncio
 async def test_create_point_marker(auth_client):
-    resp = await auth_client.post(items("markers"), json={"geometry": POINT})
+    resp = await auth_client.post(items("gates"), json={"geometry": POINT})
     assert resp.status_code == 201, resp.text
     assert resp.json()["geometry"]["type"] == "Point"
 
 
 @pytest.mark.asyncio
 async def test_create_line_infrastructure(auth_client):
-    resp = await auth_client.post(items("infrastructure"), json={"geometry": LINE})
+    resp = await auth_client.post(items("fences"), json={"geometry": LINE})
     assert resp.status_code == 201, resp.text
     assert resp.json()["geometry"]["type"] == "LineString"
 
@@ -99,7 +99,7 @@ async def test_create_line_infrastructure(auth_client):
 async def test_body_may_not_name_a_collection(auth_client):
     # The collection is in the path; a body that also names one is a mistake.
     resp = await auth_client.post(
-        items("fields"), json={"layer": "markers", "geometry": POLYGON}
+        items("fields"), json={"layer": "gates", "geometry": POLYGON}
     )
     assert resp.status_code == 422
 
@@ -141,15 +141,17 @@ async def test_get_missing_returns_404(auth_client):
 
 
 @pytest.mark.asyncio
-async def test_item_is_only_reachable_through_its_own_collection(auth_client):
+async def test_item_is_only_reachable_through_its_own_collection(
+    auth_client, farm_outline
+):
     created = await auth_client.post(items("fields"), json={"geometry": POLYGON})
     feature_id = created.json()["id"]
 
     # Same id, wrong collection: not at this URL.
-    resp = await auth_client.get(item("markers", feature_id))
+    resp = await auth_client.get(item("gates", feature_id))
     assert resp.status_code == 404
 
-    deleted = await auth_client.delete(item("markers", feature_id))
+    deleted = await auth_client.delete(item("gates", feature_id))
     assert deleted.status_code == 404
     # And the real one survived the attempt.
     assert (await auth_client.get(item("fields", feature_id))).status_code == 200
@@ -159,24 +161,22 @@ async def test_item_is_only_reachable_through_its_own_collection(auth_client):
 
 
 @pytest.mark.asyncio
-async def test_list_filters_by_collection(auth_client):
+async def test_list_filters_by_collection(auth_client, farm_outline):
     await auth_client.post(items("fields"), json={"geometry": POLYGON})
     await auth_client.post(items("fields"), json={"geometry": POLYGON})
-    await auth_client.post(items("markers"), json={"geometry": POINT})
+    await auth_client.post(items("gates"), json={"geometry": POINT})
 
     fields = await auth_client.get(items("fields"))
     assert len(fields.json()["features"]) == 2
-    markers = await auth_client.get(items("markers"))
-    assert len(markers.json()["features"]) == 1
+    gates = await auth_client.get(items("gates"))
+    assert len(gates.json()["features"]) == 1
 
 
 @pytest.mark.asyncio
 async def test_seasonless_collection_ignores_season(auth_client):
-    await auth_client.post(items("infrastructure"), json={"geometry": LINE})
-    # infrastructure is season-less, so a season filter must not hide it.
-    resp = await auth_client.get(
-        items("infrastructure"), params={"season": "2026-long-rains"}
-    )
+    await auth_client.post(items("fences"), json={"geometry": LINE})
+    # fences is season-less, so a season filter must not hide it.
+    resp = await auth_client.get(items("fences"), params={"season": "2026-long-rains"})
     assert resp.status_code == 200
     assert len(resp.json()["features"]) == 1
 
@@ -185,14 +185,22 @@ async def test_seasonless_collection_ignores_season(auth_client):
 
 
 @pytest.mark.asyncio
-async def test_update_reshapes_and_preserves_id(auth_client):
+async def test_update_reshapes_and_preserves_id(auth_client, farm_outline):
     created = await auth_client.post(items("fields"), json={"geometry": POLYGON})
     feature_id = created.json()["id"]
 
+    # A different shape, still inside the outline: a reshape is measured
+    # against the farm the same way a first draw is.
     new_polygon = {
         "type": "Polygon",
         "coordinates": [
-            [[36.0, -1.0], [36.0, -1.1], [36.1, -1.1], [36.1, -1.0], [36.0, -1.0]]
+            [
+                [36.800, -1.288],
+                [36.800, -1.282],
+                [36.806, -1.282],
+                [36.806, -1.288],
+                [36.800, -1.288],
+            ]
         ],
     }
     updated = await auth_client.put(
@@ -206,7 +214,7 @@ async def test_update_reshapes_and_preserves_id(auth_client):
 
 
 @pytest.mark.asyncio
-async def test_delete_then_get_is_404(auth_client):
+async def test_delete_then_get_is_404(auth_client, farm_outline):
     created = await auth_client.post(items("fields"), json={"geometry": POLYGON})
     feature_id = created.json()["id"]
 
@@ -221,11 +229,13 @@ async def test_delete_then_get_is_404(auth_client):
 
 
 @pytest.mark.asyncio
-async def test_create_denied_without_edit(auth_client):
+async def test_create_denied_without_the_boundary_permission(auth_client):
+    """Drawing answers to fields.geometry, which is not fields.edit: naming a
+    field and moving its edge are different rights."""
     await _strip_admin()
     resp = await auth_client.post(items("fields"), json={"geometry": POLYGON})
     assert resp.status_code == 403
-    assert resp.json()["detail"] == "Permission denied: fields.edit"
+    assert resp.json()["detail"] == "Permission denied: fields.geometry"
 
 
 @pytest.mark.asyncio

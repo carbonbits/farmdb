@@ -39,9 +39,9 @@ import duckdb
 from ulid import ULID
 
 from core.config.service import ConfigService
-from core.geo.errors import FeatureNotFound
+from core.geo.errors import FarmNotMapped, FeatureNotFound, OutsideFarm
 from core.geo.geometry import GeometryHandler
-from core.geo.layers import LayerHandler
+from core.geo.layers import FARM_LAYER, Layer, LayerHandler
 from core.geo.models import COLUMNS, Bbox, GeoRecord
 from core.geo.tiles import TileHandler
 from core.service import Service
@@ -54,8 +54,7 @@ class GeospatialService(Service):
         self._conn = conn
         self._geometry: Optional[GeometryHandler] = None
         self._tiles: Optional[TileHandler] = None
-        # No database of its own, so there is nothing to defer.
-        self.layers = LayerHandler()
+        self._layers: Optional[LayerHandler] = None
 
     @property
     def service_signature(self) -> str:
@@ -90,6 +89,19 @@ class GeospatialService(Service):
 
         return self._tiles
 
+    @property
+    def layers(self) -> LayerHandler:
+        """The layer registry, on this connection.
+
+        Deferred like the other two now that the registry is a table: built on
+        the service's own cursor, so a test that hands in a fixture connection
+        reads the layers it seeded rather than opening a second one.
+        """
+        if self._layers is None:
+            self._layers = LayerHandler(self.conn)
+
+        return self._layers
+
     def create(
         self,
         *,
@@ -105,6 +117,7 @@ class GeospatialService(Service):
         """
         spec = self.layers.get(layer)
         geometry_json = self.geometry.validate(geometry, spec.geometry_type)
+        self.ensure_contained(spec, geometry_json)
 
         feature_id = str(ULID())
         # Season-less layers never carry a season, whatever the caller passed.
@@ -129,6 +142,16 @@ class GeospatialService(Service):
                 created_by,
             ],
         )
+
+        if layer == FARM_LAYER:
+            # This shape is the farm from now on. The pointer, not the layer, is
+            # what the platform reads as the outline — so an older outline left
+            # in the layer stops counting the moment this row lands, and a PUT
+            # that reshapes this same feature keeps the pointer valid because
+            # the id does not change.
+            ConfigService().set(
+                self.FARM_GEOMETRY_KEY, feature_id, created_by=created_by
+            )
 
         return self._require(feature_id)
 
@@ -173,6 +196,7 @@ class GeospatialService(Service):
         """
         spec = self.layers.get(self.layer_of(feature_id))
         geometry_json = self.geometry.validate(geometry, spec.geometry_type)
+        self.ensure_contained(spec, geometry_json)
 
         if properties is None:
             self.conn.execute(
@@ -253,6 +277,72 @@ class GeospatialService(Service):
         return self.tiles.render(
             layer=self.layers.get(layer), z=z, x=x, y=y, season=season
         )
+
+    # How much of a shape must fall inside the farm outline. Not all of it: an
+    # outline traced by hand, or walked with a phone's GPS, is a few metres out
+    # in places, and a field following the same fence will cross it by a sliver.
+    # Two per cent of a field's area is that slop; more than that is a field in
+    # the wrong place, and the caller is told rather than quietly clipped.
+    CONTAINMENT = 0.98
+
+    # The configuration key holding the id of this farm's outline. One value,
+    # read by everything that needs to know where the farm is. The farm layer
+    # may hold older outlines; this is the one that counts.
+    FARM_GEOMETRY_KEY = "farmGeometryId"
+
+    def farm_outline(self) -> Optional[GeoRecord]:
+        """This farm's outline, or None while the farm is unmapped."""
+        feature_id = ConfigService().get(self.FARM_GEOMETRY_KEY)
+
+        if not feature_id:
+            return None
+
+        try:
+            return self.get(feature_id)
+        except FeatureNotFound:
+            # The pointer outlived the shape it named. Unmapped is the honest
+            # answer: it tells a caller drawing a field what to do about it,
+            # which "feature 01J… not found" would not.
+            self.logger.warning(
+                "farmGeometryId points at a shape that is gone", id=feature_id
+            )
+
+            return None
+
+    def ensure_contained(self, spec: Layer, geometry_json: str) -> None:
+        """Refuse a shape that does not sit inside the layer it belongs to.
+
+        Layers with no contained_in are unfenced and return immediately. The
+        rest are measured against the farm outline: at least CONTAINMENT of the
+        shape's area has to fall inside it.
+
+        The ratio is computed on the planar geometry rather than the ellipsoid.
+        A ratio of two areas at the same latitude divides the distortion out, so
+        the extra cost of a spheroid measure buys nothing here — unlike the area
+        the API reports, which is measured properly.
+        """
+        if spec.contained_in is None:
+            return
+
+        outline = self.farm_outline()
+
+        if outline is None or outline.layer != spec.contained_in:
+            raise FarmNotMapped()
+
+        inside = self.conn.execute(
+            """
+            SELECT ST_Area(ST_Intersection(ST_GeomFromGeoJSON(?), g.geometry))
+                   / NULLIF(ST_Area(ST_GeomFromGeoJSON(?)), 0)
+            FROM v1.geospatial g
+            WHERE g.id = ?
+            """,
+            [geometry_json, geometry_json, outline.id],
+        ).fetchone()[0]
+
+        # NULL means the shape has no area of its own — a degenerate polygon —
+        # which cannot be inside anything.
+        if inside is None or inside < self.CONTAINMENT:
+            raise OutsideFarm(inside or 0.0, self.CONTAINMENT)
 
     def _require(self, feature_id: str) -> GeoRecord:
         row = self.conn.execute(

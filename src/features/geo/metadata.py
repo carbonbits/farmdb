@@ -52,7 +52,9 @@ async def landing_page(
     """Where a client starts: links to everything else the map API offers."""
     return LandingPage(
         title="FarmDB maps",
-        description="Field boundaries, infrastructure and markers for this farm.",
+        description=(
+            "The farm outline and everything mapped inside it: fields, paddocks, structures, water, fences and gates."
+        ),
         links=[
             Link(
                 href=absolute(request, f"{PREFIX}/"),
