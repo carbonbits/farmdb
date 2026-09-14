@@ -1,12 +1,12 @@
 "use client";
 
 import { useAuth } from "@farmdb/api-client";
+import { FarmMap } from "@farmdb/map";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AppShell } from "../_components/app-shell";
-import { FarmMap } from "../_components/map";
 
-export default function MapPage() {
+export default function FieldsPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
 
@@ -31,7 +31,7 @@ export default function MapPage() {
   }
 
   return (
-    <AppShell active="map" eyebrow="Farm" title="Map" contentFill>
+    <AppShell active="fields" eyebrow="Farm" title="Fields" contentFill>
       <div className="relative min-h-0 flex-1">
         <FarmMap />
       </div>
