@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
   output: "export",
   distDir: "out",
   transpilePackages: ["@farmdb/ui", "@farmdb/api-client"],
-  images: {
+.  images: {
     unoptimized: true,
   },
   // Next 16 writes AGENTS.md and CLAUDE.md into this folder on every dev run.
