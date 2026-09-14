@@ -3,9 +3,9 @@ import type { GeoFeature } from "@farmdb/geo";
 import type { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { type RefObject, useEffect, useRef } from "react";
-import { DrawTool } from "@/app/_components/map/lib/controllers/draw-controller";
-import type { MapLayer } from "@/app/_components/map/lib/layers";
-import { useDrawing, useSelection } from "@/app/_components/map/store";
+import { DrawTool } from "../lib/controllers/draw-controller";
+import type { MapLayer } from "../lib/layers";
+import { useDrawing, useSelection } from "../store";
 
 /**
  * Wires the drawing and editing tools to the live map. It builds the tool once
