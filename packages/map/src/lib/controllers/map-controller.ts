@@ -1,14 +1,14 @@
 import type { Collection, GeoFeature } from "@farmdb/geo";
 import type { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import * as maplibregl from "maplibre-gl";
-import { FIT_MAX_ZOOM, FIT_PADDING } from "@/app/_components/map/lib/config";
-import { type MapLayer, toMapLayer } from "@/app/_components/map/lib/layers";
+import { FIT_MAX_ZOOM, FIT_PADDING } from "../config";
+import { type MapLayer, toMapLayer } from "../layers";
 import {
   buildMaplibreLayers,
   clickLayerId,
   mapLayerIds,
   selectionLayerId,
-} from "@/app/_components/map/lib/rendering";
+} from "../rendering";
 
 /**
  * The imperative side of the map: everything done to a live maplibre instance.
