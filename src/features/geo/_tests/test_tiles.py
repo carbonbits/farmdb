@@ -60,7 +60,7 @@ async def _strip_admin() -> None:
 @pytest.mark.asyncio
 async def test_tile_requires_authentication(api_client):
     x, y = _tile_xy(LON, LAT, Z)
-    resp = await api_client.get(tile_url("markers", Z, x, y))
+    resp = await api_client.get(tile_url("gates", Z, x, y))
     assert resp.status_code == 401
 
 
@@ -74,26 +74,26 @@ async def test_unknown_collection_returns_404(auth_client):
 @pytest.mark.asyncio
 async def test_unknown_tile_matrix_set_returns_404(auth_client):
     x, y = _tile_xy(LON, LAT, Z)
-    resp = await auth_client.get(tile_url("markers", Z, x, y, tms="WorldCRS84Quad"))
+    resp = await auth_client.get(tile_url("gates", Z, x, y, tms="WorldCRS84Quad"))
     assert resp.status_code == 404
 
 
 @pytest.mark.asyncio
 async def test_tilesets_document_lists_the_matrix_set(auth_client):
-    resp = await auth_client.get("/v1/maps/collections/markers/tiles")
+    resp = await auth_client.get("/v1/maps/collections/gates/tiles")
     assert resp.status_code == 200, resp.text
     body = resp.json()
     assert [t["tileMatrixSetId"] for t in body["tilesets"]] == ["WebMercatorQuad"]
     assert body["tilesets"][0]["links"][0]["href"].endswith(
-        "/v1/maps/collections/markers/tiles/WebMercatorQuad/{z}/{x}/{y}.mvt"
+        "/v1/maps/collections/gates/tiles/WebMercatorQuad/{z}/{x}/{y}.mvt"
     )
 
 
 @pytest.mark.asyncio
 async def test_point_tile_renders(auth_client):
-    await _create(auth_client, "markers", POINT)
+    await _create(auth_client, "gates", POINT)
     x, y = _tile_xy(LON, LAT, Z)
-    resp = await auth_client.get(tile_url("markers", Z, x, y))
+    resp = await auth_client.get(tile_url("gates", Z, x, y))
     assert resp.status_code == 200
     assert resp.headers["content-type"] == MVT_MEDIA_TYPE
     assert len(resp.content) > 0
@@ -101,7 +101,7 @@ async def test_point_tile_renders(auth_client):
 
 
 @pytest.mark.asyncio
-async def test_polygon_tile_renders(auth_client):
+async def test_polygon_tile_renders(auth_client, farm_outline):
     await _create(auth_client, "fields", POLYGON)
     x, y = _tile_xy(INSIDE_LON, INSIDE_LAT, Z)
     resp = await auth_client.get(tile_url("fields", Z, x, y))
@@ -111,32 +111,32 @@ async def test_polygon_tile_renders(auth_client):
 
 @pytest.mark.asyncio
 async def test_line_tile_renders(auth_client):
-    await _create(auth_client, "infrastructure", LINE)
+    await _create(auth_client, "fences", LINE)
     x, y = _tile_xy(INSIDE_LON, INSIDE_LAT, Z)
-    resp = await auth_client.get(tile_url("infrastructure", Z, x, y))
+    resp = await auth_client.get(tile_url("fences", Z, x, y))
     assert resp.status_code == 200
     assert len(resp.content) > 0
 
 
 @pytest.mark.asyncio
 async def test_empty_tile_returns_204(auth_client):
-    await _create(auth_client, "markers", POINT)
+    await _create(auth_client, "gates", POINT)
     # Tile 0/0 at this zoom is far from the feature (arctic north-west).
-    resp = await auth_client.get(tile_url("markers", Z, 0, 0))
+    resp = await auth_client.get(tile_url("gates", Z, 0, 0))
     assert resp.status_code == 204
     assert resp.content == b""
 
 
 @pytest.mark.asyncio
 async def test_conditional_request_returns_304(auth_client):
-    await _create(auth_client, "markers", POINT)
+    await _create(auth_client, "gates", POINT)
     x, y = _tile_xy(LON, LAT, Z)
-    first = await auth_client.get(tile_url("markers", Z, x, y))
+    first = await auth_client.get(tile_url("gates", Z, x, y))
     assert first.status_code == 200
     etag = first.headers["etag"]
 
     second = await auth_client.get(
-        tile_url("markers", Z, x, y), headers={"If-None-Match": etag}
+        tile_url("gates", Z, x, y), headers={"If-None-Match": etag}
     )
     assert second.status_code == 304
     assert second.content == b""
@@ -144,11 +144,11 @@ async def test_conditional_request_returns_304(auth_client):
 
 @pytest.mark.asyncio
 async def test_seasonless_collection_ignores_season(auth_client):
-    await _create(auth_client, "markers", POINT)
+    await _create(auth_client, "gates", POINT)
     x, y = _tile_xy(LON, LAT, Z)
-    # markers is season-less, so a season filter must not hide its features.
+    # gates is season-less, so a season filter must not hide its features.
     resp = await auth_client.get(
-        tile_url("markers", Z, x, y), params={"season": "2026-long-rains"}
+        tile_url("gates", Z, x, y), params={"season": "2026-long-rains"}
     )
     assert resp.status_code == 200
     assert len(resp.content) > 0
@@ -156,8 +156,8 @@ async def test_seasonless_collection_ignores_season(auth_client):
 
 @pytest.mark.asyncio
 async def test_tile_denied_without_view(auth_client):
-    await _create(auth_client, "markers", POINT)  # while still admin
+    await _create(auth_client, "gates", POINT)  # while still admin
     await _strip_admin()
     x, y = _tile_xy(LON, LAT, Z)
-    resp = await auth_client.get(tile_url("markers", Z, x, y))
+    resp = await auth_client.get(tile_url("gates", Z, x, y))
     assert resp.status_code == 403

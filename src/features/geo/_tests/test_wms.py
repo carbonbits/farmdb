@@ -54,7 +54,15 @@ async def test_get_capabilities_describes_the_layers(auth_client):
     root = ET.fromstring(resp.content)
     assert root.tag == f"{WMS_NS}WMS_Capabilities"
     assert root.get("version") == "1.3.0"
-    assert set(_layer_names(resp.content)) == {"fields", "infrastructure", "markers"}
+    assert set(_layer_names(resp.content)) == {
+        "farm",
+        "fields",
+        "paddocks",
+        "structures",
+        "water",
+        "fences",
+        "gates",
+    }
 
 
 @pytest.mark.asyncio
