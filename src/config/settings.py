@@ -44,6 +44,11 @@ class Settings(BaseSettings):
     geo_srid: int = 4326
     geo_crs: str = "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
 
+    # The most features one import upload may carry. An upload over this is
+    # rejected whole rather than part imported, so a large file fails fast
+    # instead of writing thousands of rows one insert at a time.
+    geo_import_max_features: int = 1000
+
     # API Server
     # Where main.py binds when it runs the app itself. api_reload left unset
     # follows the environment — autoreload in dev, never in prod — so the usual
