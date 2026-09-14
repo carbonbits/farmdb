@@ -43,3 +43,30 @@ class FeatureNotFound(GeoError, NotFound):
 
 class InvalidGeometry(GeoError, Invalid):
     """The geometry could not be read, or is not what the layer expects."""
+
+
+class FarmNotMapped(GeoError, Invalid):
+    """Nothing can be placed yet, because the farm has no outline.
+
+    Invalid rather than NotFound: the farm is not a resource the caller asked
+    for, it is a precondition of the write they attempted.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(
+            "This farm has no outline yet. Draw the farm boundary before "
+            "mapping anything inside it."
+        )
+
+
+class OutsideFarm(GeoError, Invalid):
+    """A shape falls outside the farm outline it must sit within."""
+
+    def __init__(self, inside: float, required: float) -> None:
+        self.inside = inside
+        self.required = required
+        super().__init__(
+            f"{inside:.1%} of this shape is inside the farm outline; "
+            f"{required:.0%} is required. Fields are subdivisions of the farm, "
+            "so they cannot extend past its edge."
+        )

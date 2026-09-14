@@ -161,3 +161,28 @@ async def test_assign_unknown_role_is_404(auth_client):
     other = AuthService().create_user(email="nobody@example.com")
     resp = await auth_client.post(f"/v1/authz/users/{other.id}/roles/does-not-exist")
     assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_the_boundary_permission_is_in_the_catalog(auth_client):
+    """0016 split drawing a boundary out of editing a field's record."""
+    resp = await auth_client.get("/v1/authz/permissions")
+    by_name = {p["name"]: p for p in resp.json()}
+
+    assert by_name["fields.geometry"]["group"] == "Fields & mapping"
+    # fields.edit stopped covering the map, so its description stopped saying so.
+    assert "boundar" not in by_name["fields.edit"]["description"].lower()
+
+
+@pytest.mark.asyncio
+async def test_every_role_that_could_edit_fields_can_still_draw(auth_client):
+    """The split makes the right explicit without taking anything away: a role
+    that drew boundaries before the migration still draws them after it."""
+    resp = await auth_client.get("/v1/authz/roles")
+    roles = resp.json()
+
+    editors = [r for r in roles if "fields.edit" in r["permissions"]]
+    assert editors, "expected the seeded catalog to grant fields.edit somewhere"
+
+    for role in editors:
+        assert "fields.geometry" in role["permissions"], role["name"]
