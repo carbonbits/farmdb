@@ -16,11 +16,12 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from features.geo import items, metadata, tiles, wms
+from features.geo import imports, items, metadata, tiles, wms
 
 router = APIRouter(prefix="/v1/maps", tags=["maps"])
 
 router.include_router(metadata.router)
 router.include_router(items.router)
+router.include_router(imports.router)
 router.include_router(tiles.router)
 router.include_router(wms.router)
