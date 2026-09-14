@@ -10,13 +10,7 @@ const NAV: Array<{ key: string; label: string; d: string; href?: string }> = [
     d: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
     href: "/",
   },
-  { key: "fields", label: "Fields", d: "M3 17l6-11 6 11M2 20h20" },
-  {
-    key: "map",
-    label: "Map",
-    href: "/map",
-    d: "M3 7l6-4 6 4 6-4v14l-6 4-6-4-6 4z",
-  },
+  { key: "fields", label: "Fields", href: "/fields", d: "M3 17l6-11 6 11M2 20h20" },
   {
     key: "crops",
     label: "Crops",
