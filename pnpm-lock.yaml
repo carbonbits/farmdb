@@ -44,6 +44,40 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  packages/map:
+    dependencies:
+      '@farmdb/api-client':
+        specifier: workspace:*
+        version: link:../api-client
+      '@farmdb/geo':
+        specifier: workspace:*
+        version: link:../geo
+      maplibre-gl:
+        specifier: ^6.6.0
+        version: 6.6.0
+      react:
+        specifier: ^19
+        version: 19.2.7
+      terra-draw:
+        specifier: ^1.33.0
+        version: 1.33.0
+      terra-draw-maplibre-gl-adapter:
+        specifier: ^1.4.1
+        version: 1.4.1(maplibre-gl@6.6.0)(terra-draw@1.33.0)
+      zustand:
+        specifier: ^5.0.15
+        version: 5.0.15(@types/react@19.2.18)(react@19.2.7)
+    devDependencies:
+      '@types/node':
+        specifier: ^26
+        version: 26.2.0
+      '@types/react':
+        specifier: ^19
+        version: 19.2.18
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
   packages/ui:
     dependencies:
       react:
@@ -68,6 +102,9 @@ importers:
       '@farmdb/geo':
         specifier: workspace:*
         version: link:../../../packages/geo
+      '@farmdb/map':
+        specifier: workspace:*
+        version: link:../../../packages/map
       '@farmdb/ui':
         specifier: workspace:*
         version: link:../../../packages/ui
@@ -89,15 +126,6 @@ importers:
       react-hook-form:
         specifier: ^7
         version: 7.84.0(react@19.2.7)
-      terra-draw:
-        specifier: ^1.33.0
-        version: 1.33.0
-      terra-draw-maplibre-gl-adapter:
-        specifier: ^1.4.1
-        version: 1.4.1(maplibre-gl@6.6.0)(terra-draw@1.33.0)
-      zustand:
-        specifier: ^5.0.15
-        version: 5.0.15(@types/react@19.2.18)(react@19.2.7)
     devDependencies:
       '@biomejs/biome':
         specifier: 2.5.11
