@@ -1,4 +1,4 @@
-import type { MapLayer } from "@/app/_components/map/lib/layers";
+import type { MapLayer } from "../../lib/layers";
 
 const SAVE_FAILED_MESSAGE = "The shape could not be saved. Check that it is valid and try again.";
 

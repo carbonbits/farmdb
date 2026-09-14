@@ -5,7 +5,7 @@ import { GeoApiError } from "@farmdb/geo/utils/errors/geo_api";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
-import { useMapDrawing } from "@/app/_components/map/hooks/use-map-drawing";
+import { useMapDrawing } from "./use-map-drawing";
 import {
   BASE_STYLE,
   FALLBACK_CENTER,
@@ -13,15 +13,15 @@ import {
   mapsPrefix,
   mapsUrl,
   WORKER_URL,
-} from "@/app/_components/map/lib/config";
+} from "../lib/config";
 import {
   applyLayerVisibility,
   attachTokenToMapRequests,
   clearSelectionHighlight,
   deleteSelectedFeature,
   loadLayers,
-} from "@/app/_components/map/lib/controllers/map-controller";
-import { useMapLayers, useSelection } from "@/app/_components/map/store";
+} from "../lib/controllers/map-controller";
+import { useMapLayers, useSelection } from "../store";
 
 maplibregl.setWorkerUrl(WORKER_URL);
 
