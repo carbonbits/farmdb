@@ -10,7 +10,7 @@ import type {
   LayerSpecification,
   LineLayerSpecification,
 } from "maplibre-gl";
-import type { GeometryClass, MapLayer } from "./layers";
+import type { GeometryClass, MapLayer } from "@farmdb/map/lib/layers";
 
 const GREEN_FILL = "#4a8a54";
 const GREEN_DARK = "#2c5a38";

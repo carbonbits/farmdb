@@ -1,11 +1,11 @@
 "use client";
 
-import { DrawToolbar } from "./components/draw-toolbar";
-import { EditToolbar } from "./components/edit-toolbar";
-import { FeatureDetail } from "./components/feature-detail";
-import { LayerToggle } from "./components/layer-toggle";
-import { useFarmMap } from "./hooks/use-farm-map";
-import { useDrawing, useSelection } from "./store";
+import { LayerToggle } from "@farmdb/map/components/toolbar/layers/layer-toggle";
+import { DrawToolbar } from "@farmdb/map/components/toolbar/draw/draw-toolbar";
+import { EditToolbar } from "@farmdb/map/components/toolbar/draw/edit-toolbar";
+import { FeatureDetail } from "@farmdb/map/components/toolbar/draw/feature-detail";
+import { useFarmMap } from "@farmdb/map/hooks/use-farm-map";
+import { useDrawing, useSelection } from "@farmdb/map/store";
 
 export function FarmMap() {
   const {
