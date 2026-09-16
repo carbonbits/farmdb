@@ -10,9 +10,9 @@ import {
   TerraDrawSelectMode,
 } from "terra-draw";
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
-import { reloadLayerTiles } from "./map-controller";
-import type { GeometryClass, MapLayer } from "../layers";
-import { mapLayerIds, selectionLayerId } from "../rendering";
+import { reloadLayerTiles } from "@farmdb/map/lib/controllers/map-controller";
+import type { GeometryClass, MapLayer } from "@farmdb/map/lib/layers";
+import { mapLayerIds, selectionLayerId } from "@farmdb/map/lib/rendering";
 
 type TokenRef = { current: string | null };
 type Editing = { terraId: string | number; featureId: string; layer: MapLayer };

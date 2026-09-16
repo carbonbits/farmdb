@@ -1,4 +1,4 @@
-import type { MapLayer } from "../lib/layers";
+import type { MapLayer } from "@farmdb/map/lib/layers";
 export function LayerToggle({
   layers,
   visible,
