@@ -1,6 +1,6 @@
 "use client";
-import type { ImportFeatureInput, ImportResult } from "@farmdb/geo/types";
 import type { ApiClient as GeoApiClient } from "@farmdb/geo/client";
+import type { ImportFeatureInput, ImportResult } from "@farmdb/geo/types";
 import { type RefObject, useState } from "react";
 import type { MapLayer } from "@farmdb/map/lib/layers";
 
@@ -13,13 +13,13 @@ import type { MapLayer } from "@farmdb/map/lib/layers";
 export function useMapImport(
   clientRef: RefObject<GeoApiClient | null>,
   tokenRef: RefObject<string | null>,
-  onImported: () => void,
+  onImported: (layerId: string) => void,
 ) {
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
 
-  async function importFile(layer: MapLayer, file: File): Promise<void> {
+  async function importFile(layer: MapLayer, file: File, season?: string): Promise<void> {
     const client = clientRef.current;
     const token = tokenRef.current;
     if (!client || !token) return;
@@ -30,9 +30,9 @@ export function useMapImport(
 
     try {
       const features = readFeatures(await file.text());
-      const outcome = await client.importFeatures(token, layer.id, features);
+      const outcome = await client.importFeatures(token, layer.id, features, season);
       setResult(outcome);
-      if (outcome.imported > 0) onImported();
+      if (outcome.imported > 0) onImported(layer.id);
     } catch (error) {
       setImportError(importFailureMessage(error));
     } finally {
@@ -50,7 +50,9 @@ export function useMapImport(
 
 /**
  * The features held in a GeoJSON file. Throws when the text is not a feature
- * collection, so nothing is sent when the file cannot be read.
+ * collection, so nothing is sent when the file cannot be read. The file comes
+ * from the user's disk so its shape is not trusted: each step asks a real
+ * question of it rather than assuming it is valid.
  */
 function readFeatures(text: string): ImportFeatureInput[] {
   let document: unknown;
@@ -68,10 +70,19 @@ function readFeatures(text: string): ImportFeatureInput[] {
     throw new Error("That file has no features in it.");
   }
 
-  return features.map((feature) => ({
-    geometry: (feature as { geometry?: unknown })?.geometry ?? null,
-    properties: (feature as { properties?: Record<string, unknown> | null })?.properties ?? null,
-  }));
+  return features.map(toImportFeature);
+}
+
+/**
+ * One raw feature from a file turned into what the api expects. A missing
+ * geometry becomes null, which the api then refuses per feature with a reason.
+ */
+function toImportFeature(raw: unknown): ImportFeatureInput {
+  const feature = raw as { geometry?: unknown; properties?: Record<string, unknown> | null };
+  return {
+    geometry: feature?.geometry ?? null,
+    properties: feature?.properties ?? null,
+  };
 }
 
 /**
