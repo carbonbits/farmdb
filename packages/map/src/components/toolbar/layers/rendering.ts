@@ -23,7 +23,7 @@ import {
   SELECTED_COLOR,
   SELECTED_WIDTH,
 } from "@farmdb/map/components/toolbar/colors";
-import type { GeometryClass, MapLayer } from "@farmdb/map/lib/layers";
+import type { GeometryClass, MapLayer } from "@farmdb/map/components/toolbar/layers/model";
 
 type SubLayer =
   | { role: string; type: "fill"; click?: boolean; paint: FillLayerSpecification["paint"] }
