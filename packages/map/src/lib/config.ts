@@ -1,24 +1,7 @@
 /**
- * Static settings the map boots with and where it reaches the API. The API
- * origin falls back to the current page origin so the map works same origin in
- * local dev and can point at another host with NEXT_PUBLIC_API_URL. The maps
- * path is the one entry point the client needs, and the maps prefix is the
- * boundary that decides which requests carry the access token.
+ * Where the map reaches the api and where maplibre loads its worker. The maps
+ * prefix is what decides which requests carry the access token.
  */
-import type { StyleSpecification } from "maplibre-gl";
-
-export const BASE_STYLE: StyleSpecification = {
-  version: 8,
-  sources: {
-    osm: {
-      type: "raster",
-      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-      tileSize: 256,
-      attribution: "© OpenStreetMap contributors",
-    },
-  },
-  layers: [{ id: "osm", type: "raster", source: "osm" }],
-};
 
 export const FALLBACK_CENTER: [number, number] = [0, 0];
 
