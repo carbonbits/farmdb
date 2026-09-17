@@ -71,14 +71,15 @@ export class ApiClient {
   /**
    * Sends a collection of features to a layer and returns how many landed and
    * which were skipped. The geometries go as they came from the file and the
-   * api checks each one.
+   * api checks each one. A season is carried only when one is given.
    */
   async importFeatures(
     accessToken: string,
     collectionId: string,
     features: ImportFeatureInput[],
+    season?: string,
   ): Promise<ImportResult> {
-    const response = await this.send(this.importUrl(collectionId), accessToken, {
+    const response = await this.send(this.importUrl(collectionId, season), accessToken, {
       method: "POST",
       headers: { "Content-Type": JSON_MEDIA_TYPE },
       body: JSON.stringify({ features }),
@@ -109,8 +110,9 @@ export class ApiClient {
     return `${this.itemsUrl(collectionId)}/${encodeURIComponent(featureId)}`;
   }
 
-  private importUrl(collectionId: string): string {
-    return `${this.config.mapsUrl}/collections/${encodeURIComponent(collectionId)}/import`;
+  private importUrl(collectionId: string, season?: string): string {
+    const url = `${this.config.mapsUrl}/collections/${encodeURIComponent(collectionId)}/import`;
+    return season ? `${url}?season=${encodeURIComponent(season)}` : url;
   }
 
   private async send(url: string, accessToken: string, init?: RequestInit): Promise<Response> {
