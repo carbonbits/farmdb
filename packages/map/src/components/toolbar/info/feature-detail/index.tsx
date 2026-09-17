@@ -35,7 +35,7 @@ export function FeatureDetail({
         : null;
 
   return (
-    <div className="absolute right-3 top-3 z-10 w-[280px] rounded-[10px] border border-[#eadfcb] bg-white p-4 shadow-lg">
+    <div className="w-[280px] rounded-[10px] border border-[#eadfcb] bg-white p-4 shadow-lg">
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="text-[10px] font-bold uppercase tracking-[1.2px] text-[#957a5c]">
