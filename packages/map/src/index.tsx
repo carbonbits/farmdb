@@ -1,9 +1,11 @@
 "use client";
 
-import { LayerToggle } from "@farmdb/map/components/toolbar/layers/layer-toggle";
+import { Toolbar } from "@farmdb/map/components/toolbar";
 import { DrawToolbar } from "@farmdb/map/components/toolbar/draw/draw-toolbar";
 import { EditToolbar } from "@farmdb/map/components/toolbar/draw/edit-toolbar";
-import { FeatureDetail } from "@farmdb/map/components/toolbar/draw/feature-detail";
+import { FeatureDetail } from "@farmdb/map/components/toolbar/info";
+import { LayerToggle } from "@farmdb/map/components/toolbar/layers";
+import { ZoomControl } from "@farmdb/map/components/toolbar/zoom";
 import { useFarmMap } from "@farmdb/map/hooks/use-farm-map";
 import { useDrawing, useSelection } from "@farmdb/map/store";
 
@@ -19,9 +21,11 @@ export function FarmMap() {
     cancelEditing,
     startDrawing,
     cancelDrawing,
+    zoomIn,
+    zoomOut,
   } = useFarmMap();
   const activeLayerId = useDrawing((state) => state.activeLayerId);
-  const saveFailed = useDrawing((state) => state.saveFailed);
+  const saveError = useDrawing((state) => state.saveError);
   const selected = useSelection((state) => state.selected);
   const editing = useSelection((state) => state.editing);
   const deleteError = useSelection((state) => state.deleteError);
@@ -31,24 +35,34 @@ export function FarmMap() {
   return (
     <div className="absolute inset-0">
       <div ref={containerRef} className="h-full w-full" />
-      <LayerToggle layers={viewableLayers} visible={visible} onChange={setVisible} />
-      <DrawToolbar
-        layers={viewableLayers}
-        activeLayerId={activeLayerId}
-        saveFailed={saveFailed}
-        onDraw={startDrawing}
-        onCancel={cancelDrawing}
+      <Toolbar
+        topLeft={<LayerToggle layers={viewableLayers} visible={visible} onChange={setVisible} />}
+        topRight={
+          <>
+            <ZoomControl onZoomIn={zoomIn} onZoomOut={zoomOut} />
+            {editing ? (
+              <EditToolbar editError={editError} onSave={saveEdit} onCancel={cancelEditing} />
+            ) : selected ? (
+              <FeatureDetail
+                feature={selected}
+                deleteError={deleteError}
+                onClose={() => setSelected(null)}
+                onEdit={editSelected}
+                onDelete={deleteSelected}
+              />
+            ) : null}
+          </>
+        }
+        bottomLeft={
+          <DrawToolbar
+            layers={viewableLayers}
+            activeLayerId={activeLayerId}
+            saveError={saveError}
+            onDraw={startDrawing}
+            onCancel={cancelDrawing}
+          />
+        }
       />
-      {editing && <EditToolbar editError={editError} onSave={saveEdit} onCancel={cancelEditing} />}
-      {!editing && selected && (
-        <FeatureDetail
-          feature={selected}
-          deleteError={deleteError}
-          onClose={() => setSelected(null)}
-          onEdit={editSelected}
-          onDelete={deleteSelected}
-        />
-      )}
     </div>
   );
 }
