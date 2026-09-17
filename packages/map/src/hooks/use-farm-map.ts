@@ -11,6 +11,7 @@ import {
   FALLBACK_ZOOM,
   fitToExtents,
 } from "@farmdb/map/components/toolbar/center";
+import { useMapImport } from "@farmdb/map/components/toolbar/data/use-map-import";
 import { useMapDrawing } from "@farmdb/map/components/toolbar/draw/use-map-drawing";
 import { mapsPrefix, mapsUrl, WORKER_URL } from "@farmdb/map/lib/config";
 import {
@@ -19,6 +20,7 @@ import {
   clearSelectionHighlight,
   deleteSelectedFeature,
   loadLayers,
+  reloadLayerTiles,
 } from "@farmdb/map/lib/controllers/map-controller";
 import { useMapLayers, useSelection } from "@farmdb/map/store";
 
@@ -27,8 +29,8 @@ maplibregl.setWorkerUrl(WORKER_URL);
 /**
  * Owns the react lifecycle of the map: it creates the map once, loads the
  * layers the api serves when a token is ready, and keeps the toggle state
- * applied. Drawing and editing are wired by a companion hook, and the map
- * component reads what it needs from the returned handles.
+ * applied. Drawing, editing and importing are wired by companion hooks, and the
+ * map component reads what it needs from the returned handles.
  */
 export function useFarmMap() {
   const { accessToken } = useAuth();
@@ -51,6 +53,14 @@ export function useFarmMap() {
     clientRef,
     tokenRef,
     ready,
+  );
+  const { importing, result: importResult, importError, importFile, clearImport } = useMapImport(
+    clientRef,
+    tokenRef,
+    (layerId) => {
+      const map = mapRef.current;
+      if (map) reloadLayerTiles(map, layerId);
+    },
   );
 
   useEffect(() => {
@@ -142,5 +152,10 @@ export function useFarmMap() {
     cancelDrawing,
     zoomIn,
     zoomOut,
+    importing,
+    importResult,
+    importError,
+    importFile,
+    clearImport,
   };
 }
