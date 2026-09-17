@@ -27,7 +27,7 @@ export function EditToolbar({
         : null;
 
   return (
-    <div className="absolute right-3 top-3 z-10 w-[280px] rounded-[10px] border border-[#eadfcb] bg-white p-4 shadow-lg">
+    <div className="w-[280px] rounded-[10px] border border-[#eadfcb] bg-white p-4 shadow-lg">
       <div className="font-serif text-[15px] font-semibold text-[#20160f]">Reshape feature</div>
       <div className="mt-1 text-[12.5px] text-[#957a5c]">Drag the points to reshape, then save.</div>
       <div className="mt-3 flex gap-2">

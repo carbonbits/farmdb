@@ -23,7 +23,7 @@ export function useMapDrawing(
 ) {
   const drawToolRef = useRef<DrawTool | null>(null);
   const setActiveLayer = useDrawing((state) => state.setActiveLayer);
-  const setSaveFailed = useDrawing((state) => state.setSaveFailed);
+  const setSaveError = useDrawing((state) => state.setSaveError);
   const setSelected = useSelection((state) => state.setSelected);
   const setEditing = useSelection((state) => state.setEditing);
   const setEditError = useSelection((state) => state.setEditError);
@@ -37,34 +37,35 @@ export function useMapDrawing(
       client,
       tokenRef,
       () => setActiveLayer(null),
-      () => {
+      (message) => {
         setActiveLayer(null);
-        setSaveFailed(true);
+        setSaveError(message);
       },
     );
     return () => {
       drawToolRef.current?.destroy();
       drawToolRef.current = null;
     };
-  }, [mapRef, clientRef, tokenRef, ready, setActiveLayer, setSaveFailed]);
+  }, [mapRef, clientRef, tokenRef, ready, setActiveLayer, setSaveError]);
 
   function startDrawing(layer: MapLayer): void {
     drawToolRef.current?.startDrawing(layer);
     setEditing(false);
     setEditError(null);
-    setSaveFailed(false);
+    setSaveError(null);
     setActiveLayer(layer.id);
   }
 
   function cancelDrawing(): void {
     drawToolRef.current?.cancelDrawing();
     setActiveLayer(null);
+    setSaveError(null);
   }
 
   function startEditing(feature: GeoFeature, layer: MapLayer): void {
     drawToolRef.current?.startEditing(feature, layer);
     setActiveLayer(null);
-    setSaveFailed(false);
+    setSaveError(null);
     setEditError(null);
     setEditing(true);
   }
