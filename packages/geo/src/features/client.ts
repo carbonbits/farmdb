@@ -3,6 +3,8 @@ import type {
   CreateFeatureInput,
   GeoApiConfig,
   GeoFeature,
+  ImportFeatureInput,
+  ImportResult,
   TileSets,
   UpdateFeatureInput,
 } from "@farmdb/geo/types";
@@ -66,6 +68,24 @@ export class ApiClient {
     await this.send(this.itemUrl(collectionId, featureId), accessToken, { method: "DELETE" });
   }
 
+  /**
+   * Sends a collection of features to a layer and returns how many landed and
+   * which were skipped. The geometries go as they came from the file and the
+   * api checks each one.
+   */
+  async importFeatures(
+    accessToken: string,
+    collectionId: string,
+    features: ImportFeatureInput[],
+  ): Promise<ImportResult> {
+    const response = await this.send(this.importUrl(collectionId), accessToken, {
+      method: "POST",
+      headers: { "Content-Type": JSON_MEDIA_TYPE },
+      body: JSON.stringify({ features }),
+    });
+    return (await response.json()) as ImportResult;
+  }
+
   async tileTemplate(accessToken: string, collection: Collection): Promise<string | null> {
     const tilesetsLink = collection.links.find((link) => link.rel === TILESETS_VECTOR_REL);
     if (!tilesetsLink) return null;
@@ -89,14 +109,27 @@ export class ApiClient {
     return `${this.itemsUrl(collectionId)}/${encodeURIComponent(featureId)}`;
   }
 
+  private importUrl(collectionId: string): string {
+    return `${this.config.mapsUrl}/collections/${encodeURIComponent(collectionId)}/import`;
+  }
+
   private async send(url: string, accessToken: string, init?: RequestInit): Promise<Response> {
     const response = await fetch(url, {
       ...init,
       headers: { ...init?.headers, Authorization: `Bearer ${accessToken}` },
     });
     if (!response.ok) {
-      throw new GeoApiError(`Geo request failed with ${response.status}`, response.status);
+      throw new GeoApiError(await failureMessage(response), response.status);
     }
     return response;
   }
+}
+
+/**
+ * The message the api sent back, or a plain one when the body is not json.
+ */
+async function failureMessage(response: Response): Promise<string> {
+  const body = (await response.json().catch(() => null)) as { detail?: unknown } | null;
+  if (typeof body?.detail === "string" && body.detail) return body.detail;
+  return `Geo request failed with ${response.status}`;
 }
