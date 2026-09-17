@@ -14,7 +14,7 @@ from typing import Optional
 
 from core.auth.principal import Principal
 from core.authz.service import AuthzService
-from core.geo.errors import InvalidGeometry
+from core.errors import Invalid
 from core.geo.layers import get_layer
 from core.geo.service import GeospatialService
 from features.geo.handlers.imports.input import ImportFeatureCollection
@@ -46,7 +46,7 @@ async def import_features(
                 created_by=principal.user_id,
             )
             imported += 1
-        except InvalidGeometry as exc:
+        except Invalid as exc:
             skipped.append(SkippedFeature(index=index, reason=str(exc)))
 
     return ImportResult(imported=imported, skipped=skipped)
