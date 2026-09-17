@@ -1,8 +1,8 @@
 /**
  * Turns the map's own layers into maplibre sublayers. A domain MapLayer knows
  * nothing about maplibre, so this file is where that translation lives: the
- * colours and sizes a layer is drawn with, the table of sublayers each geometry
- * class produces, and the helpers that build their ids and specs.
+ * table of sublayers each geometry class produces, and the helpers that build
+ * their ids and specs.
  */
 import type {
   CircleLayerSpecification,
@@ -10,19 +10,20 @@ import type {
   LayerSpecification,
   LineLayerSpecification,
 } from "maplibre-gl";
+import {
+  CIRCLE_RADIUS,
+  CIRCLE_STROKE_WIDTH,
+  CREAM,
+  FILL_OPACITY,
+  GREEN,
+  GREEN_DARK,
+  GREEN_FILL,
+  LINE_WIDTH,
+  OUTLINE_WIDTH,
+  SELECTED_COLOR,
+  SELECTED_WIDTH,
+} from "@farmdb/map/components/toolbar/colors";
 import type { GeometryClass, MapLayer } from "@farmdb/map/lib/layers";
-
-const GREEN_FILL = "#4a8a54";
-const GREEN_DARK = "#2c5a38";
-const GREEN = "#346b41";
-const CREAM = "#f4ead4";
-const SELECTED_COLOR = "#d8a43b";
-const FILL_OPACITY = 0.35;
-const OUTLINE_WIDTH = 1.5;
-const LINE_WIDTH = 3;
-const SELECTED_WIDTH = 3;
-const CIRCLE_RADIUS = 6;
-const CIRCLE_STROKE_WIDTH = 2;
 
 type SubLayer =
   | { role: string; type: "fill"; click?: boolean; paint: FillLayerSpecification["paint"] }
@@ -82,6 +83,13 @@ function sublayerId(layer: MapLayer, role: string): string {
   return `${layer.id}-${role}`;
 }
 
+/**
+ * The id a layer vector source is registered under.
+ */
+export function sourceId(layerId: string): string {
+  return `src-${layerId}`;
+}
+
 export function mapLayerIds(layer: MapLayer): string[] {
   return SUBLAYERS[layer.geometry].map((sub) => sublayerId(layer, sub.role));
 }
@@ -98,7 +106,7 @@ export function selectionLayerId(layer: MapLayer): string | null {
 }
 
 export function buildMaplibreLayers(layer: MapLayer): LayerSpecification[] {
-  const source = `src-${layer.id}`;
+  const source = sourceId(layer.id);
   return SUBLAYERS[layer.geometry].map((sub) => {
     const base = { id: sublayerId(layer, sub.role), source, "source-layer": layer.id };
     if (sub.type === "fill") return { ...base, type: "fill", paint: sub.paint };
