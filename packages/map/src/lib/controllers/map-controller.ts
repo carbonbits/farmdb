@@ -1,13 +1,13 @@
 import type { Collection, GeoFeature } from "@farmdb/geo";
 import type { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import * as maplibregl from "maplibre-gl";
-import { FIT_MAX_ZOOM, FIT_PADDING } from "@farmdb/map/lib/config";
 import { type MapLayer, toMapLayer } from "@farmdb/map/lib/layers";
 import {
   buildMaplibreLayers,
   clickLayerId,
   mapLayerIds,
   selectionLayerId,
+  sourceId,
 } from "@farmdb/map/lib/rendering";
 
 /**
@@ -37,13 +37,13 @@ export async function loadLayers(
   tokenRef: TokenRef,
   onLayers: (layers: MapLayer[]) => void,
   onSelect: (feature: GeoFeature | null) => void,
-): Promise<void> {
+): Promise<Collection[]> {
   let collections: Collection[];
   try {
     collections = await client.listCollections(accessToken);
   } catch {
     // Without the layer list there is nothing to draw, so the basemap stays.
-    return;
+    return [];
   }
 
   const renderable: Renderable[] = [];
@@ -57,7 +57,8 @@ export async function loadLayers(
   onLayers(layerList);
   showPointerOnHover(map, clickableLayerIds);
   bindFeatureSelect(map, layerList, clickableLayerIds, client, tokenRef, onSelect);
-  fitToExtents(map, collections);
+
+  return collections;
 }
 
 export function applyLayerVisibility(
@@ -135,27 +136,6 @@ function highlightSelection(map: maplibregl.Map, layers: MapLayer[], featureId: 
       map.setFilter(selectionId, ["==", ["get", "id"], featureId]);
     }
   }
-}
-
-function fitToExtents(map: maplibregl.Map, collections: Collection[]): void {
-  const bounds = new maplibregl.LngLatBounds();
-  let hasExtent = false;
-  for (const collection of collections) {
-    const spatial = collection.extent.spatial;
-    if (!spatial) continue;
-    const box = spatial.bbox[0];
-    if (!box) continue;
-    bounds.extend([box[0], box[1]]);
-    bounds.extend([box[2], box[3]]);
-    hasExtent = true;
-  }
-  if (!hasExtent) return;
-  map.fitBounds(bounds, { padding: FIT_PADDING, maxZoom: FIT_MAX_ZOOM, duration: 0 });
-}
-
-// The id a layer vector source is registered under.
-function sourceId(layerId: string): string {
-  return `src-${layerId}`;
 }
 
 // Reloads a layer vector source so a just changed feature shows. Calling
