@@ -2,7 +2,7 @@
 import type { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import type { ImportFeatureInput, ImportResult } from "@farmdb/geo/types";
 import { type RefObject, useState } from "react";
-import type { MapLayer } from "@farmdb/map/lib/layers";
+import type { MapLayer } from "@farmdb/map/components/toolbar/layers/model";
 
 /**
  * Reads a GeoJSON file and sends its features to a layer. Holds the outcome of

@@ -4,7 +4,7 @@ import type { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { type RefObject, useEffect, useRef } from "react";
 import { DrawTool } from "@farmdb/map/lib/controllers/draw-controller";
-import type { MapLayer } from "@farmdb/map/lib/layers";
+import type { MapLayer } from "@farmdb/map/components/toolbar/layers/model";
 import { useDrawing, useSelection } from "@farmdb/map/store";
 
 /**

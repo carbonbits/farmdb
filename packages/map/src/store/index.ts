@@ -1,6 +1,6 @@
 import type { GeoFeature } from "@farmdb/geo";
 import { create } from "zustand";
-import type { MapLayer } from "@farmdb/map/lib/layers";
+import type { MapLayer } from "@farmdb/map/components/toolbar/layers/model";
 
 /**
  * The map ui state, kept in small stores the ui reacts to. One holds the layers
