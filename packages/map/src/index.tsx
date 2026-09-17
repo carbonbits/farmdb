@@ -1,6 +1,7 @@
 "use client";
 
 import { Toolbar } from "@farmdb/map/components/toolbar";
+import { ImportPanel } from "@farmdb/map/components/toolbar/data";
 import { DrawToolbar } from "@farmdb/map/components/toolbar/draw/draw-toolbar";
 import { EditToolbar } from "@farmdb/map/components/toolbar/draw/edit-toolbar";
 import { FeatureDetail } from "@farmdb/map/components/toolbar/info";
@@ -23,6 +24,11 @@ export function FarmMap() {
     cancelDrawing,
     zoomIn,
     zoomOut,
+    importing,
+    importResult,
+    importError,
+    importFile,
+    clearImport,
   } = useFarmMap();
   const activeLayerId = useDrawing((state) => state.activeLayerId);
   const saveError = useDrawing((state) => state.saveError);
@@ -54,13 +60,23 @@ export function FarmMap() {
           </>
         }
         bottomLeft={
-          <DrawToolbar
-            layers={viewableLayers}
-            activeLayerId={activeLayerId}
-            saveError={saveError}
-            onDraw={startDrawing}
-            onCancel={cancelDrawing}
-          />
+          <>
+            <DrawToolbar
+              layers={viewableLayers}
+              activeLayerId={activeLayerId}
+              saveError={saveError}
+              onDraw={startDrawing}
+              onCancel={cancelDrawing}
+            />
+            <ImportPanel
+              layers={viewableLayers}
+              importing={importing}
+              result={importResult}
+              importError={importError}
+              onImport={importFile}
+              onClear={clearImport}
+            />
+          </>
         }
       />
     </div>
