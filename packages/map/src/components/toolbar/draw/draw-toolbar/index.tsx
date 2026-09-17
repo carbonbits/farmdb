@@ -1,4 +1,4 @@
-import type { MapLayer } from "@farmdb/map/lib/layers";
+import type { MapLayer } from "@farmdb/map/components/toolbar/layers/model";
 
 /**
  * Lists the layers a user can draw into, and shows why the last shape was

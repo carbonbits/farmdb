@@ -1,4 +1,4 @@
-import type { MapLayer } from "@farmdb/map/lib/layers";
+import type { MapLayer } from "@farmdb/map/components/toolbar/layers/model";
 
 /**
  * Shows every layer with a checkbox and turns each one on or off.

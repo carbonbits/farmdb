@@ -11,8 +11,8 @@ import {
 } from "terra-draw";
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
 import { reloadLayerTiles } from "@farmdb/map/lib/controllers/map-controller";
-import type { GeometryClass, MapLayer } from "@farmdb/map/lib/layers";
-import { mapLayerIds, selectionLayerId } from "@farmdb/map/lib/rendering";
+import type { GeometryClass, MapLayer } from "@farmdb/map/components/toolbar/layers/model";
+import { mapLayerIds, selectionLayerId } from "@farmdb/map/components/toolbar/layers/rendering";
 
 type TokenRef = { current: string | null };
 type Editing = { terraId: string | number; featureId: string; layer: MapLayer };
