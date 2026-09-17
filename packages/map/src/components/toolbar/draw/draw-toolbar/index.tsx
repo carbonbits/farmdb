@@ -1,24 +1,26 @@
 import type { MapLayer } from "@farmdb/map/lib/layers";
 
-const SAVE_FAILED_MESSAGE = "The shape could not be saved. Check that it is valid and try again.";
-
+/**
+ * Lists the layers a user can draw into, and shows why the last shape was
+ * refused.
+ */
 export function DrawToolbar({
   layers,
   activeLayerId,
-  saveFailed,
+  saveError,
   onDraw,
   onCancel,
 }: {
   layers: MapLayer[];
   activeLayerId: string | null;
-  saveFailed: boolean;
+  saveError: string | null;
   onDraw: (layer: MapLayer) => void;
   onCancel: () => void;
 }) {
   if (layers.length === 0) return null;
   const active = layers.find((layer) => layer.id === activeLayerId) ?? null;
   return (
-    <div className="absolute bottom-3 left-3 z-10 w-[180px] rounded-[10px] border border-[#eadfcb] bg-white/95 p-3 shadow-md backdrop-blur">
+    <div className="w-[180px] rounded-[10px] border border-[#eadfcb] bg-white/95 p-3 shadow-md backdrop-blur">
       <div className="mb-2 text-[10px] font-bold uppercase tracking-[1.2px] text-[#957a5c]">
         Draw
       </div>
@@ -49,7 +51,7 @@ export function DrawToolbar({
           ))}
         </div>
       )}
-      {saveFailed ? <p className="mt-2 text-[12px] text-[#b0432f]">{SAVE_FAILED_MESSAGE}</p> : null}
+      {saveError ? <p className="mt-2 text-[12px] text-[#b3261e]">{saveError}</p> : null}
     </div>
   );
 }
