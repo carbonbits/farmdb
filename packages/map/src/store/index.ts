@@ -7,7 +7,7 @@ import type { MapLayer } from "@farmdb/map/lib/layers";
  * the map shows and which are toggled on. The list starts empty and the map
  * fills it from the api on load, so the api is the one source of what layers
  * exist. One holds the drawing state: the layer the user is drawing into, null
- * when idle, and whether the last save failed. One holds the selection state:
+ * when idle, and why the last save failed. One holds the selection state:
  * the feature the user picked, whether it is being reshaped, and why the last
  * delete or edit failed so the panel can show the right message. Live map
  * objects like the drawing tool stay out because they are not state the ui
@@ -29,16 +29,16 @@ export const useMapLayers = create<MapLayerState>((set) => ({
 
 interface DrawingState {
   activeLayerId: string | null;
-  saveFailed: boolean;
+  saveError: string | null;
   setActiveLayer: (layerId: string | null) => void;
-  setSaveFailed: (failed: boolean) => void;
+  setSaveError: (error: string | null) => void;
 }
 
 export const useDrawing = create<DrawingState>((set) => ({
   activeLayerId: null,
-  saveFailed: false,
+  saveError: null,
   setActiveLayer: (activeLayerId) => set({ activeLayerId }),
-  setSaveFailed: (saveFailed) => set({ saveFailed }),
+  setSaveError: (saveError) => set({ saveError }),
 }));
 
 interface SelectionState {
