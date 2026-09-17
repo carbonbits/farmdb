@@ -5,14 +5,14 @@ import { GeoApiError } from "@farmdb/geo/utils/errors/geo_api";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
+import { BASE_STYLE } from "@farmdb/map/components/basemap";
 import {
-  BASE_STYLE,
   FALLBACK_CENTER,
   FALLBACK_ZOOM,
-  mapsPrefix,
-  mapsUrl,
-  WORKER_URL,
-} from "@farmdb/map/lib/config";
+  fitToExtents,
+} from "@farmdb/map/components/toolbar/center";
+import { useMapDrawing } from "@farmdb/map/components/toolbar/draw/use-map-drawing";
+import { mapsPrefix, mapsUrl, WORKER_URL } from "@farmdb/map/lib/config";
 import {
   applyLayerVisibility,
   attachTokenToMapRequests,
@@ -21,7 +21,6 @@ import {
   loadLayers,
 } from "@farmdb/map/lib/controllers/map-controller";
 import { useMapLayers, useSelection } from "@farmdb/map/store";
-import { useMapDrawing } from "@farmdb/map/components/toolbar/draw/use-map-drawing";
 
 maplibregl.setWorkerUrl(WORKER_URL);
 
@@ -66,7 +65,6 @@ export function useFarmMap() {
       transformRequest: attachTokenToMapRequests(tokenRef, mapsPrefix()),
     });
     mapRef.current = map;
-    map.addControl(new maplibregl.NavigationControl(), "top-right");
 
     const resizeObserver = new ResizeObserver(() => map.resize());
     resizeObserver.observe(containerRef.current);
@@ -88,7 +86,9 @@ export function useFarmMap() {
     const client = clientRef.current;
     if (!map || !client || !ready || !accessToken || loadedRef.current) return;
     loadedRef.current = true;
-    void loadLayers(map, client, accessToken, tokenRef, setLayers, setSelected);
+    void loadLayers(map, client, accessToken, tokenRef, setLayers, setSelected).then(
+      (collections) => fitToExtents(map, collections),
+    );
   }, [ready, accessToken, setLayers, setSelected]);
 
   useEffect(() => {
@@ -121,6 +121,14 @@ export function useFarmMap() {
     startEditing(selected, layer);
   };
 
+  const zoomIn = (): void => {
+    mapRef.current?.zoomIn();
+  };
+
+  const zoomOut = (): void => {
+    mapRef.current?.zoomOut();
+  };
+
   return {
     containerRef,
     viewableLayers: layers,
@@ -132,5 +140,7 @@ export function useFarmMap() {
     cancelEditing,
     startDrawing,
     cancelDrawing,
+    zoomIn,
+    zoomOut,
   };
 }
