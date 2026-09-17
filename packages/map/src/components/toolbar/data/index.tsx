@@ -1,6 +1,6 @@
 import type { ImportResult } from "@farmdb/geo/types";
 import { useRef, useState } from "react";
-import type { MapLayer } from "@farmdb/map/lib/layers";
+import type { MapLayer } from "@farmdb/map/components/toolbar/layers/model";
 
 /**
  * Imports a GeoJSON file into a layer. A file is chosen first, then the layer

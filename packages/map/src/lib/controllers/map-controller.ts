@@ -1,14 +1,14 @@
 import type { Collection, GeoFeature } from "@farmdb/geo";
 import type { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import * as maplibregl from "maplibre-gl";
-import { type MapLayer, toMapLayer } from "@farmdb/map/lib/layers";
+import { type MapLayer, toMapLayer } from "@farmdb/map/components/toolbar/layers/model";
 import {
   buildMaplibreLayers,
   clickLayerId,
   mapLayerIds,
   selectionLayerId,
   sourceId,
-} from "@farmdb/map/lib/rendering";
+} from "@farmdb/map/components/toolbar/layers/rendering";
 
 /**
  * The imperative side of the map: everything done to a live maplibre instance.
