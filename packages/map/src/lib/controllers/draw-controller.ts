@@ -10,9 +10,9 @@ import {
   TerraDrawSelectMode,
 } from "terra-draw";
 import { TerraDrawMapLibreGLAdapter } from "terra-draw-maplibre-gl-adapter";
-import { reloadLayerTiles } from "./map-controller";
-import type { GeometryClass, MapLayer } from "../layers";
-import { mapLayerIds, selectionLayerId } from "../rendering";
+import { reloadLayerTiles } from "@farmdb/map/lib/controllers/map-controller";
+import type { GeometryClass, MapLayer } from "@farmdb/map/components/toolbar/layers/model";
+import { mapLayerIds, selectionLayerId } from "@farmdb/map/components/toolbar/layers/rendering";
 
 type TokenRef = { current: string | null };
 type Editing = { terraId: string | number; featureId: string; layer: MapLayer };
@@ -60,7 +60,7 @@ export class DrawTool {
     private readonly client: GeoApiClient,
     private readonly tokenRef: TokenRef,
     private readonly onSaved: (layerId: string) => void,
-    private readonly onError: () => void,
+    private readonly onError: (message: string) => void,
   ) {
     this.draw = new TerraDraw({
       adapter: new TerraDrawMapLibreGLAdapter({ map }),
@@ -200,6 +200,18 @@ export class DrawTool {
         reloadLayerTiles(this.map, layerId);
         this.onSaved(layerId);
       })
-      .catch(() => this.onError());
+      .catch((error) => {
+        this.draw.removeFeatures([id]);
+        this.onError(saveFailureMessage(error));
+      });
   }
+}
+
+/**
+ * The reason the api gave for refusing a shape, or a plain one when the request
+ * never reached it.
+ */
+function saveFailureMessage(error: unknown): string {
+  if (error instanceof GeoApiError) return error.message;
+  return "The shape could not be saved. Check your connection and try again.";
 }

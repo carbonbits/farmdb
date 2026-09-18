@@ -1,4 +1,8 @@
-import type { MapLayer } from "../lib/layers";
+import type { MapLayer } from "@farmdb/map/components/toolbar/layers/model";
+
+/**
+ * Shows every layer with a checkbox and turns each one on or off.
+ */
 export function LayerToggle({
   layers,
   visible,
@@ -10,21 +14,21 @@ export function LayerToggle({
 }) {
   if (layers.length === 0) return null;
   return (
-    <div className="absolute left-3 top-3 z-10 w-[180px] rounded-[10px] border border-[#eadfcb] bg-white/95 p-3 shadow-md backdrop-blur">
+    <div className="w-[180px] rounded-[10px] border border-[#eadfcb] bg-white/95 p-3 shadow-md backdrop-blur">
       <div className="mb-2 text-[10px] font-bold uppercase tracking-[1.2px] text-[#957a5c]">
         Layers
       </div>
-      {layers.map((l) => (
+      {layers.map((layer) => (
         <label
-          key={l.id}
+          key={layer.id}
           className="flex cursor-pointer items-center gap-2 py-1 text-[13px] text-[#3f2d22]"
         >
           <input
             type="checkbox"
-            checked={visible[l.id] ?? true}
-            onChange={(e) => onChange(l.id, e.target.checked)}
+            checked={visible[layer.id] ?? true}
+            onChange={(event) => onChange(layer.id, event.target.checked)}
           />
-          <span>{l.label}</span>
+          <span>{layer.label}</span>
         </label>
       ))}
     </div>

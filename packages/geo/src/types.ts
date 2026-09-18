@@ -74,3 +74,28 @@ export interface TileSets {
 export interface GeoApiConfig {
   mapsUrl: string;
 }
+
+/**
+ * One feature offered for import. The geometry is sent as it came from the
+ * file and checked by the api per feature.
+ */
+export interface ImportFeatureInput {
+  geometry: unknown;
+  properties?: Record<string, unknown> | null;
+}
+
+/**
+ * A feature the api refused: where it sat in the upload, and why.
+ */
+export interface SkippedFeature {
+  index: number;
+  reason: string;
+}
+
+/**
+ * The outcome of an import: how many landed and which were skipped.
+ */
+export interface ImportResult {
+  imported: number;
+  skipped: SkippedFeature[];
+}

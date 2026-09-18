@@ -5,31 +5,32 @@ import { GeoApiError } from "@farmdb/geo/utils/errors/geo_api";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
-import { useMapDrawing } from "./use-map-drawing";
+import { BASE_STYLE } from "@farmdb/map/components/basemap";
 import {
-  BASE_STYLE,
   FALLBACK_CENTER,
   FALLBACK_ZOOM,
-  mapsPrefix,
-  mapsUrl,
-  WORKER_URL,
-} from "../lib/config";
+  fitToExtents,
+} from "@farmdb/map/lib/center";
+import { useMapImport } from "@farmdb/map/components/toolbar/data/use-map-import";
+import { useMapDrawing } from "@farmdb/map/components/toolbar/draw/use-map-drawing";
+import { mapsPrefix, mapsUrl, WORKER_URL } from "@farmdb/map/lib/config";
 import {
   applyLayerVisibility,
   attachTokenToMapRequests,
   clearSelectionHighlight,
   deleteSelectedFeature,
   loadLayers,
-} from "../lib/controllers/map-controller";
-import { useMapLayers, useSelection } from "../store";
+  reloadLayerTiles,
+} from "@farmdb/map/lib/controllers/map-controller";
+import { useMapLayers, useSelection } from "@farmdb/map/store";
 
 maplibregl.setWorkerUrl(WORKER_URL);
 
 /**
  * Owns the react lifecycle of the map: it creates the map once, loads the
  * layers the api serves when a token is ready, and keeps the toggle state
- * applied. Drawing and editing are wired by a companion hook, and the map
- * component reads what it needs from the returned handles.
+ * applied. Drawing, editing and importing are wired by companion hooks, and the
+ * map component reads what it needs from the returned handles.
  */
 export function useFarmMap() {
   const { accessToken } = useAuth();
@@ -53,6 +54,14 @@ export function useFarmMap() {
     tokenRef,
     ready,
   );
+  const { importing, result: importResult, importError, importFile, clearImport } = useMapImport(
+    clientRef,
+    tokenRef,
+    (layerId) => {
+      const map = mapRef.current;
+      if (map) reloadLayerTiles(map, layerId);
+    },
+  );
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -66,7 +75,6 @@ export function useFarmMap() {
       transformRequest: attachTokenToMapRequests(tokenRef, mapsPrefix()),
     });
     mapRef.current = map;
-    map.addControl(new maplibregl.NavigationControl(), "top-right");
 
     const resizeObserver = new ResizeObserver(() => map.resize());
     resizeObserver.observe(containerRef.current);
@@ -88,7 +96,9 @@ export function useFarmMap() {
     const client = clientRef.current;
     if (!map || !client || !ready || !accessToken || loadedRef.current) return;
     loadedRef.current = true;
-    void loadLayers(map, client, accessToken, tokenRef, setLayers, setSelected);
+    void loadLayers(map, client, accessToken, tokenRef, setLayers, setSelected).then(
+      (collections) => fitToExtents(map, collections),
+    );
   }, [ready, accessToken, setLayers, setSelected]);
 
   useEffect(() => {
@@ -121,6 +131,14 @@ export function useFarmMap() {
     startEditing(selected, layer);
   };
 
+  const zoomIn = (): void => {
+    mapRef.current?.zoomIn();
+  };
+
+  const zoomOut = (): void => {
+    mapRef.current?.zoomOut();
+  };
+
   return {
     containerRef,
     viewableLayers: layers,
@@ -132,5 +150,12 @@ export function useFarmMap() {
     cancelEditing,
     startDrawing,
     cancelDrawing,
+    zoomIn,
+    zoomOut,
+    importing,
+    importResult,
+    importError,
+    importFile,
+    clearImport,
   };
 }
