@@ -1,6 +1,6 @@
 "use client";
 
-import { Rail } from "@farmdb/map/components/rail";
+import { Rail } from "@farmdb/map/components/toolbar/rail";
 import { useFarmMap } from "@farmdb/map/hooks/use-farm-map";
 
 export function FarmMap() {
