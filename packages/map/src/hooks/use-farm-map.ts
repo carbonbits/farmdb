@@ -10,7 +10,7 @@ import {
   FALLBACK_CENTER,
   FALLBACK_ZOOM,
   fitToExtents,
-} from "@farmdb/map/components/toolbar/center";
+} from "@farmdb/map/lib/center";
 import { useMapImport } from "@farmdb/map/components/toolbar/data/use-map-import";
 import { useMapDrawing } from "@farmdb/map/components/toolbar/draw/use-map-drawing";
 import { mapsPrefix, mapsUrl, WORKER_URL } from "@farmdb/map/lib/config";
