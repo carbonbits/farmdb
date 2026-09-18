@@ -22,7 +22,7 @@ import {
   OUTLINE_WIDTH,
   SELECTED_COLOR,
   SELECTED_WIDTH,
-} from "@farmdb/map/components/toolbar/colors";
+} from "@farmdb/map/lib/colors";
 import type { GeometryClass, MapLayer } from "@farmdb/map/components/toolbar/layers/model";
 
 type SubLayer =

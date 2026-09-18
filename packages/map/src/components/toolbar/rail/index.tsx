@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { DeleteConfirm } from "@farmdb/map/components/rail/delete-confirm";
-import { Flyout } from "@farmdb/map/components/rail/flyout";
-import { RailButton } from "@farmdb/map/components/rail/button";
+import { DeleteConfirm } from "@farmdb/map/components/toolbar/rail/delete-confirm";
+import { Flyout } from "@farmdb/map/components/toolbar/rail/flyout";
+import { RailButton } from "@farmdb/map/components/toolbar/rail/button";
 import { ImportPanel } from "@farmdb/map/components/toolbar/data";
 import { DrawToolbar } from "@farmdb/map/components/toolbar/draw/draw-toolbar";
 import { EditToolbar } from "@farmdb/map/components/toolbar/draw/edit-toolbar";
