@@ -21,6 +21,3 @@ notebooks
 node_modules/
 *.tsbuildinfo
 .next/
-out/farm.db
-farm.db.*
-*.wal
