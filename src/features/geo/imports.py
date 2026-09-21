@@ -20,7 +20,7 @@ from core.auth.principal import Principal
 from core.auth.resolver import require_principal
 from core.authz.service import AuthzService, get_authz_service
 from features.geo.deps import Geo
-from features.geo.handlers.imports.handler import import_features
+from features.geo.handlers.imports.handler import ImportFeaturesHandler
 from features.geo.handlers.imports.input import ImportFeatureCollection
 from features.geo.handlers.imports.result import ImportResult
 
@@ -46,11 +46,8 @@ async def import_collection(
             ),
         )
 
-    return await import_features(
+    return await ImportFeaturesHandler(geo, authz, principal).handle(
         collection_id=collection_id,
         payload=payload,
         season=season,
-        geo=geo,
-        authz=authz,
-        principal=principal,
     )
