@@ -1,4 +1,5 @@
 "use client";
+import { fieldsApi, type FieldGeometry } from "@farmdb/api-client";
 import type { GeoFeature } from "@farmdb/geo";
 import type { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import type { Map as MapLibreMap } from "maplibre-gl";
@@ -6,6 +7,10 @@ import { type RefObject, useEffect, useRef } from "react";
 import { DrawTool } from "@farmdb/map/lib/controllers/draw-controller";
 import type { MapLayer } from "@farmdb/map/components/toolbar/layers/model";
 import { useDrawing, useSelection } from "@farmdb/map/store";
+
+/* The one layer whose drawn shapes become field records, not bare geometry.
+   Its id matches the fields layer the api serves. */
+const FIELD_LAYER_ID = "fields";
 
 /**
  * Wires the drawing and editing tools to the live map. It builds the tool once
@@ -24,6 +29,7 @@ export function useMapDrawing(
   const drawToolRef = useRef<DrawTool | null>(null);
   const setActiveLayer = useDrawing((state) => state.setActiveLayer);
   const setSaveError = useDrawing((state) => state.setSaveError);
+  const setNamingField = useDrawing((state) => state.setNamingField);
   const setSelected = useSelection((state) => state.setSelected);
   const setEditing = useSelection((state) => state.setEditing);
   const setEditError = useSelection((state) => state.setEditError);
@@ -41,12 +47,14 @@ export function useMapDrawing(
         setActiveLayer(null);
         setSaveError(message);
       },
+      new Set([FIELD_LAYER_ID]),
+      () => setNamingField(true),
     );
     return () => {
       drawToolRef.current?.destroy();
       drawToolRef.current = null;
     };
-  }, [mapRef, clientRef, tokenRef, ready, setActiveLayer, setSaveError]);
+  }, [mapRef, clientRef, tokenRef, ready, setActiveLayer, setSaveError, setNamingField]);
 
   function startDrawing(layer: MapLayer): void {
     drawToolRef.current?.startDrawing(layer);
@@ -85,5 +93,34 @@ export function useMapDrawing(
     setEditError(null);
   }
 
-  return { startDrawing, cancelDrawing, startEditing, saveEdit, cancelEditing };
+  async function saveField(name: string, description?: string): Promise<void> {
+    const tool = drawToolRef.current;
+    const token = tokenRef.current;
+    const geometry = tool?.pendingGeometry();
+    if (!tool || !token || !geometry) return;
+    try {
+      await fieldsApi.create(token, { name, description, geometry: geometry as FieldGeometry });
+      tool.clearPending();
+      setNamingField(false);
+      setSaveError(null);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Could not save the field.");
+    }
+  }
+
+  function cancelNaming(): void {
+    drawToolRef.current?.discardPending();
+    setNamingField(false);
+    setSaveError(null);
+  }
+
+  return {
+    startDrawing,
+    cancelDrawing,
+    startEditing,
+    saveEdit,
+    cancelEditing,
+    saveField,
+    cancelNaming,
+  };
 }

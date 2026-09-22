@@ -16,6 +16,7 @@ import { mapLayerIds, selectionLayerId } from "@farmdb/map/components/toolbar/la
 
 type TokenRef = { current: string | null };
 type Editing = { terraId: string | number; featureId: string; layer: MapLayer };
+type PendingShape = { terraId: string | number; layerId: string; geometry: GeoGeometry };
 
 // The geometries terra-draw can reshape: the single kinds, never the multi ones.
 type EditableGeometry = Extract<GeoGeometry, { type: "Polygon" | "LineString" | "Point" }>;
@@ -54,6 +55,7 @@ export class DrawTool {
   private readonly draw: TerraDraw;
   private targetLayerId: string | null = null;
   private editing: Editing | null = null;
+  private pending: PendingShape | null = null;
 
   constructor(
     private readonly map: MapLibreMap,
@@ -61,6 +63,8 @@ export class DrawTool {
     private readonly tokenRef: TokenRef,
     private readonly onSaved: (layerId: string) => void,
     private readonly onError: (message: string) => void,
+    private readonly namedLayers: ReadonlySet<string>,
+    private readonly onNeedsName: () => void,
   ) {
     this.draw = new TerraDraw({
       adapter: new TerraDrawMapLibreGLAdapter({ map }),
@@ -193,6 +197,12 @@ export class DrawTool {
       return;
     }
 
+    if (this.namedLayers.has(layerId)) {
+      this.pending = { terraId: id, layerId, geometry: feature.geometry as GeoGeometry };
+      this.onNeedsName();
+      return;
+    }
+
     this.client
       .createFeature(token, layerId, { geometry: feature.geometry as GeoGeometry })
       .then(() => {
@@ -204,6 +214,26 @@ export class DrawTool {
         this.draw.removeFeatures([id]);
         this.onError(saveFailureMessage(error));
       });
+  }
+
+  pendingGeometry(): GeoGeometry | null {
+    return this.pending?.geometry ?? null;
+  }
+
+  /* After the field saves, drop the drawn shape and reload the layer so the
+     saved copy shows in its place. */
+  clearPending(): void {
+    if (!this.pending) return;
+    this.draw.removeFeatures([this.pending.terraId]);
+    reloadLayerTiles(this.map, this.pending.layerId);
+    this.pending = null;
+  }
+
+  /* On cancel, drop the drawn shape and keep nothing. */
+  discardPending(): void {
+    if (!this.pending) return;
+    this.draw.removeFeatures([this.pending.terraId]);
+    this.pending = null;
   }
 }
 
