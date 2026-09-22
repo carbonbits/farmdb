@@ -19,8 +19,6 @@ keeps this handler and the map's own item routes gated by the same decision;
 see core/geo/layers.py.
 """
 
-from __future__ import annotations
-
 from typing import Optional
 
 import duckdb

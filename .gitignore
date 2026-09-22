@@ -1,13 +1,12 @@
 farm.db
+farm.db.wal
 
 *.pyc
 farmdb.egg-info
 
 .env
-
 *.tar
 
-farm.db.wal
 
 # Local visual-test DB and evidence (screenshots, driver scripts, scratch logs)
 .visualtest.db
@@ -21,3 +20,6 @@ notebooks
 node_modules/
 *.tsbuildinfo
 .next/
+
+# IDE
+.idea
