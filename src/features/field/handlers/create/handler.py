@@ -75,7 +75,7 @@ async def create_field(
         geo.create(
             layer=LAYER,
             geometry=input_.geometry,
-            properties={"field_id": field_id},
+            properties={"field_id": field_id, "name": input_.name},
             created_by=user_id,
         )
 
