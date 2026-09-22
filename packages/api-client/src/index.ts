@@ -1,10 +1,8 @@
 // Context and hooks
-
 // API client
 export { AuthApiError, authApi } from "./api";
 export { authzApi } from "./authz";
 export { AuthProvider, useAuth } from "./context";
-
 // Passkey utilities
 export {
   authenticateWithPasskey,
@@ -17,7 +15,6 @@ export {
 export type { LoginFormValues, RegisterFormValues } from "./schemas";
 // Validation
 export { emailSchema, loginSchema, passwordSchema, registerSchema } from "./schemas";
-
 // Types
 export type {
   ApiError,

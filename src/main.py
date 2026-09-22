@@ -4,6 +4,7 @@ from pathlib import Path
 import uvicorn
 from duckling import init_duckling
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from ulid import ULID
 
@@ -18,6 +19,7 @@ from features.apikey.router import router as api_keys_router
 from features.crop.router import router as crops_router
 from features.field.router import router as fields_router
 from features.geo.router import router as maps_router
+from features.metadata.router import router as metadata_router
 from utils.errors import install_error_handlers
 
 
@@ -48,7 +50,20 @@ application.include_router(auth_router)
 application.include_router(authz_router)
 application.include_router(crops_router)
 application.include_router(maps_router)
+application.include_router(metadata_router)
 application.add_middleware(SPAMiddleware)
+
+# Only when something is configured. The API serves the web app in normal use,
+# so every call is same-origin and this stays off; it is here for a web app
+# served from somewhere else, such as the Next dev server on its own port.
+if settings.cors_origins:
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 # Services raise plain errors so they stay usable away from HTTP; this is where
 # they become status codes, for every feature at once.

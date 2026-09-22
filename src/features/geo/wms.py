@@ -127,7 +127,9 @@ async def _capabilities(
         build(
             wms_url=absolute(request, f"{PREFIX}/wms"),
             title="FarmDB maps",
-            abstract="Field boundaries, infrastructure and markers for this farm.",
+            abstract=(
+                "The farm outline and everything mapped inside it: fields, paddocks, structures, water, fences and gates."
+            ),
             layers=[(layer, geo.extent(layer.name)) for layer in visible],
         )
     )

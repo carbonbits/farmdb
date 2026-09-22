@@ -1,0 +1,38 @@
+# What never needs to reach the build daemon. Without this the context carries
+# the repo's node_modules, the host virtualenv and the local farm database —
+# slow to upload, and `COPY src/ ./src/` would bake a stale web build and a
+# macOS-built venv into the image.
+
+.git
+.github
+
+# Dependencies: every stage installs its own from a lockfile.
+node_modules
+**/node_modules
+.venv
+
+# The static export is produced inside the web-builder stage, never copied in.
+src/apps/web/out
+src/apps/web/.next
+
+# Python build and tool droppings.
+**/__pycache__
+*.pyc
+*.egg-info
+.pytest_cache
+.ruff_cache
+
+# Local state and secrets. The database is a volume in compose and empty in a
+# fresh image; .env belongs to the machine, not the image.
+.env
+farm.db
+farm.db.wal
+.visualtest.db
+.visualtest.db.wal
+visual-test-evidence
+scratch_*.log
+notebooks
+
+# Container plumbing itself: changing it should not invalidate a build layer.
+compose.yaml
+.dockerignore
