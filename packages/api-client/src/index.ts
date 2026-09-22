@@ -2,6 +2,7 @@
 // API client
 export { AuthApiError, authApi } from "./api";
 export { authzApi } from "./authz";
+export { fieldsApi } from "./fields";
 export { AuthProvider, useAuth } from "./context";
 // Passkey utilities
 export {
@@ -25,7 +26,10 @@ export type {
   AuthzRoleSummary,
   AuthzUserRoleRef,
   AuthzUserWithRoles,
+  CreateFieldInput,
   CreateRoleInput,
+  Field,
+  FieldGeometry,
   LoginRequest,
   PasskeyAuthOptions,
   PasskeyInfo,
