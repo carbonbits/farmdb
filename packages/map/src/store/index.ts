@@ -32,6 +32,8 @@ interface DrawingState {
   saveError: string | null;
   setActiveLayer: (layerId: string | null) => void;
   setSaveError: (error: string | null) => void;
+  namingField: boolean;
+  setNamingField: (naming: boolean) => void;
 }
 
 export const useDrawing = create<DrawingState>((set) => ({
@@ -39,6 +41,8 @@ export const useDrawing = create<DrawingState>((set) => ({
   saveError: null,
   setActiveLayer: (activeLayerId) => set({ activeLayerId }),
   setSaveError: (saveError) => set({ saveError }),
+  namingField: false,
+  setNamingField: (namingField) => set({ namingField }),
 }));
 
 interface SelectionState {

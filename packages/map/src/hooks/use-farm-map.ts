@@ -48,7 +48,15 @@ export function useFarmMap() {
   const setSelected = useSelection((state) => state.setSelected);
   const setDeleteError = useSelection((state) => state.setDeleteError);
   const [ready, setReady] = useState(false);
-  const { startDrawing, cancelDrawing, startEditing, saveEdit, cancelEditing } = useMapDrawing(
+  const {
+    startDrawing,
+    cancelDrawing,
+    startEditing,
+    saveEdit,
+    cancelEditing,
+    saveField,
+    cancelNaming,
+  } = useMapDrawing(
     mapRef,
     clientRef,
     tokenRef,
@@ -150,6 +158,8 @@ export function useFarmMap() {
     cancelEditing,
     startDrawing,
     cancelDrawing,
+    saveField,
+    cancelNaming,
     zoomIn,
     zoomOut,
     importing,
