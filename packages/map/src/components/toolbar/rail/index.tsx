@@ -164,10 +164,10 @@ export function Rail({ controls }: { controls: Controls }) {
           </Flyout>
         ) : null}
 
-        <div className="flex flex-col gap-1 rounded-[14px] border border-[#eadfcb] bg-white/95 p-2 shadow-md backdrop-blur">
+        <div className="flex flex-col gap-1 rounded-[14px] border border-parchment bg-white/95 p-2 shadow-md backdrop-blur">
           <RailButton icon={icon(ICONS.zoomIn)} label="Zoom in" onClick={zoomIn} />
           <RailButton icon={icon(ICONS.zoomOut)} label="Zoom out" onClick={zoomOut} />
-          <div className="mx-1.5 my-1 h-px bg-[#eadfcb]" />
+          <div className="mx-1.5 my-1 h-px bg-parchment" />
           <RailButton
             icon={icon(ICONS.layers)}
             label="Layers"
@@ -189,7 +189,7 @@ export function Rail({ controls }: { controls: Controls }) {
             disabled={editing || namingField}
             onClick={() => toggleTool("import")}
           />
-          <div className="mx-1.5 my-1 h-px bg-[#eadfcb]" />
+          <div className="mx-1.5 my-1 h-px bg-parchment" />
           <RailButton icon={icon(ICONS.edit)} label="Edit selected" onClick={beginEdit} />
           <RailButton icon={icon(ICONS.trash)} label="Delete selected" onClick={askDelete} />
         </div>
