@@ -145,7 +145,7 @@ export function AppShell({
     ? "flex min-h-0 flex-1 flex-col"
     : "flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-7";
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f8f2e5] text-[#20160f]">
+    <div className="flex h-screen overflow-hidden bg-linen text-bark">
       {/* Desktop sidebar */}
       <aside className={`hidden w-[246px] flex-none md:flex ${SIDEBAR_SURFACE}`}>
         <div className="px-1.5 pt-1 pb-3.5">
@@ -164,12 +164,12 @@ export function AppShell({
       </aside>
       {/* Main column */}
       <div className="flex h-screen min-w-0 flex-1 flex-col">
-        <header className="flex flex-none flex-wrap items-center gap-3 border-b border-[#eadfcb] bg-[#f8f2e5]/90 px-4 py-3 backdrop-blur md:px-7">
+        <header className="flex flex-none flex-wrap items-center gap-3 border-b border-parchment bg-linen/90 px-4 py-3 backdrop-blur md:px-7">
           <button
             type="button"
             aria-label="Menu"
             onClick={() => setMenuOpen(true)}
-            className="flex h-10 w-10 flex-none items-center justify-center rounded-[10px] border border-[#eadfcb] bg-white text-[#3f2d22] hover:bg-[#f4ead4] md:hidden"
+            className="flex h-10 w-10 flex-none items-center justify-center rounded-[10px] border border-parchment bg-white text-soil hover:bg-cream md:hidden"
           >
             <svg
               viewBox="0 0 24 24"
@@ -185,7 +185,7 @@ export function AppShell({
           </button>
           <div>
             {eyebrow ? (
-              <div className="text-[10px] font-bold uppercase tracking-[1.4px] text-[#957a5c]">
+              <div className="text-[10px] font-bold uppercase tracking-[1.4px] text-taupe">
                 {eyebrow}
               </div>
             ) : null}
@@ -206,7 +206,7 @@ export function AppShell({
             type="button"
             aria-label="Close menu"
             onClick={() => setMenuOpen(false)}
-            className="fixed inset-0 z-50 bg-[#140e09]/45"
+            className="fixed inset-0 z-50 bg-scrim/45"
           />
           <div
             className={`fixed inset-y-0 left-0 z-[55] flex w-[274px] max-w-[86vw] shadow-2xl ${SIDEBAR_SURFACE}`}
