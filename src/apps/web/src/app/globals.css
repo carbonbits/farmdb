@@ -1,14 +1,52 @@
 @import "tailwindcss";
-@source "../../../../packages/map/src";
+@source "../../../../../packages/map/src";
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Earth tone palette. The map lib mirrors the greens and cream it paints with. */
+  --bark: #20160f;
+  --soil: #3f2d22;
+  --clay: #877154;
+  --stone: #9c8a6f;
+  --sand: #c8ba9f;
+  --parchment: #eadfcb;
+  --cream: #f4ead4;
+  --leaf: #4a8a54;
+  --forest: #2c5a38;
+  --linen: #f8f2e5;
+  --taupe: #957a5c;
+  --umber: #75583f;
+  --fern: #346b41;
+  --ivory: #fcf8f0;
+  --wheat: #b49a78;
+  --meadow: #7a9646;
+  --scrim: #140e09;
 }
 
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-bark: var(--bark);
+  --color-soil: var(--soil);
+  --color-clay: var(--clay);
+  --color-stone: var(--stone);
+  --color-sand: var(--sand);
+  --color-parchment: var(--parchment);
+  --color-cream: var(--cream);
+  --color-leaf: var(--leaf);
+  --color-forest: var(--forest);
+  --color-linen: var(--linen);
+  --color-taupe: var(--taupe);
+  --color-umber: var(--umber);
+  --color-fern: var(--fern);
+  --color-ivory: var(--ivory);
+  --color-wheat: var(--wheat);
+  --color-meadow: var(--meadow);
+  --color-scrim: var(--scrim);
+
   --font-sans: var(--font-hanken-grotesk);
   --font-serif: var(--font-spectral);
   --font-mono: var(--font-ibm-plex-mono);

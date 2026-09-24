@@ -29,10 +29,10 @@ export function RailButton({
       className={[
         "flex h-10 w-10 items-center justify-center rounded-[9px] text-[17px] transition-colors",
         disabled
-          ? "cursor-not-allowed text-[#cdbfa8]"
+          ? "cursor-not-allowed text-sand"
           : active
-            ? "bg-[#2f5a3f] text-white"
-            : "text-[#3f2d22] hover:bg-[#f4ead4]",
+            ? "bg-forest text-white"
+            : "text-soil hover:bg-cream",
       ].join(" ")}
     >
       {icon}

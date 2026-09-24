@@ -32,6 +32,10 @@ const NAV: Array<{ key: string; label: string; d: string; href?: string }> = [
   },
 ];
 
+/** Shared sidebar surface. Desktop and mobile add only their width and position. */
+const SIDEBAR_SURFACE =
+  "flex-col gap-0.5 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden bg-bark px-3.5 py-4 text-parchment";
+
 function initials(name: string | null, email: string): string {
   const base = (name || email).trim();
   const parts = base.split(/\s+/);
@@ -46,7 +50,7 @@ function NavIcon({ d }: { d: string }) {
       className="h-[18px] w-[18px] flex-none"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.8"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -56,28 +60,53 @@ function NavIcon({ d }: { d: string }) {
   );
 }
 
+/** The brand mark and name, shared by the desktop sidebar and the mobile drawer. */
+function Brand() {
+  return (
+    <div className="flex min-w-0 items-center gap-[11px]">
+      <div className="flex h-8 w-8 flex-none items-center justify-center rounded-[9px] bg-gradient-to-br from-leaf to-forest font-serif font-bold text-cream">
+        W
+      </div>
+      <div className="min-w-0">
+        <div className="truncate font-serif text-[18px] font-semibold leading-[1.1] text-cream">
+          Wakulima
+        </div>
+        <div className="text-[11px] text-stone">Community edition</div>
+      </div>
+    </div>
+  );
+}
+
 function NavList({ active, onNavigate }: { active: string; onNavigate: (href?: string) => void }) {
+  const base =
+    "flex items-center gap-[11px] rounded-[9px] px-2.5 py-[9px] text-left text-[13.5px] font-medium transition-colors";
   return (
     <>
-      <div className="px-2 pt-4 pb-1.5 text-[10px] font-bold uppercase tracking-[1.3px] text-[#877154]">
+      <div className="px-2 pt-4 pb-1.5 text-[10px] font-bold uppercase tracking-[1.3px] text-clay">
         Overview
       </div>
-      {NAV.map((n) => {
-        const isActive = n.key === active;
-        const clickable = Boolean(n.href);
+      {NAV.map((item) => {
+        const isActive = item.key === active;
+        const navigable = Boolean(item.href);
+        let state: string;
+        if (isActive) {
+          state = "bg-forest text-cream";
+        } else if (navigable) {
+          state = "cursor-pointer text-sand hover:bg-white/5 hover:text-parchment";
+        } else {
+          state = "cursor-not-allowed text-stone";
+        }
         return (
           <button
-            key={n.key}
+            key={item.key}
             type="button"
-            onClick={() => onNavigate(n.href)}
-            className={`flex items-center gap-[11px] rounded-[9px] px-2.5 py-[9px] text-left text-[13.5px] font-medium transition-colors ${
-              isActive
-                ? "bg-[#2c5a38] text-[#f4ead4]"
-                : "text-[#c8ba9f] hover:bg-white/5 hover:text-[#eadfcb]"
-            } ${clickable || isActive ? "cursor-pointer" : "cursor-default"}`}
+            disabled={!navigable && !isActive}
+            aria-current={isActive ? "page" : undefined}
+            onClick={() => onNavigate(item.href)}
+            className={`${base} ${state}`}
           >
-            <NavIcon d={n.d} />
-            <span>{n.label}</span>
+            <NavIcon d={item.d} />
+            <span>{item.label}</span>
           </button>
         );
       })}
@@ -117,39 +146,31 @@ export function AppShell({
     ? "flex min-h-0 flex-1 flex-col"
     : "flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-7";
   return (
-    <div className="flex h-screen overflow-hidden bg-[#f8f2e5] text-[#20160f]">
+    <div className="flex h-screen overflow-hidden bg-linen text-bark">
       {/* Desktop sidebar */}
-      <aside className="hidden w-[246px] flex-none flex-col gap-0.5 overflow-y-auto bg-[#20160f] px-3.5 py-[18px] text-[#eadfcb] md:flex">
-        <div className="flex items-center gap-[11px] px-1.5 pt-1 pb-3.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-gradient-to-br from-[#4a8a54] to-[#2c5a38] font-serif font-bold text-[#f4ead4]">
-            W
-          </div>
-          <div>
-            <div className="font-serif text-[18px] font-semibold leading-[1.1] text-[#f4ead4]">
-              Wakulima
-            </div>
-            <div className="mt-px text-[11px] text-[#9c8a6f]">Community edition</div>
-          </div>
+      <aside className={`hidden w-[246px] flex-none md:flex ${SIDEBAR_SURFACE}`}>
+        <div className="px-1.5 pt-1 pb-3.5">
+          <Brand />
         </div>
         <NavList active={active} onNavigate={go} />
         <div className="mt-auto flex items-center gap-[11px] border-t border-white/10 px-2 pt-3.5 pb-1">
-          <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#5b6f4a] text-[13px] font-bold text-[#f4ead4]">
+          <div className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-gradient-to-br from-leaf to-forest text-[13px] font-bold text-cream">
             {avatar}
           </div>
           <div className="min-w-0">
-            <div className="truncate text-[13px] font-semibold text-[#f4ead4]">{displayName}</div>
-            <div className="text-[11px] text-[#9c8a6f]">Signed in</div>
+            <div className="truncate text-[13px] font-semibold text-cream">{displayName}</div>
+            <div className="text-[11px] text-stone">Signed in</div>
           </div>
         </div>
       </aside>
       {/* Main column */}
       <div className="flex h-screen min-w-0 flex-1 flex-col">
-        <header className="flex flex-none flex-wrap items-center gap-3 border-b border-[#eadfcb] bg-[#f8f2e5]/90 px-4 py-3 backdrop-blur md:px-7">
+        <header className="flex flex-none flex-wrap items-center gap-3 border-b border-parchment bg-linen/90 px-4 py-3 backdrop-blur md:px-7">
           <button
             type="button"
             aria-label="Menu"
             onClick={() => setMenuOpen(true)}
-            className="flex h-10 w-10 flex-none items-center justify-center rounded-[10px] border border-[#eadfcb] bg-white text-[#3f2d22] hover:bg-[#f4ead4] md:hidden"
+            className="flex h-10 w-10 flex-none items-center justify-center rounded-[10px] border border-parchment bg-white text-soil hover:bg-cream md:hidden"
           >
             <svg
               viewBox="0 0 24 24"
@@ -165,7 +186,7 @@ export function AppShell({
           </button>
           <div>
             {eyebrow ? (
-              <div className="text-[10px] font-bold uppercase tracking-[1.4px] text-[#957a5c]">
+              <div className="text-[10px] font-bold uppercase tracking-[1.4px] text-taupe">
                 {eyebrow}
               </div>
             ) : null}
@@ -186,24 +207,20 @@ export function AppShell({
             type="button"
             aria-label="Close menu"
             onClick={() => setMenuOpen(false)}
-            className="fixed inset-0 z-50 bg-[#140e09]/45"
+            className="fixed inset-0 z-50 bg-scrim/45"
           />
-          <div className="fixed inset-y-0 left-0 z-[55] flex w-[274px] max-w-[86vw] flex-col overflow-y-auto bg-[#20160f] px-3.5 py-4 text-[#eadfcb] shadow-2xl">
-            <div className="flex items-center gap-[11px] px-1.5 pt-0.5 pb-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-gradient-to-br from-[#4a8a54] to-[#2c5a38] font-serif font-bold text-[#f4ead4]">
-                W
-              </div>
+          <div
+            className={`fixed inset-y-0 left-0 z-[55] flex w-[274px] max-w-[86vw] shadow-2xl ${SIDEBAR_SURFACE}`}
+          >
+            <div className="flex items-center px-1.5 pt-0.5 pb-3">
               <div className="min-w-0 flex-1">
-                <div className="font-serif text-[17px] font-semibold leading-[1.1] text-[#f4ead4]">
-                  Wakulima
-                </div>
-                <div className="text-[11px] text-[#9c8a6f]">Community edition</div>
+                <Brand />
               </div>
               <button
                 type="button"
                 aria-label="Close"
                 onClick={() => setMenuOpen(false)}
-                className="flex h-8 w-8 flex-none items-center justify-center rounded-lg border border-white/15 bg-white/5 text-[#c8ba9f]"
+                className="flex h-8 w-8 flex-none items-center justify-center rounded-lg border border-white/15 bg-white/5 text-sand"
               >
                 <svg
                   viewBox="0 0 24 24"
