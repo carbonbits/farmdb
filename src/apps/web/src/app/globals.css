@@ -17,6 +17,11 @@
   --forest: #2c5a38;
   --linen: #f8f2e5;
   --taupe: #957a5c;
+  --umber: #75583f;
+  --fern: #346b41;
+  --ivory: #fcf8f0;
+  --wheat: #b49a78;
+  --meadow: #7a9646;
   --scrim: #140e09;
 }
 
@@ -35,6 +40,11 @@
   --color-forest: var(--forest);
   --color-linen: var(--linen);
   --color-taupe: var(--taupe);
+  --color-umber: var(--umber);
+  --color-fern: var(--fern);
+  --color-ivory: var(--ivory);
+  --color-wheat: var(--wheat);
+  --color-meadow: var(--meadow);
   --color-scrim: var(--scrim);
 
   --font-sans: var(--font-hanken-grotesk);
