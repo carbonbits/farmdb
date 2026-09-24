@@ -33,7 +33,8 @@ const NAV: Array<{ key: string; label: string; d: string; href?: string }> = [
 ];
 
 /** Shared sidebar surface. Desktop and mobile add only their width and position. */
-const SIDEBAR_SURFACE = "flex-col gap-0.5 overflow-y-auto bg-bark px-3.5 py-4 text-parchment";
+const SIDEBAR_SURFACE =
+  "flex-col gap-0.5 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden bg-bark px-3.5 py-4 text-parchment";
 
 function initials(name: string | null, email: string): string {
   const base = (name || email).trim();
