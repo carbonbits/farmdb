@@ -124,6 +124,9 @@ importers:
       '@farmdb/api-client':
         specifier: workspace:*
         version: link:../../../packages/api-client
+      '@farmdb/field-manager':
+        specifier: workspace:*
+        version: link:../../../packages/field-manager
       '@farmdb/geo':
         specifier: workspace:*
         version: link:../../../packages/geo
