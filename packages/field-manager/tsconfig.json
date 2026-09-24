@@ -13,7 +13,9 @@
     "resolveJsonModule": true,
     "paths": {
       "@farmdb/field-manager/*": ["./src/*"],
-      "@farmdb/api-client/*": ["../api-client/src/*"]
+      "@farmdb/api-client/*": ["../api-client/src/*"],
+      "@farmdb/map/*": ["../map/src/*"],
+      "@farmdb/geo/*": ["../geo/src/*"]
     }
   },
   "include": ["src"]
