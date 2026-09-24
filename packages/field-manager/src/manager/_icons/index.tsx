@@ -30,3 +30,12 @@ export function CardsIcon() {
     </svg>
   );
 }
+
+/** A cross, used to close a panel. */
+export function CloseIcon() {
+  return (
+    <svg {...ICON_PROPS} width={18} height={18} aria-hidden="true">
+      <path d="M6 6l12 12M18 6L6 18" />
+    </svg>
+  );
+}
