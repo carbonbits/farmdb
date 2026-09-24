@@ -34,6 +34,19 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  packages/field-manager:
+    dependencies:
+      react:
+        specifier: ^19
+        version: 19.2.7
+    devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.2.18
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
   packages/geo:
     dependencies:
       '@types/geojson':
