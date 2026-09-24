@@ -1,19 +1,17 @@
-// A field's boundary. Fields are polygons only (CORE-443 validation).
+/** A field's boundary. Fields are polygons only. */
 export interface FieldGeometry {
   type: "Polygon";
   coordinates: number[][][];
 }
 
-// Sent by the save dialog to create a field: name is required, description
-// optional, geometry is the drawn boundary. Mirrors the backend
-// CreateFarmFieldInput, which forbids extra keys — so we send nothing else.
+/** What the API accepts to create a field. Extra keys are rejected. */
 export interface CreateFieldInput {
   name: string;
   description?: string;
-  geometry: FieldGeometry;
+  geometry?: FieldGeometry;
 }
 
-// A field as the api returns it. area_ha is computed server-side.
+/** A field as the API returns it. The area is worked out by the server. */
 export interface Field {
   id: string;
   name: string;
