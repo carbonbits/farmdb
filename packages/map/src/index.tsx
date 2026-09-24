@@ -1,5 +1,7 @@
 "use client";
 
+export { useSelectedFeature } from "@farmdb/map/hooks/use-selected-feature";
+
 import { Rail } from "@farmdb/map/components/toolbar/rail";
 import { useFarmMap } from "@farmdb/map/hooks/use-farm-map";
 

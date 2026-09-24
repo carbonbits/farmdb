@@ -105,6 +105,13 @@ export function useFarmMap() {
     applyLayerVisibility(map, layers, visible);
   }, [visible, ready, layers]);
 
+  // Clearing the selection from anywhere also clears its highlight on the map.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || selected) return;
+    clearSelectionHighlight(map, layers);
+  }, [selected, ready, layers]);
+
   const deleteSelected = async (): Promise<void> => {
     const map = mapRef.current;
     const client = clientRef.current;
