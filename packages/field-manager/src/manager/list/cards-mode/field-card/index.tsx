@@ -33,24 +33,43 @@ export function FieldCard({
         {field.description || "No crop recorded"}
       </span>
       <span className="grid grid-cols-2 gap-x-2.5 gap-y-[9px] border-t border-[#eadfcb] pt-[11px]">
-        <CardFact label="Area" value={formatHectares(field.area_ha)} />
+        <CardFact
+          label="Area"
+          value={formatHectares(field.area_ha)}
+          isMissing={field.area_ha === null}
+        />
         {/* The API does not return soil, slope or soil tests yet. Swap these for
             the field's values once it does. */}
-        <CardFact label="Soil" value={NOT_RECORDED} />
-        <CardFact label="Slope" value={NOT_RECORDED} />
-        <CardFact label="Last soil test" value={NOT_RECORDED} />
+        <CardFact label="Soil" value={NOT_RECORDED} isMissing />
+        <CardFact label="Slope" value={NOT_RECORDED} isMissing />
+        <CardFact label="Last soil test" value={NOT_RECORDED} isMissing />
       </span>
     </button>
   );
 }
 
-function CardFact({ label, value }: { label: string; value: string }) {
+function CardFact({
+  label,
+  value,
+  isMissing = false,
+}: {
+  label: string;
+  value: string;
+  isMissing?: boolean;
+}) {
   return (
     <span className="block min-w-0">
       <span className="block text-[10px] font-bold tracking-[0.7px] text-[#957a5c] uppercase">
         {label}
       </span>
-      <span className="mt-0.5 block truncate text-[13px] font-semibold">{value}</span>
+      <span
+        className={[
+          "mt-0.5 block truncate text-[13px]",
+          isMissing ? "font-normal text-[#957a5c]" : "font-semibold",
+        ].join(" ")}
+      >
+        {value}
+      </span>
     </span>
   );
 }
