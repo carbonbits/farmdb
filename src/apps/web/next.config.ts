@@ -16,7 +16,13 @@ const apiTarget = process.env.API_PROXY_TARGET || "http://localhost:5700";
 const nextConfig: NextConfig = {
   output: "export",
   distDir: "out",
-  transpilePackages: ["@farmdb/ui", "@farmdb/api-client", "@farmdb/geo", "@farmdb/map"],
+  transpilePackages: [
+    "@farmdb/ui",
+    "@farmdb/api-client",
+    "@farmdb/field-manager",
+    "@farmdb/geo",
+    "@farmdb/map",
+  ],
   images: {
     unoptimized: true,
   },
