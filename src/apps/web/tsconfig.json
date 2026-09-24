@@ -21,7 +21,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@farmdb/map/*": ["../../../packages/map/src/*"],
-      "@farmdb/field-manager/*": ["../../../packages/field-manager/src/*"]
+      "@farmdb/field-manager/*": ["../../../packages/field-manager/src/*"],
+      "@farmdb/api-client/*": ["../../../packages/api-client/src/*"]
     }
   },
   "include": [
