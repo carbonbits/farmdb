@@ -1,6 +1,6 @@
 import type { GeoFeature } from "@farmdb/geo";
-import { create } from "zustand";
 import type { MapLayer } from "@farmdb/map/components/toolbar/layers/model";
+import { create } from "zustand";
 
 /**
  * The map ui state, kept in small stores the ui reacts to. One holds the layers
@@ -32,8 +32,6 @@ interface DrawingState {
   saveError: string | null;
   setActiveLayer: (layerId: string | null) => void;
   setSaveError: (error: string | null) => void;
-  namingField: boolean;
-  setNamingField: (naming: boolean) => void;
 }
 
 export const useDrawing = create<DrawingState>((set) => ({
@@ -41,8 +39,6 @@ export const useDrawing = create<DrawingState>((set) => ({
   saveError: null,
   setActiveLayer: (activeLayerId) => set({ activeLayerId }),
   setSaveError: (saveError) => set({ saveError }),
-  namingField: false,
-  setNamingField: (namingField) => set({ namingField }),
 }));
 
 interface SelectionState {
