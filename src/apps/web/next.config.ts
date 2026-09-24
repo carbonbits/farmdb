@@ -16,6 +16,9 @@ const apiTarget = process.env.API_PROXY_TARGET || "http://localhost:5700";
 const nextConfig: NextConfig = {
   output: "export",
   distDir: "out",
+  // The API's routes end in a slash. Without this, the dev server strips it,
+  // the API redirects back to its own origin, and the browser blocks the call.
+  skipTrailingSlashRedirect: true,
   transpilePackages: [
     "@farmdb/ui",
     "@farmdb/api-client",
@@ -35,7 +38,7 @@ const nextConfig: NextConfig = {
   ...(isDev && {
     async rewrites() {
       return [
-        { source: "/v1/:path*", destination: `${apiTarget}/v1/:path*` },
+        { source: "/v1/:path(.*)", destination: `${apiTarget}/v1/:path` },
         { source: "/openapi.json", destination: `${apiTarget}/openapi.json` },
         { source: "/docs", destination: `${apiTarget}/docs` },
         { source: "/docs/:path*", destination: `${apiTarget}/docs/:path*` },
