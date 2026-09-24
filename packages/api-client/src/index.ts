@@ -4,6 +4,10 @@
 // Data
 export type { FarmdbRequest } from "@farmdb/api-client/data/fetchers/fetcher";
 export { useFarmdbApi } from "@farmdb/api-client/data/fetchers/use-farmdb-api";
+export {
+  type FarmdbWriteRequest,
+  farmdbMutate,
+} from "@farmdb/api-client/data/mutations/farmdb-mutate";
 export { AuthApiError, authApi } from "./api";
 export { authzApi } from "./authz";
 export { AuthProvider, useAuth } from "./context";
