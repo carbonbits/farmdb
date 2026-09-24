@@ -12,7 +12,8 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "paths": {
-      "@farmdb/field-manager/*": ["./src/*"]
+      "@farmdb/field-manager/*": ["./src/*"],
+      "@farmdb/api-client/*": ["../api-client/src/*"]
     }
   },
   "include": ["src"]

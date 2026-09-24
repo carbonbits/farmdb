@@ -9,7 +9,11 @@
   "peerDependencies": {
     "react": "^19"
   },
+  "dependencies": {
+    "@farmdb/api-client": "workspace:*"
+  },
   "devDependencies": {
+    "@types/node": "^26.2.0",
     "@types/react": "^19",
     "typescript": "^5"
   }
