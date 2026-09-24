@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@farmdb/api-client": "workspace:*",
-    "@farmdb/map": "workspace:*"
+    "@farmdb/map": "workspace:*",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",

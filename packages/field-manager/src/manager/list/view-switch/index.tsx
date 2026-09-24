@@ -1,7 +1,6 @@
 import { CardsIcon, MapIcon } from "@farmdb/field-manager/manager/_icons";
+import type { FieldsView } from "@farmdb/field-manager/manager/_store";
 import type { ReactNode } from "react";
-
-export type FieldsView = "map" | "cards";
 
 const VIEW_OPTIONS: { view: FieldsView; label: string; icon: ReactNode }[] = [
   { view: "map", label: "Map", icon: <MapIcon /> },

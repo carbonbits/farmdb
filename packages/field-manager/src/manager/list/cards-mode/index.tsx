@@ -1,4 +1,5 @@
 import { useFields } from "@farmdb/field-manager/manager/_data/fetchers/use-fields";
+import { useFieldsManager } from "@farmdb/field-manager/manager/_store";
 import { FieldCard } from "@farmdb/field-manager/manager/list/cards-mode/field-card";
 import type { Field } from "@farmdb/field-manager/types";
 import { formatHectares } from "@farmdb/field-manager/utils/area";
@@ -33,6 +34,9 @@ function FieldsCardsBody({
   hasError: boolean;
   isLoading: boolean;
 }) {
+  const selectedFieldId = useFieldsManager((state) => state.selectedFieldId);
+  const selectField = useFieldsManager((state) => state.selectField);
+
   if (isLoading) return <CardsMessage text="Loading fields…" />;
   if (hasError) return <CardsMessage text="Couldn't load your fields. Try again shortly." />;
   if (!fields || fields.length === 0) {
@@ -43,7 +47,11 @@ function FieldsCardsBody({
     <ul className="grid grid-cols-[repeat(auto-fill,minmax(236px,1fr))] gap-3">
       {fields.map((field) => (
         <li key={field.id}>
-          <FieldCard field={field} />
+          <FieldCard
+            field={field}
+            isSelected={field.id === selectedFieldId}
+            onSelect={() => selectField(field.id)}
+          />
         </li>
       ))}
     </ul>
