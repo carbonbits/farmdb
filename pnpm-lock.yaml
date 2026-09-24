@@ -42,6 +42,9 @@ importers:
       '@farmdb/api-client':
         specifier: workspace:*
         version: link:../api-client
+      '@farmdb/map':
+        specifier: workspace:*
+        version: link:../map
       react:
         specifier: ^19
         version: 19.2.7

@@ -10,7 +10,8 @@
     "react": "^19"
   },
   "dependencies": {
-    "@farmdb/api-client": "workspace:*"
+    "@farmdb/api-client": "workspace:*",
+    "@farmdb/map": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
