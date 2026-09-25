@@ -26,8 +26,8 @@ export function ViewSwitch({
       className={[
         "m-0 inline-flex min-w-0 rounded-[10px] p-[3px]",
         floating
-          ? "border border-[#eadfcb] bg-white shadow-[0_4px_14px_rgba(20,14,9,0.1)]"
-          : "border-0 bg-[#f4ead4]",
+          ? "border border-parchment bg-white shadow-[0_4px_14px_rgba(20,14,9,0.1)]"
+          : "border-0 bg-cream",
       ].join(" ")}
     >
       {VIEW_OPTIONS.map(({ view, label, icon }) => {
@@ -40,9 +40,7 @@ export function ViewSwitch({
             onClick={() => onChange(view)}
             className={[
               "inline-flex items-center gap-1.5 rounded-[8px] px-3.5 py-[7px] text-[12.5px] font-semibold",
-              isActive
-                ? "bg-white text-[#20160f] shadow-[0_1px_2px_rgba(0,0,0,0.1)]"
-                : "text-[#75583f]",
+              isActive ? "bg-white text-bark shadow-[0_1px_2px_rgba(0,0,0,0.1)]" : "text-umber",
             ].join(" ")}
           >
             {icon}
