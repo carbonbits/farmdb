@@ -1,32 +1,13 @@
-export interface UserRoleRef {
-  id: string;
-  name: string;
-  display_name: string | null;
-}
-export interface User {
-  id: string;
-  email: string;
-  display_name: string | null;
-  is_active: boolean;
-  is_verified: boolean;
-  // Populated by /v1/auth/me so the client can gate features.
-  roles: UserRoleRef[];
-  permissions: string[];
-}
-export interface TokenResponse {
-  access_token: string;
-  refresh_token: string;
-  token_type: string;
-  expires_in: number;
-}
-export interface PasskeyInfo {
-  id: string;
-  friendly_name: string | null;
-  device_type: string | null;
-  backed_up: boolean;
-  created_at: string;
-  last_used_at: string | null;
-}
+import type { components } from "@farmdb/api-client/generated/api";
+
+// API shapes come from the generated schema. The interfaces below them are
+// client-side shapes the schema does not describe.
+type Schemas = components["schemas"];
+
+export type UserRoleRef = Schemas["UserRoleRef"];
+export type User = Schemas["UserMe"];
+export type TokenResponse = Schemas["TokenResponse"];
+export type PasskeyInfo = Schemas["PasskeyInfo"];
 export interface AuthState {
   user: User | null;
   accessToken: string | null;
@@ -34,15 +15,10 @@ export interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
 }
-export interface RegisterRequest {
-  email: string;
-  password: string;
-  display_name?: string;
-}
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
+export type RegisterRequest = Schemas["RegisterRequest"];
+export type LoginRequest = Schemas["LoginPasswordRequest"];
+// The WebAuthn options inside the passkey responses. The schema types them as
+// an open object, so the client narrows them to the shape the browser needs.
 export interface PasskeyAuthOptions {
   challenge: string;
   timeout: number;
@@ -71,46 +47,10 @@ export interface PasskeyRegOptions {
 export interface ApiError {
   detail: string;
 }
-export interface AuthzPermission {
-  name: string;
-  group: string | null;
-  description: string | null;
-}
-export interface AuthzRoleSummary {
-  id: string;
-  name: string;
-  display_name: string | null;
-  description: string | null;
-  is_system: boolean;
-  is_locked: boolean;
-  permissions: string[];
-  member_count: number;
-}
-export interface AuthzRoleMember {
-  id: string;
-  email: string;
-  display_name: string | null;
-}
-export interface AuthzRoleDetail extends AuthzRoleSummary {
-  members: AuthzRoleMember[];
-}
-export interface AuthzUserRoleRef {
-  id: string;
-  name: string;
-  display_name: string | null;
-}
-export interface AuthzUserWithRoles {
-  id: string;
-  email: string;
-  display_name: string | null;
-  is_active: boolean;
-  roles: AuthzUserRoleRef[];
-}
-export interface CreateRoleInput {
-  name: string;
-  display_name?: string;
-  description?: string;
-  permissions: string[];
-}
-
-
+export type AuthzPermission = Schemas["PermissionOut"];
+export type AuthzRoleSummary = Schemas["RoleSummary"];
+export type AuthzRoleMember = Schemas["RoleMember"];
+export type AuthzRoleDetail = Schemas["RoleDetail"];
+export type AuthzUserRoleRef = Schemas["UserRoleRef"];
+export type AuthzUserWithRoles = Schemas["UserWithRoles"];
+export type CreateRoleInput = Schemas["CreateRoleRequest"];

@@ -1,3 +1,4 @@
+export type { components, paths } from "@farmdb/api-client/generated/api";
 // Context and hooks
 // API client
 

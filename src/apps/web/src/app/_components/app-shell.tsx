@@ -141,7 +141,7 @@ export function AppShell({
     if (href) router.push(href);
   };
   const displayName = user?.display_name || user?.email || "Signed in";
-  const avatar = user ? initials(user.display_name, user.email) : "··";
+  const avatar = user ? initials(user.display_name ?? null, user.email) : "··";
   const contentClass = contentFill
     ? "flex min-h-0 flex-1 flex-col"
     : "flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-7";
