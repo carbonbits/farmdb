@@ -91,7 +91,10 @@ export class ApiClient {
     const tilesetsLink = collection.links.find((link) => link.rel === TILESETS_VECTOR_REL);
     if (!tilesetsLink) return null;
 
-    const response = await this.send(tilesetsLink.href, accessToken);
+    const tilesetsUrl = this.ownApiUrl(tilesetsLink.href);
+    if (!tilesetsUrl) return null;
+
+    const response = await this.send(tilesetsUrl, accessToken);
     const document = (await response.json()) as TileSets;
     const matrixSet = document.tilesets[0];
     if (!matrixSet) return null;
@@ -99,7 +102,22 @@ export class ApiClient {
     const tile = matrixSet.links.find(
       (link) => link.rel === TILE_ITEM_REL && link.type === MVT_MEDIA_TYPE,
     );
-    return tile?.href ?? null;
+    return tile ? this.ownApiUrl(tile.href) : null;
+  }
+
+  /**
+   * Keeps only the path of a link the API returned and puts this client's own
+   * API address in front, so the bearer token never follows a link to another
+   * host. A link outside the maps API is refused. Plain string handling keeps
+   * the {z}/{x}/{y} tile placeholders intact.
+   */
+  private ownApiUrl(href: string): string | null {
+    const linkPath = href.replace(/^[a-z][a-z0-9+.-]*:\/\/[^/]+/i, "");
+    const mapsPath = new URL(this.config.mapsUrl).pathname;
+    if (!linkPath.startsWith(`${mapsPath}/`)) return null;
+
+    const apiOrigin = this.config.mapsUrl.slice(0, -mapsPath.length);
+    return apiOrigin + linkPath;
   }
 
   private itemsUrl(collectionId: string): string {
