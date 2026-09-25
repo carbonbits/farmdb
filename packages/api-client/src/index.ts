@@ -1,7 +1,9 @@
 export type { components, paths } from "@farmdb/api-client/generated/api";
+
 // Context and hooks
 // API client
 
+export { FarmdbDataConfig } from "@farmdb/api-client/data/config/farmdb-data-config";
 // Data
 export type { FarmdbRequest } from "@farmdb/api-client/data/fetchers/fetcher";
 export { useFarmdbApi } from "@farmdb/api-client/data/fetchers/use-farmdb-api";
