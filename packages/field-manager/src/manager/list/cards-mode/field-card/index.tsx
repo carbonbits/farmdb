@@ -36,7 +36,7 @@ export function FieldCard({
         <CardFact
           label="Area"
           value={formatHectares(field.area_ha)}
-          isMissing={field.area_ha === null}
+          isMissing={field.area_ha == null}
         />
         {/* The API does not return soil, slope or soil tests yet. Swap these for
             the field's values once it does. */}
