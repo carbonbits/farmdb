@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@farmdb/api-client";
-import { FarmMap } from "@farmdb/map";
+import { FieldsManager } from "@farmdb/field-manager";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AppShell } from "../_components/app-shell";
@@ -32,9 +32,7 @@ export default function FieldsPage() {
 
   return (
     <AppShell active="fields" eyebrow="Farm" title="Fields" contentFill>
-      <div className="relative min-h-0 flex-1">
-        <FarmMap />
-      </div>
+      <FieldsManager />
     </AppShell>
   );
 }

@@ -1,17 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { DeleteConfirm } from "@farmdb/map/components/toolbar/rail/delete-confirm";
-import { FieldNameDialog } from "@farmdb/map/components/toolbar/rail/field-name";
-import { Flyout } from "@farmdb/map/components/toolbar/rail/flyout";
-import { RailButton } from "@farmdb/map/components/toolbar/rail/button";
 import { ImportPanel } from "@farmdb/map/components/toolbar/data";
 import { DrawToolbar } from "@farmdb/map/components/toolbar/draw/draw-toolbar";
 import { EditToolbar } from "@farmdb/map/components/toolbar/draw/edit-toolbar";
 import { FeatureDetail } from "@farmdb/map/components/toolbar/info";
 import { LayerToggle } from "@farmdb/map/components/toolbar/layers";
+import { RailButton } from "@farmdb/map/components/toolbar/rail/button";
+import { DeleteConfirm } from "@farmdb/map/components/toolbar/rail/delete-confirm";
+import { Flyout } from "@farmdb/map/components/toolbar/rail/flyout";
 import type { useFarmMap } from "@farmdb/map/hooks/use-farm-map";
 import { useDrawing, useSelection } from "@farmdb/map/store";
+import { useState } from "react";
 
 type Controls = ReturnType<typeof useFarmMap>;
 type Tool = "layers" | "draw" | "import";
@@ -45,9 +44,8 @@ const ICONS = {
 /**
  * The map's control rail. Lays out zoom, the tool flyouts (layers, draw,
  * import) and the actions on a selected feature (edit, delete), and owns which
- * flyout is open. Edit and delete act only when a feature is selected. A freshly
- * drawn field opens its name panel on the left. All the work is done by the
- * handlers the map hook passes in.
+ * flyout is open. Edit and delete act only when a feature is selected. All the
+ * work is done by the handlers the map hook passes in.
  */
 export function Rail({ controls }: { controls: Controls }) {
   const {
@@ -67,13 +65,10 @@ export function Rail({ controls }: { controls: Controls }) {
     importError,
     importFile,
     clearImport,
-    saveField,
-    cancelNaming,
   } = controls;
 
   const activeLayerId = useDrawing((state) => state.activeLayerId);
   const saveError = useDrawing((state) => state.saveError);
-  const namingField = useDrawing((state) => state.namingField);
   const selected = useSelection((state) => state.selected);
   const editing = useSelection((state) => state.editing);
   const deleteError = useSelection((state) => state.deleteError);
@@ -89,7 +84,7 @@ export function Rail({ controls }: { controls: Controls }) {
     setOpenTool((current) => (current === tool ? null : tool));
   };
 
-  const canActOnSelection = selected !== null && !editing && !namingField;
+  const canActOnSelection = selected !== null && !editing;
 
   const beginEdit = () => {
     if (!canActOnSelection) return;
@@ -113,11 +108,7 @@ export function Rail({ controls }: { controls: Controls }) {
 
   return (
     <>
-      {namingField ? (
-        <div className="absolute left-3 top-3 z-10">
-          <FieldNameDialog error={saveError} onSave={saveField} onCancel={cancelNaming} />
-        </div>
-      ) : selected && !editing ? (
+      {selected && !editing ? (
         <div className="absolute left-3 top-3 z-10">
           <FeatureDetail feature={selected} onClose={() => setSelected(null)} />
         </div>
@@ -164,32 +155,32 @@ export function Rail({ controls }: { controls: Controls }) {
           </Flyout>
         ) : null}
 
-        <div className="flex flex-col gap-1 rounded-[14px] border border-[#eadfcb] bg-white/95 p-2 shadow-md backdrop-blur">
+        <div className="flex flex-col gap-1 rounded-[14px] border border-parchment bg-white/95 p-2 shadow-md backdrop-blur">
           <RailButton icon={icon(ICONS.zoomIn)} label="Zoom in" onClick={zoomIn} />
           <RailButton icon={icon(ICONS.zoomOut)} label="Zoom out" onClick={zoomOut} />
-          <div className="mx-1.5 my-1 h-px bg-[#eadfcb]" />
+          <div className="mx-1.5 my-1 h-px bg-parchment" />
           <RailButton
             icon={icon(ICONS.layers)}
             label="Layers"
             active={openTool === "layers"}
-            disabled={editing || namingField}
+            disabled={editing}
             onClick={() => toggleTool("layers")}
           />
           <RailButton
             icon={icon(ICONS.draw)}
             label="Draw"
             active={openTool === "draw"}
-            disabled={editing || namingField}
+            disabled={editing}
             onClick={() => toggleTool("draw")}
           />
           <RailButton
             icon={icon(ICONS.import)}
             label="Import"
             active={openTool === "import"}
-            disabled={editing || namingField}
+            disabled={editing}
             onClick={() => toggleTool("import")}
           />
-          <div className="mx-1.5 my-1 h-px bg-[#eadfcb]" />
+          <div className="mx-1.5 my-1 h-px bg-parchment" />
           <RailButton icon={icon(ICONS.edit)} label="Edit selected" onClick={beginEdit} />
           <RailButton icon={icon(ICONS.trash)} label="Delete selected" onClick={askDelete} />
         </div>

@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@farmdb/field-manager/*": ["./src/*"],
+      "@farmdb/api-client/*": ["../api-client/src/*"],
+      "@farmdb/map/*": ["../map/src/*"],
+      "@farmdb/geo/*": ["../geo/src/*"]
+    }
+  },
+  "include": ["src"]
+}

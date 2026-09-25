@@ -12,7 +12,8 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "paths": {
-      "@farmdb/map/*": ["./src/*"]
+      "@farmdb/map/*": ["./src/*"],
+      "@farmdb/api-client/*": ["../api-client/src/*"]
     }
   },
   "include": ["src"]

@@ -1,8 +1,16 @@
+export type { components, paths } from "@farmdb/api-client/generated/api";
 // Context and hooks
 // API client
+
+// Data
+export type { FarmdbRequest } from "@farmdb/api-client/data/fetchers/fetcher";
+export { useFarmdbApi } from "@farmdb/api-client/data/fetchers/use-farmdb-api";
+export {
+  type FarmdbWriteRequest,
+  farmdbMutate,
+} from "@farmdb/api-client/data/mutations/farmdb-mutate";
 export { AuthApiError, authApi } from "./api";
 export { authzApi } from "./authz";
-export { fieldsApi } from "./fields";
 export { AuthProvider, useAuth } from "./context";
 // Passkey utilities
 export {
@@ -26,10 +34,7 @@ export type {
   AuthzRoleSummary,
   AuthzUserRoleRef,
   AuthzUserWithRoles,
-  CreateFieldInput,
   CreateRoleInput,
-  Field,
-  FieldGeometry,
   LoginRequest,
   PasskeyAuthOptions,
   PasskeyInfo,

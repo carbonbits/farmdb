@@ -6,15 +6,21 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "scripts": {
+    "generate": "openapi-typescript ${FARMDB_OPENAPI_URL:-http://localhost:5700/openapi.json} -o src/generated/api.d.ts"
+  },
   "dependencies": {
     "@simplewebauthn/browser": "^13.1.0",
+    "swr": "^2.5.1",
     "zod": "^4"
   },
   "peerDependencies": {
     "react": "^19"
   },
   "devDependencies": {
+    "@types/node": "^26.2.0",
     "@types/react": "^19",
+    "openapi-typescript": "^7.13.0",
     "typescript": "^5"
   }
 }

@@ -1,0 +1,22 @@
+{
+  "name": "@farmdb/field-manager",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "react": "^19"
+  },
+  "dependencies": {
+    "@farmdb/api-client": "workspace:*",
+    "@farmdb/map": "workspace:*",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@types/react": "^19",
+    "typescript": "^5"
+  }
+}

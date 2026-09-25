@@ -21,14 +21,14 @@ export function DeleteConfirm({
         : null;
 
   return (
-    <div className="w-[240px] rounded-[10px] border border-[#eadfcb] bg-white p-4 shadow-lg">
-      <div className="text-[12.5px] text-[#3f2d22]">Delete this feature?</div>
+    <div className="w-[240px] rounded-[10px] border border-parchment bg-white p-4 shadow-lg">
+      <div className="text-[12.5px] text-soil">Delete this feature?</div>
       <div className="mt-3 flex gap-2">
         <button
           type="button"
           onClick={onCancel}
           disabled={busy}
-          className="flex-1 rounded-md border border-[#eadfcb] py-1.5 text-[12.5px] text-[#3f2d22] hover:bg-[#f4ead4] disabled:opacity-60"
+          className="flex-1 rounded-md border border-parchment py-1.5 text-[12.5px] text-soil hover:bg-cream disabled:opacity-60"
         >
           Cancel
         </button>

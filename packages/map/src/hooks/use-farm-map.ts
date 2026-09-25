@@ -4,15 +4,10 @@ import { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import { GeoApiError } from "@farmdb/geo/utils/errors/geo_api";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useEffect, useRef, useState } from "react";
 import { BASE_STYLE } from "@farmdb/map/components/basemap";
-import {
-  FALLBACK_CENTER,
-  FALLBACK_ZOOM,
-  fitToExtents,
-} from "@farmdb/map/lib/center";
 import { useMapImport } from "@farmdb/map/components/toolbar/data/use-map-import";
 import { useMapDrawing } from "@farmdb/map/components/toolbar/draw/use-map-drawing";
+import { FALLBACK_CENTER, FALLBACK_ZOOM, fitToExtents } from "@farmdb/map/lib/center";
 import { mapsPrefix, mapsUrl, WORKER_URL } from "@farmdb/map/lib/config";
 import {
   applyLayerVisibility,
@@ -23,6 +18,7 @@ import {
   reloadLayerTiles,
 } from "@farmdb/map/lib/controllers/map-controller";
 import { useMapLayers, useSelection } from "@farmdb/map/store";
+import { useEffect, useRef, useState } from "react";
 
 maplibregl.setWorkerUrl(WORKER_URL);
 
@@ -48,28 +44,22 @@ export function useFarmMap() {
   const setSelected = useSelection((state) => state.setSelected);
   const setDeleteError = useSelection((state) => state.setDeleteError);
   const [ready, setReady] = useState(false);
-  const {
-    startDrawing,
-    cancelDrawing,
-    startEditing,
-    saveEdit,
-    cancelEditing,
-    saveField,
-    cancelNaming,
-  } = useMapDrawing(
+  const { startDrawing, cancelDrawing, startEditing, saveEdit, cancelEditing } = useMapDrawing(
     mapRef,
     clientRef,
     tokenRef,
     ready,
   );
-  const { importing, result: importResult, importError, importFile, clearImport } = useMapImport(
-    clientRef,
-    tokenRef,
-    (layerId) => {
-      const map = mapRef.current;
-      if (map) reloadLayerTiles(map, layerId);
-    },
-  );
+  const {
+    importing,
+    result: importResult,
+    importError,
+    importFile,
+    clearImport,
+  } = useMapImport(clientRef, tokenRef, (layerId) => {
+    const map = mapRef.current;
+    if (map) reloadLayerTiles(map, layerId);
+  });
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -115,6 +105,13 @@ export function useFarmMap() {
     applyLayerVisibility(map, layers, visible);
   }, [visible, ready, layers]);
 
+  // Clearing the selection from anywhere also clears its highlight on the map.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !ready || selected) return;
+    clearSelectionHighlight(map, layers);
+  }, [selected, ready, layers]);
+
   const deleteSelected = async (): Promise<void> => {
     const map = mapRef.current;
     const client = clientRef.current;
@@ -158,8 +155,6 @@ export function useFarmMap() {
     cancelEditing,
     startDrawing,
     cancelDrawing,
-    saveField,
-    cancelNaming,
     zoomIn,
     zoomOut,
     importing,
