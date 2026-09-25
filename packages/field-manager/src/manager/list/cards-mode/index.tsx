@@ -13,11 +13,11 @@ export function FieldsCards({ viewSwitch }: { viewSwitch: ReactNode }) {
   const { data: fields, error, isLoading } = useFields();
 
   return (
-    <div className="absolute inset-0 overflow-y-auto bg-[#f8f2e5] px-4 pb-[26px]">
-      <header className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 bg-[#f8f2e5] pt-4 pb-3.5">
+    <div className="absolute inset-0 overflow-y-auto bg-linen px-4 pb-[26px]">
+      <header className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 bg-linen pt-4 pb-3.5">
         {viewSwitch}
         {fields && fields.length > 0 && (
-          <p className="text-[12.5px] text-[#75583f]">{summarise(fields)}</p>
+          <p className="text-[12.5px] text-umber">{summarise(fields)}</p>
         )}
       </header>
       <FieldsCardsBody fields={fields} hasError={Boolean(error)} isLoading={isLoading} />
@@ -66,7 +66,7 @@ function summarise(fields: Field[]): string {
 
 function CardsMessage({ text }: { text: string }) {
   return (
-    <p className="text-[13px] text-[#75583f]" role="status">
+    <p className="text-[13px] text-umber" role="status">
       {text}
     </p>
   );
