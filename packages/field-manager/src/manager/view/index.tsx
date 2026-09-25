@@ -48,7 +48,7 @@ export function FieldPanel({ field, onClose }: { field: Field; onClose: () => vo
         <PanelFact
           label="Area"
           value={formatHectares(field.area_ha)}
-          isMissing={field.area_ha === null}
+          isMissing={field.area_ha == null}
         />
         <PanelFact label="Soil" value={NOT_RECORDED} isMissing />
         <PanelFact label="Slope" value={NOT_RECORDED} isMissing />
