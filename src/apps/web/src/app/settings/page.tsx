@@ -468,7 +468,7 @@ function RolesList({
             </div>
             <div className="flex-none text-right">
               <div className="font-mono text-[12px] font-medium text-[#20160f]">
-                {r.permissions.length} perms
+                {(r.permissions ?? []).length} perms
               </div>
               <div className="text-[11px] text-[#957a5c]">
                 {r.member_count} {r.member_count === 1 ? "person" : "people"}
@@ -620,18 +620,18 @@ function RoleDetail({
         <div className="mt-[3px] mb-2 text-[12.5px] text-[#957a5c]">
           Removing someone here leaves their other roles untouched.
         </div>
-        {role.members.length === 0 ? (
+        {(role.members ?? []).length === 0 ? (
           <div className="rounded-[10px] border border-dashed border-[#d8c9a9] p-3 text-[12.5px] text-[#957a5c]">
             No one holds this role yet.
           </div>
         ) : (
-          role.members.map((m) => (
+          (role.members ?? []).map((m) => (
             <div key={m.id} className="flex items-center gap-3 border-t border-[#eadfcb] py-3">
               <div
                 className="flex h-[34px] w-[34px] flex-none items-center justify-center rounded-[9px] font-serif text-[12.5px] font-bold text-[#f4ead4]"
                 style={{ background: TILE }}
               >
-                {initials(m.display_name, m.email)}
+                {initials(m.display_name ?? null, m.email)}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-[13.5px] font-semibold">{m.display_name || m.email}</div>
@@ -670,7 +670,7 @@ function UsersList({
       </div>
       <div className="mt-3 flex flex-col">
         {users.map((u) => {
-          const held = new Set(u.roles.map((r) => r.id));
+          const held = new Set((u.roles ?? []).map((r) => r.id));
           return (
             <div
               key={u.id}
@@ -680,17 +680,17 @@ function UsersList({
                 className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-[9px] font-serif text-[13.5px] font-bold text-[#f4ead4]"
                 style={{ background: TILE }}
               >
-                {initials(u.display_name, u.email)}
+                {initials(u.display_name ?? null, u.email)}
               </div>
               <div className="min-w-0 flex-[1_1_160px]">
                 <div className="text-[13.5px] font-semibold">{u.display_name || u.email}</div>
                 <div className="text-[12px] text-[#957a5c]">{u.email}</div>
               </div>
               <div className="flex min-w-0 flex-[1_1_140px] flex-wrap gap-1.5">
-                {u.roles.length === 0 ? (
+                {(u.roles ?? []).length === 0 ? (
                   <span className="text-[12px] text-[#957a5c]">No roles</span>
                 ) : (
-                  u.roles.map((r) => (
+                  (u.roles ?? []).map((r) => (
                     <span
                       key={r.id}
                       className="rounded-full bg-[#efe7d6] px-2.5 py-1 text-[11.5px] font-semibold text-[#7a634a]"
@@ -800,7 +800,7 @@ function Matrix({
                     <div className="font-mono text-[10.5px] text-[#a8906d]">{p.name}</div>
                   </div>
                   {roles.map((r) => {
-                    const has = r.permissions.includes(p.name);
+                    const has = (r.permissions ?? []).includes(p.name);
                     return (
                       <div key={r.id} className="flex justify-center">
                         <button
