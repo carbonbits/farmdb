@@ -1,0 +1,2 @@
+/* Tells Tailwind to scan this package for class names; the path is relative to this file. */
+@source "./";
