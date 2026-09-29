@@ -1,26 +1,20 @@
 "use client";
 
-import type { AuthApiError } from "@farmdb/api-client/api";
-import { useAuth } from "@farmdb/api-client/context";
-import {
-  type FarmdbKey,
-  type FarmdbRequest,
-  farmdbFetcher,
-} from "@farmdb/api-client/data/fetchers/fetcher";
+import { type AuthOptions, useAuthOptions } from "@farmdb/api-client/data/client/auth-options";
+import { type ApiError, type ApiResult, unwrap } from "@farmdb/api-client/data/client/errors";
 import useSWR, { type SWRResponse } from "swr";
 
 /**
- * Reads data from the FarmDB API with caching. Sends no request until the user
- * is signed in.
+ * Reads from the FarmDB API with caching. Waits until the user is signed in, and
+ * keys the cache by the user's token so one person's data never shows for another.
  */
-export function useFarmdbApi<ResponseBody = unknown>(
-  request: FarmdbRequest | null,
-): SWRResponse<ResponseBody, AuthApiError> {
-  const { accessToken } = useAuth();
-  const isReadyToFetch = request !== null && accessToken !== null;
-  const cacheKey: FarmdbKey | null = isReadyToFetch
-    ? [request.path, request.options, accessToken]
-    : null;
+export function useFarmdbApi<ResponseBody>(
+  cacheName: string | null,
+  load: (authOptions: AuthOptions) => Promise<ApiResult<ResponseBody>>,
+): SWRResponse<ResponseBody, ApiError> {
+  const authOptions = useAuthOptions();
+  const isReadyToLoad = cacheName !== null && authOptions !== null;
+  const cacheKey = isReadyToLoad ? ([cacheName, authOptions] as const) : null;
 
-  return useSWR<ResponseBody, AuthApiError>(cacheKey, farmdbFetcher<ResponseBody>);
+  return useSWR(cacheKey, ([_cacheName, signedInOptions]) => unwrap(load(signedInOptions)));
 }

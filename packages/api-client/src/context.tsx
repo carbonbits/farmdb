@@ -1,7 +1,8 @@
 "use client";
 
+import { ApiError } from "@farmdb/api-client/data/client/errors";
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from "react";
-import { AuthApiError, authApi } from "./api";
+import { authApi } from "./api";
 import type { AuthState, PasskeyInfo, TokenResponse } from "./types";
 
 const TOKEN_STORAGE_KEY = "farmdb_refresh_token";
@@ -166,7 +167,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         await handleTokens(tokens);
       } catch (err) {
         setState((s) => ({ ...s, isLoading: false }));
-        const message = err instanceof AuthApiError ? err.message : "Registration failed";
+        const message = err instanceof ApiError ? err.message : "Registration failed";
         setError(message);
         throw err;
       }
@@ -184,7 +185,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         await handleTokens(tokens);
       } catch (err) {
         setState((s) => ({ ...s, isLoading: false }));
-        const message = err instanceof AuthApiError ? err.message : "Login failed";
+        const message = err instanceof ApiError ? err.message : "Login failed";
         setError(message);
         throw err;
       }
@@ -210,7 +211,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           return;
         }
 
-        const message = err instanceof AuthApiError ? err.message : "Passkey authentication failed";
+        const message = err instanceof ApiError ? err.message : "Passkey authentication failed";
         setError(message);
         throw err;
       }
@@ -235,7 +236,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           throw err;
         }
 
-        const message = err instanceof AuthApiError ? err.message : "Failed to register passkey";
+        const message = err instanceof ApiError ? err.message : "Failed to register passkey";
         setError(message);
         throw err;
       }
@@ -262,7 +263,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       try {
         await authApi.deletePasskey(state.accessToken, passkeyId);
       } catch (err) {
-        const message = err instanceof AuthApiError ? err.message : "Failed to delete passkey";
+        const message = err instanceof ApiError ? err.message : "Failed to delete passkey";
         setError(message);
         throw err;
       }

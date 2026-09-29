@@ -1,4 +1,5 @@
-import { API_BASE, authHeaders, handleResponse } from "./api";
+import { bearerHeader, farmdbApi } from "@farmdb/api-client/data/client";
+import { unwrap } from "@farmdb/api-client/data/client/errors";
 import type {
   AuthzPermission,
   AuthzRoleDetail,
@@ -12,69 +13,62 @@ import type {
  * caller's access token and requires the `roles.manage` permission server-side.
  */
 export const authzApi = {
-  async listPermissions(accessToken: string): Promise<AuthzPermission[]> {
-    const response = await fetch(`${API_BASE}/v1/authz/permissions`, {
-      headers: authHeaders(accessToken),
-    });
-    return handleResponse<AuthzPermission[]>(response);
+  listPermissions(accessToken: string): Promise<AuthzPermission[]> {
+    return unwrap(farmdbApi.GET("/v1/authz/permissions", { headers: bearerHeader(accessToken) }));
   },
 
-  async listRoles(accessToken: string): Promise<AuthzRoleSummary[]> {
-    const response = await fetch(`${API_BASE}/v1/authz/roles`, {
-      headers: authHeaders(accessToken),
-    });
-    return handleResponse<AuthzRoleSummary[]>(response);
+  listRoles(accessToken: string): Promise<AuthzRoleSummary[]> {
+    return unwrap(farmdbApi.GET("/v1/authz/roles", { headers: bearerHeader(accessToken) }));
   },
 
-  async getRole(accessToken: string, roleId: string): Promise<AuthzRoleDetail> {
-    const response = await fetch(`${API_BASE}/v1/authz/roles/${roleId}`, {
-      headers: authHeaders(accessToken),
-    });
-    return handleResponse<AuthzRoleDetail>(response);
+  getRole(accessToken: string, roleId: string): Promise<AuthzRoleDetail> {
+    return unwrap(
+      farmdbApi.GET("/v1/authz/roles/{role_id}", {
+        headers: bearerHeader(accessToken),
+        params: { path: { role_id: roleId } },
+      }),
+    );
   },
 
-  async createRole(accessToken: string, input: CreateRoleInput): Promise<AuthzRoleDetail> {
-    const response = await fetch(`${API_BASE}/v1/authz/roles`, {
-      method: "POST",
-      headers: authHeaders(accessToken),
-      body: JSON.stringify(input),
-    });
-    return handleResponse<AuthzRoleDetail>(response);
+  createRole(accessToken: string, input: CreateRoleInput): Promise<AuthzRoleDetail> {
+    return unwrap(
+      farmdbApi.POST("/v1/authz/roles", { headers: bearerHeader(accessToken), body: input }),
+    );
   },
 
-  async setRolePermissions(
+  setRolePermissions(
     accessToken: string,
     roleId: string,
     permissions: string[],
   ): Promise<AuthzRoleDetail> {
-    const response = await fetch(`${API_BASE}/v1/authz/roles/${roleId}/permissions`, {
-      method: "PUT",
-      headers: authHeaders(accessToken),
-      body: JSON.stringify({ permissions }),
-    });
-    return handleResponse<AuthzRoleDetail>(response);
+    return unwrap(
+      farmdbApi.PUT("/v1/authz/roles/{role_id}/permissions", {
+        headers: bearerHeader(accessToken),
+        params: { path: { role_id: roleId } },
+        body: { permissions },
+      }),
+    );
   },
 
-  async listUsers(accessToken: string): Promise<AuthzUserWithRoles[]> {
-    const response = await fetch(`${API_BASE}/v1/authz/users`, {
-      headers: authHeaders(accessToken),
-    });
-    return handleResponse<AuthzUserWithRoles[]>(response);
+  listUsers(accessToken: string): Promise<AuthzUserWithRoles[]> {
+    return unwrap(farmdbApi.GET("/v1/authz/users", { headers: bearerHeader(accessToken) }));
   },
 
   async assignRole(accessToken: string, userId: string, roleId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/v1/authz/users/${userId}/roles/${roleId}`, {
-      method: "POST",
-      headers: authHeaders(accessToken),
-    });
-    return handleResponse<void>(response);
+    await unwrap(
+      farmdbApi.POST("/v1/authz/users/{user_id}/roles/{role_id}", {
+        headers: bearerHeader(accessToken),
+        params: { path: { user_id: userId, role_id: roleId } },
+      }),
+    );
   },
 
   async revokeRole(accessToken: string, userId: string, roleId: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/v1/authz/users/${userId}/roles/${roleId}`, {
-      method: "DELETE",
-      headers: authHeaders(accessToken),
-    });
-    return handleResponse<void>(response);
+    await unwrap(
+      farmdbApi.DELETE("/v1/authz/users/{user_id}/roles/{role_id}", {
+        headers: bearerHeader(accessToken),
+        params: { path: { user_id: userId, role_id: roleId } },
+      }),
+    );
   },
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthApiError } from "@farmdb/api-client/api";
+import { ApiError } from "@farmdb/api-client/data/client/errors";
 import type { ReactNode } from "react";
 import { SWRConfig } from "swr";
 
@@ -10,7 +10,7 @@ import { SWRConfig } from "swr";
  * SWR's normal retry, since those often clear on their own.
  */
 function shouldRetryOnError(error: unknown): boolean {
-  const isClientError = error instanceof AuthApiError && error.status >= 400 && error.status < 500;
+  const isClientError = error instanceof ApiError && error.status >= 400 && error.status < 500;
   return !isClientError;
 }
 
