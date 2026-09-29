@@ -10,6 +10,7 @@
     "./utils/errors/geo_api": "./src/utils/errors/geo_api/index.ts"
   },
   "dependencies": {
+    "@farmdb/api-client": "workspace:*",
     "@types/geojson": "^7946.0.14"
   },
   "devDependencies": {
