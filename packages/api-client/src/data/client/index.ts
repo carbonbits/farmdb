@@ -9,7 +9,7 @@ const REQUEST_TIMEOUT_MS = 30_000;
 type FarmdbPath = Extract<keyof paths, `/v1/${string}`>;
 export type FarmdbPaths = Pick<paths, FarmdbPath>;
 
-function apiOrigin(): string {
+export function apiOrigin(): string {
   return API_BASE ? new URL(API_BASE).origin : window.location.origin;
 }
 

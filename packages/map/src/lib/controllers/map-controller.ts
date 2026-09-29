@@ -1,4 +1,5 @@
 import type { Collection, GeoFeature } from "@farmdb/geo";
+import { bearerHeader } from "@farmdb/api-client/data/client";
 import type { ApiClient as GeoApiClient } from "@farmdb/geo/client";
 import * as maplibregl from "maplibre-gl";
 import { type MapLayer, toMapLayer } from "@farmdb/map/components/toolbar/layers/model";
@@ -24,7 +25,7 @@ type Renderable = { collection: Collection; layer: MapLayer };
 export function attachTokenToMapRequests(tokenRef: TokenRef, prefix: string) {
   return (url: string) => {
     if (tokenRef.current && url.startsWith(prefix)) {
-      return { url, headers: { Authorization: `Bearer ${tokenRef.current}` } };
+      return { url, headers: bearerHeader(tokenRef.current) };
     }
     return { url };
   };
