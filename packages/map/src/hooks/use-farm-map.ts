@@ -1,7 +1,6 @@
 "use client";
-import { useAuth } from "@farmdb/api-client";
+import { ApiError, useAuth } from "@farmdb/api-client";
 import { ApiClient as GeoApiClient } from "@farmdb/geo/client";
-import { GeoApiError } from "@farmdb/geo/utils/errors/geo_api";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { BASE_STYLE } from "@farmdb/map/components/basemap";
@@ -125,7 +124,7 @@ export function useFarmMap() {
       clearSelectionHighlight(map, layers);
       setSelected(null);
     } catch (error) {
-      setDeleteError(error instanceof GeoApiError && error.status === 403 ? "forbidden" : "error");
+      setDeleteError(error instanceof ApiError && error.status === 403 ? "forbidden" : "error");
     }
   };
 

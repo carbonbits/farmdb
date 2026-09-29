@@ -6,8 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./client": "./src/features/client.ts",
-    "./types": "./src/types.ts",
-    "./utils/errors/geo_api": "./src/utils/errors/geo_api/index.ts"
+    "./types": "./src/types.ts"
   },
   "dependencies": {
     "@farmdb/api-client": "workspace:*",
