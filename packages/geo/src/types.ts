@@ -8,9 +8,9 @@ import type { Feature, Geometry, GeometryCollection } from "geojson";
 
 export type GeoGeometry = Exclude<Geometry, GeometryCollection>;
 
-export interface GeoFeatureProperties {
+export type GeoFeatureProperties = {
   name?: string;
-}
+};
 
 export type GeoFeature = Feature<GeoGeometry, GeoFeatureProperties> & {
   id: string;
