@@ -1,5 +1,7 @@
 @import "tailwindcss";
-@source "../../../../../packages";
+@import "@farmdb/ui/styles.css";
+@import "@farmdb/map/styles.css";
+@import "@farmdb/field-manager/styles.css";
 
 :root {
   --background: #ffffff;

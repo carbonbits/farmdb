@@ -1,0 +1,2 @@
+/* Tells a consuming app's Tailwind build where this package's classes live. */
+@source "./src";
