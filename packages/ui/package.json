@@ -5,7 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./styles.css": "./src/styles.css"
+    "./styles.css": "./styles.css"
   },
   "peerDependencies": {
     "next": "^16",
