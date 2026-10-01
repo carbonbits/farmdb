@@ -183,3 +183,13 @@ export function clearSelectionHighlight(map: maplibregl.Map, layers: MapLayer[])
     }
   }
 }
+
+// Lightens the basemap pictures so a screen's own background and drawings stand
+// out while roads, rivers and towns stay readable. Leaves the map alone when no
+// opacity is given.
+export function fadeBasemap(map: maplibregl.Map, opacity: number | undefined): void {
+  if (opacity === undefined) return;
+  for (const layer of map.getStyle().layers) {
+    if (layer.type === "raster") map.setPaintProperty(layer.id, "raster-opacity", opacity);
+  }
+}

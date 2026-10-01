@@ -23,3 +23,5 @@ export const SELECTED_WIDTH = 3;
 export const CIRCLE_RADIUS = 6;
 
 export const CIRCLE_STROKE_WIDTH = 2;
+
+export const WHITE = "#ffffff";
