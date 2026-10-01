@@ -13,13 +13,25 @@ import {
   attachTokenToMapRequests,
   clearSelectionHighlight,
   deleteSelectedFeature,
+  fadeBasemap,
   loadLayers,
   reloadLayerTiles,
 } from "@farmdb/map/lib/controllers/map-controller";
+import { showSketch as drawSketch } from "@farmdb/map/lib/controllers/sketch-controller";
 import { useMapLayers, useSelection } from "@farmdb/map/store";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 maplibregl.setWorkerUrl(WORKER_URL);
+
+/**
+ * What a screen can change about the map: how a finished drawing is saved,
+ * which corner holds the map credit so it clears the screen's own labels, and
+ * how strongly the basemap shows under the screen's own background.
+ */
+export type FarmMapOptions = {
+  attributionPosition?: maplibregl.ControlPosition;
+  basemapOpacity?: number;
+};
 
 /**
  * Owns the react lifecycle of the map: it creates the map once, loads the
@@ -27,7 +39,7 @@ maplibregl.setWorkerUrl(WORKER_URL);
  * applied. Drawing, editing and importing are wired by companion hooks, and the
  * map component reads what it needs from the returned handles.
  */
-export function useFarmMap() {
+export function useFarmMap(options: FarmMapOptions = {}) {
   const { accessToken } = useAuth();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -35,6 +47,8 @@ export function useFarmMap() {
   const tokenRef = useRef<string | null>(accessToken);
   tokenRef.current = accessToken;
   const loadedRef = useRef(false);
+  const attributionPositionRef = useRef(options.attributionPosition ?? "bottom-right");
+  const basemapOpacityRef = useRef(options.basemapOpacity);
   const layers = useMapLayers((state) => state.layers);
   const visible = useMapLayers((state) => state.visible);
   const setLayers = useMapLayers((state) => state.setLayers);
@@ -70,14 +84,20 @@ export function useFarmMap() {
       center: FALLBACK_CENTER,
       zoom: FALLBACK_ZOOM,
       transformRequest: attachTokenToMapRequests(tokenRef, mapsPrefix()),
+      attributionControl: false,
     });
     mapRef.current = map;
+    map.addControl(
+      new maplibregl.AttributionControl({ compact: true }),
+      attributionPositionRef.current,
+    );
 
     const resizeObserver = new ResizeObserver(() => map.resize());
     resizeObserver.observe(containerRef.current);
 
     map.on("load", () => {
       map.resize();
+      fadeBasemap(map, basemapOpacityRef.current);
       setReady(true);
     });
 
@@ -135,6 +155,41 @@ export function useFarmMap() {
     startEditing(selected, layer);
   };
 
+  // Hands each tap to the screen as [longitude, latitude], already wrapped into
+  // -180..180 so a tap on a repeated copy of the world lands on the real earth.
+  const onMapClick = useCallback(
+    (handler: (point: [number, number]) => void): (() => void) => {
+      const map = mapRef.current;
+      if (!map || !ready) return () => {};
+      const listener = (event: maplibregl.MapMouseEvent) => {
+        const { lng, lat } = event.lngLat.wrap();
+        handler([lng, lat]);
+      };
+      map.on("click", listener);
+      return () => {
+        map.off("click", listener);
+      };
+    },
+    [ready],
+  );
+
+  const showSketch = useCallback(
+    (points: number[][]): void => {
+      const map = mapRef.current;
+      if (map && ready) drawSketch(map, points);
+    },
+    [ready],
+  );
+
+  // Fetches a layer's shapes again, for a screen that saved or removed one itself.
+  const reloadLayer = useCallback(
+    (layerId: string): void => {
+      const map = mapRef.current;
+      if (map && ready) reloadLayerTiles(map, layerId);
+    },
+    [ready],
+  );
+
   const zoomIn = (): void => {
     mapRef.current?.zoomIn();
   };
@@ -145,6 +200,10 @@ export function useFarmMap() {
 
   return {
     containerRef,
+    ready,
+    onMapClick,
+    showSketch,
+    reloadLayer,
     viewableLayers: layers,
     visible,
     setVisible,
