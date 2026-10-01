@@ -13,6 +13,8 @@
   "dependencies": {
     "@farmdb/api-client": "workspace:*",
     "@farmdb/map": "workspace:*",
+    "@farmdb/ui": "workspace:*",
+    "@turf/area": "^7.4.0",
     "zustand": "^5.0.15"
   },
   "devDependencies": {

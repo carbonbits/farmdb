@@ -31,6 +31,25 @@ export function CardsIcon() {
   );
 }
 
+/** An arrow pointing left, used to go back. */
+export function ArrowLeftIcon() {
+  return (
+    <svg {...ICON_PROPS} aria-hidden="true">
+      <path d="M19 12H5M11 6l-6 6 6 6" />
+    </svg>
+  );
+}
+
+/** A box, used to set up the farm. */
+export function BoxIcon() {
+  return (
+    <svg {...ICON_PROPS} aria-hidden="true">
+      <path d="M21 8 12 3 3 8v8l9 5 9-5V8z" />
+      <path d="M3 8l9 5 9-5M12 13v8" />
+    </svg>
+  );
+}
+
 /** A cross, used to close a panel. */
 export function CloseIcon() {
   return (
