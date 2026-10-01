@@ -11,4 +11,3 @@ export type {
   TileSets,
   UpdateFeatureInput,
 } from "./types";
-export { GeoApiError } from "./utils/errors/geo_api";

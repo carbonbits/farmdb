@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  AuthApiError,
+  ApiError,
   type AuthzPermission,
   type AuthzRoleDetail,
   type AuthzRoleSummary,
@@ -118,7 +118,7 @@ export default function SettingsPage() {
   }, []);
 
   const runError = useCallback(
-    (e: unknown) => setError(e instanceof AuthApiError ? e.message : "Something went wrong"),
+    (e: unknown) => setError(e instanceof ApiError ? e.message : "Something went wrong"),
     [],
   );
 

@@ -38,37 +38,57 @@ FARMDB_OPENAPI_URL=/tmp/farmdb-openapi.json pnpm --filter @farmdb/api-client gen
 Commit the regenerated file with the change that needed it. Running `generate`
 again with no API change gives no diff.
 
+## Talking to the API
+
+Every request goes through one typed client, `farmdbApi`, built on
+[openapi-fetch](https://openapi-ts.dev/openapi-fetch/). Paths and responses are
+typed from `src/generated/api.d.ts`, so a wrong path or field name fails to
+compile. The client only sends requests to this API's own `/v1/` paths and gives
+up after 30 seconds. `unwrap` turns a result into its data, or throws an
+`ApiError`.
+
 ## Reading data
 
-Every request goes through one fetcher, `farmdbFetcher`. Components read with
-`useFarmdbApi`, which adds the signed-in user's token, caches the result with
-SWR, and waits until someone is signed in.
+Components read with `useFarmdbApi`. It adds the signed-in user's token, caches
+the result with SWR, and waits until someone is signed in. The response type
+comes from the path, so there is nothing to annotate.
 
 ```ts
-import { type components, useFarmdbApi } from "@farmdb/api-client";
+import { farmdbApi, useFarmdbApi } from "@farmdb/api-client";
 
-type FarmField = components["schemas"]["FarmField"];
-
-const { data: fields, error, isLoading, mutate } = useFarmdbApi<FarmField[]>({
-  path: "/v1/fields/",
-});
+const { data: fields, error, isLoading, mutate } = useFarmdbApi("/v1/fields/", (authOptions) =>
+  farmdbApi.GET("/v1/fields/", authOptions),
+);
 ```
 
-To add a new endpoint call, pass its path, and type the result with the
-matching schema from `components["schemas"]`.
+The first argument names the cached data. Pass `null` to skip the request.
 
 ## Writing data
 
-Writes use `farmdbMutate`, which goes through the same fetcher. After a write,
-call the `mutate` returned by the matching `useFarmdbApi` so the cached read
-refreshes.
+Writes call the client directly with the signed-in user's `authOptions`. After a
+write, call the `mutate` returned by the matching `useFarmdbApi` so the cached
+read refreshes.
 
 ```ts
-import { farmdbMutate } from "@farmdb/api-client";
+import { farmdbApi, unwrap, useAuthOptions } from "@farmdb/api-client";
 
-await farmdbMutate<FarmField, CreateFarmFieldInput>(
-  { path: "/v1/fields/", method: "POST", body: { name: "Field A1" } },
-  accessToken,
-);
-await mutate();
+const authOptions = useAuthOptions(); // null when signed out
+
+if (authOptions) {
+  await unwrap(farmdbApi.POST("/v1/fields/", { ...authOptions, body: { name: "Field A1" } }));
+  await mutate();
+}
 ```
+
+## Errors
+
+Every failed call throws an `ApiError` with a `message` and a `status`. Server
+faults (5xx) carry a generic message, client errors (4xx) carry the API's own
+`detail` text, and a network failure or timeout has status `0`.
+
+## Configuration
+
+`NEXT_PUBLIC_API_URL` sets where the API lives. It is read when the web app is
+built. Leave it empty, the default, when the API serves the web app or the dev
+server proxies `/v1`. If you set it, use an `https://` address in production:
+the user's token travels with every request.

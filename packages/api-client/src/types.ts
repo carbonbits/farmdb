@@ -19,7 +19,7 @@ export type RegisterRequest = Schemas["RegisterRequest"];
 export type LoginRequest = Schemas["LoginPasswordRequest"];
 // The WebAuthn options inside the passkey responses. The schema types them as
 // an open object, so the client narrows them to the shape the browser needs.
-export interface PasskeyAuthOptions {
+export type PasskeyAuthOptions = {
   challenge: string;
   timeout: number;
   rpId: string;
@@ -30,8 +30,8 @@ export interface PasskeyAuthOptions {
     transports?: string[];
   }>;
   _challenge_key: string;
-}
-export interface PasskeyRegOptions {
+};
+export type PasskeyRegOptions = {
   challenge: string;
   rp: { id: string; name: string };
   user: { id: string; name: string; displayName: string };
@@ -43,10 +43,7 @@ export interface PasskeyRegOptions {
     userVerification: string;
   };
   attestation: string;
-}
-export interface ApiError {
-  detail: string;
-}
+};
 export type AuthzPermission = Schemas["PermissionOut"];
 export type AuthzRoleSummary = Schemas["RoleSummary"];
 export type AuthzRoleMember = Schemas["RoleMember"];

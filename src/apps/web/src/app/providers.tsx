@@ -1,8 +1,12 @@
 "use client";
 
-import { AuthProvider } from "@farmdb/api-client";
+import { AuthProvider, FarmdbDataConfig } from "@farmdb/api-client";
 import type { ReactNode } from "react";
 
 export function Providers({ children }: { children: ReactNode }) {
-  return <AuthProvider>{children}</AuthProvider>;
+  return (
+    <FarmdbDataConfig>
+      <AuthProvider>{children}</AuthProvider>
+    </FarmdbDataConfig>
+  );
 }

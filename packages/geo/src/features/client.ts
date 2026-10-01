@@ -1,31 +1,32 @@
+import { bearerHeader, farmdbApi } from "@farmdb/api-client/data/client";
+import { unwrap } from "@farmdb/api-client/data/client/errors";
 import type {
   Collection,
   CreateFeatureInput,
   GeoApiConfig,
   GeoFeature,
+  GeoGeometry,
   ImportFeatureInput,
   ImportResult,
-  TileSets,
   UpdateFeatureInput,
 } from "@farmdb/geo/types";
-import { GeoApiError } from "@farmdb/geo/utils/errors/geo_api";
-import { JSON_MEDIA_TYPE, MVT_MEDIA_TYPE, TILE_ITEM_REL, TILESETS_VECTOR_REL } from "./ogc";
+import { MVT_MEDIA_TYPE, TILE_ITEM_REL, TILESETS_VECTOR_REL } from "./ogc";
 
 /**
  * Talks to the OGC map API: it reads the layers and features the map shows and
  * writes the features a user draws. This is the one place that speaks OGC in
- * the app, so the app passes in where the API lives and a fresh bearer token on
- * every call. To find the tiles for a layer the client follows the links the
- * API returns instead of building a URL, and when a layer offers no tiles it
- * returns null so the map skips it.
+ * the app. Every call goes through the shared FarmDB client, so the map API
+ * gets the same origin check, time limit and safe errors as the rest of the
+ * app. When a layer offers no tiles it returns null so the map skips it.
  */
 export class ApiClient {
   constructor(private readonly config: GeoApiConfig) {}
 
   async listCollections(accessToken: string): Promise<Collection[]> {
-    const response = await this.send(`${this.config.mapsUrl}/collections`, accessToken);
-    const document = (await response.json()) as { collections: Collection[] };
-    return document.collections;
+    const document = await unwrap(
+      farmdbApi.GET("/v1/maps/collections", { headers: bearerHeader(accessToken) }),
+    );
+    return asCollections(document.collections);
   }
 
   async getFeature(
@@ -33,8 +34,13 @@ export class ApiClient {
     collectionId: string,
     featureId: string,
   ): Promise<GeoFeature> {
-    const response = await this.send(this.itemUrl(collectionId, featureId), accessToken);
-    return (await response.json()) as GeoFeature;
+    const feature = await unwrap(
+      farmdbApi.GET("/v1/maps/collections/{collection_id}/items/{feature_id}", {
+        params: { path: { collection_id: collectionId, feature_id: featureId } },
+        headers: bearerHeader(accessToken),
+      }),
+    );
+    return asGeoFeature(feature);
   }
 
   async createFeature(
@@ -42,12 +48,14 @@ export class ApiClient {
     collectionId: string,
     input: CreateFeatureInput,
   ): Promise<GeoFeature> {
-    const response = await this.send(this.itemsUrl(collectionId), accessToken, {
-      method: "POST",
-      headers: { "Content-Type": JSON_MEDIA_TYPE },
-      body: JSON.stringify(input),
-    });
-    return (await response.json()) as GeoFeature;
+    const feature = await unwrap(
+      farmdbApi.POST("/v1/maps/collections/{collection_id}/items", {
+        params: { path: { collection_id: collectionId } },
+        headers: bearerHeader(accessToken),
+        body: { ...input, geometry: plainGeometry(input.geometry) },
+      }),
+    );
+    return asGeoFeature(feature);
   }
 
   async updateFeature(
@@ -56,16 +64,23 @@ export class ApiClient {
     featureId: string,
     input: UpdateFeatureInput,
   ): Promise<GeoFeature> {
-    const response = await this.send(this.itemUrl(collectionId, featureId), accessToken, {
-      method: "PUT",
-      headers: { "Content-Type": JSON_MEDIA_TYPE },
-      body: JSON.stringify(input),
-    });
-    return (await response.json()) as GeoFeature;
+    const feature = await unwrap(
+      farmdbApi.PUT("/v1/maps/collections/{collection_id}/items/{feature_id}", {
+        params: { path: { collection_id: collectionId, feature_id: featureId } },
+        headers: bearerHeader(accessToken),
+        body: { ...input, geometry: plainGeometry(input.geometry) },
+      }),
+    );
+    return asGeoFeature(feature);
   }
 
   async deleteFeature(accessToken: string, collectionId: string, featureId: string): Promise<void> {
-    await this.send(this.itemUrl(collectionId, featureId), accessToken, { method: "DELETE" });
+    await unwrap(
+      farmdbApi.DELETE("/v1/maps/collections/{collection_id}/items/{feature_id}", {
+        params: { path: { collection_id: collectionId, feature_id: featureId } },
+        headers: bearerHeader(accessToken),
+      }),
+    );
   }
 
   /**
@@ -79,23 +94,25 @@ export class ApiClient {
     features: ImportFeatureInput[],
     season?: string,
   ): Promise<ImportResult> {
-    const response = await this.send(this.importUrl(collectionId, season), accessToken, {
-      method: "POST",
-      headers: { "Content-Type": JSON_MEDIA_TYPE },
-      body: JSON.stringify({ features }),
-    });
-    return (await response.json()) as ImportResult;
+    return unwrap(
+      farmdbApi.POST("/v1/maps/collections/{collection_id}/import", {
+        params: { path: { collection_id: collectionId }, query: { season } },
+        headers: bearerHeader(accessToken),
+        body: { features },
+      }),
+    );
   }
 
   async tileTemplate(accessToken: string, collection: Collection): Promise<string | null> {
-    const tilesetsLink = collection.links.find((link) => link.rel === TILESETS_VECTOR_REL);
-    if (!tilesetsLink) return null;
+    const offersVectorTiles = collection.links.some((link) => link.rel === TILESETS_VECTOR_REL);
+    if (!offersVectorTiles) return null;
 
-    const tilesetsUrl = this.ownApiUrl(tilesetsLink.href);
-    if (!tilesetsUrl) return null;
-
-    const response = await this.send(tilesetsUrl, accessToken);
-    const document = (await response.json()) as TileSets;
+    const document = await unwrap(
+      farmdbApi.GET("/v1/maps/collections/{collection_id}/tiles", {
+        params: { path: { collection_id: collection.id } },
+        headers: bearerHeader(accessToken),
+      }),
+    );
     const matrixSet = document.tilesets[0];
     if (!matrixSet) return null;
 
@@ -119,37 +136,26 @@ export class ApiClient {
     const apiOrigin = this.config.mapsUrl.slice(0, -mapsPath.length);
     return apiOrigin + linkPath;
   }
-
-  private itemsUrl(collectionId: string): string {
-    return `${this.config.mapsUrl}/collections/${encodeURIComponent(collectionId)}/items`;
-  }
-
-  private itemUrl(collectionId: string, featureId: string): string {
-    return `${this.itemsUrl(collectionId)}/${encodeURIComponent(featureId)}`;
-  }
-
-  private importUrl(collectionId: string, season?: string): string {
-    const url = `${this.config.mapsUrl}/collections/${encodeURIComponent(collectionId)}/import`;
-    return season ? `${url}?season=${encodeURIComponent(season)}` : url;
-  }
-
-  private async send(url: string, accessToken: string, init?: RequestInit): Promise<Response> {
-    const response = await fetch(url, {
-      ...init,
-      headers: { ...init?.headers, Authorization: `Bearer ${accessToken}` },
-    });
-    if (!response.ok) {
-      throw new GeoApiError(await failureMessage(response), response.status);
-    }
-    return response;
-  }
 }
 
 /**
- * The message the api sent back, or a plain one when the body is not json.
+ * The API's schema types geometry loosely, so these are the one place geo reads
+ * a response as its own GeoJSON types. The API validates every shape it stores.
+ * Remove them once the backend types its geometry.
  */
-async function failureMessage(response: Response): Promise<string> {
-  const body = (await response.json().catch(() => null)) as { detail?: unknown } | null;
-  if (typeof body?.detail === "string" && body.detail) return body.detail;
-  return `Geo request failed with ${response.status}`;
+function asGeoFeature(feature: unknown): GeoFeature {
+  return feature as GeoFeature;
+}
+
+function asCollections(collections: unknown): Collection[] {
+  return collections as Collection[];
+}
+
+/**
+ * GeoJSON declares its geometries as interfaces, which TypeScript won't pass
+ * where the API accepts an object with any keys. A plain copy holds the same
+ * data and passes.
+ */
+function plainGeometry(geometry: GeoGeometry) {
+  return { ...geometry };
 }

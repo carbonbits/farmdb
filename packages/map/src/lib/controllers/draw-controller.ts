@@ -1,6 +1,6 @@
+import { ApiError } from "@farmdb/api-client/data/client/errors";
 import type { GeoFeature, GeoGeometry } from "@farmdb/geo";
 import type { ApiClient as GeoApiClient } from "@farmdb/geo/client";
-import { GeoApiError } from "@farmdb/geo/utils/errors/geo_api";
 import type { GeometryClass, MapLayer } from "@farmdb/map/components/toolbar/layers/model";
 import { mapLayerIds, selectionLayerId } from "@farmdb/map/components/toolbar/layers/rendering";
 import { reloadLayerTiles } from "@farmdb/map/lib/controllers/map-controller";
@@ -137,7 +137,7 @@ export class DrawTool {
       reloadLayerTiles(this.map, layerId);
       return "ok";
     } catch (error) {
-      return error instanceof GeoApiError && error.status === 403 ? "forbidden" : "error";
+      return error instanceof ApiError && error.status === 403 ? "forbidden" : "error";
     }
   }
 
@@ -212,6 +212,6 @@ export class DrawTool {
  * never reached it.
  */
 function saveFailureMessage(error: unknown): string {
-  if (error instanceof GeoApiError) return error.message;
+  if (error instanceof ApiError) return error.message;
   return "The shape could not be saved. Check your connection and try again.";
 }
