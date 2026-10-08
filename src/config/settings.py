@@ -49,6 +49,14 @@ class Settings(BaseSettings):
     # instead of writing thousands of rows one insert at a time.
     geo_import_max_features: int = 1000
 
+    # Demo instance
+    # Only a public demo sets DEMO=true. The demo seed refuses to run without it,
+    # so sample data can never be written into a real farm's database.
+    demo: bool = False
+    # Password for every demo account. Published on the demo site; never set it
+    # on a real instance.
+    demo_password: Optional[str] = None
+
     # API Server
     # Where main.py binds when it runs the app itself. api_reload left unset
     # follows the environment — autoreload in dev, never in prod — so the usual
