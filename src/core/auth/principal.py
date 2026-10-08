@@ -12,4 +12,4 @@ from dataclasses import dataclass
 class Principal:
     user_id: str
     email: str
-    auth_method: str  # "bearer" | "cookie" | "api_key"
+    auth_method: str  # "bearer" | "cookie" | "api_key" | "cli"
