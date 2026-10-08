@@ -183,6 +183,35 @@ database's size on disk. A 200 means the credential resolved; a 401 means it did
 not, and a 403 anywhere else means the key is fine but the role is missing a
 permission.
 
+### A demo instance
+
+A public demo starts with sample data: three accounts, a farm outline near
+Njoro, fields with their boundaries and the crops on them. The data lives in
+`src/features/demo/data.py`, and one command adds whatever is missing:
+
+```bash
+DEMO=true DEMO_PASSWORD=<published demo password> uv run farmdb seed demo
+```
+
+It refuses to run unless `DEMO=true` and `DEMO_PASSWORD` are set, so it cannot
+write sample data into a real farm. Running it again changes nothing except
+setting the demo accounts back to the published password. Run it after
+`farmdb migration apply`; the Helm chart runs both before the API starts,
+because DuckDB allows a single writer.
+
+| Account | Role |
+|---|---|
+| owner@demo.wakulima.tech | Administrator |
+| manager@demo.wakulima.tech | Farm manager |
+| worker@demo.wakulima.tech | Field worker |
+
+Not in the demo yet, because the app has nowhere to store them: livestock,
+tasks, finances, and seasons (no map layer is seasonal yet).
+
+Sign in as the owner to see the farm. Fields are listed for the account that
+drew them, and crops have no read endpoint yet, so the manager and worker
+accounts see no fields and a field's Plantings tab stays empty.
+
 ### Layout todo
 `src/` reads as "the source", but it is really the Python distribution root
 (`pyproject.toml` sets `package-dir = {"" = "src"}`, so every top-level dir under

@@ -2,19 +2,16 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 import uvicorn
-from duckling import init_duckling
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from ulid import ULID
 
 from apps.api.middleware.spa import SPAMiddleware, spa_directory
 from apps.api.utilities import api_tags_metadata
 from config.settings import settings
 from core.auth.router import router as auth_router
 from core.authz.router import router as authz_router
-from core.config.service import ConfigService
-from core.storage.database import DB
+from core.startup import start_core, stop_core
 from features.apikey.router import router as api_keys_router
 from features.crop.router import router as crops_router
 from features.field.router import router as fields_router
@@ -25,14 +22,9 @@ from utils.errors import install_error_handlers
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    DB.connect()
-    # Bind Duckling to the shared connection. No document_models: schemas are
-    # owned by the migration runner, so we skip Duckling's auto CREATE TABLE.
-    await init_duckling(connection=DB.get_connection())
-    # A stable farmId, created on first boot and left alone after.
-    ConfigService().get_or_create("farmId", lambda: str(ULID()))
+    await start_core()
     yield
-    DB.disconnect()
+    stop_core()
 
 
 application = FastAPI(

@@ -2,11 +2,13 @@ import typer
 
 from cli.apikeys import app as apikeys_app
 from cli.migrations import app as migrations_app
+from cli.seed import app as seed_app
 
 app = typer.Typer(help="FarmDB CLI")
 
 app.add_typer(migrations_app, name="migration", help="Database migration commands")
 app.add_typer(apikeys_app, name="apikey", help="API key commands")
+app.add_typer(seed_app, name="seed", help="Sample data commands")
 
 
 @app.command()
