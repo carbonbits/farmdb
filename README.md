@@ -208,6 +208,10 @@ because DuckDB allows a single writer.
 Not in the demo yet, because the app has nowhere to store them: livestock,
 tasks, finances, and seasons (no map layer is seasonal yet).
 
+Sign in as the owner to see the farm. Fields are listed for the account that
+drew them, and crops have no read endpoint yet, so the manager and worker
+accounts see no fields and a field's Plantings tab stays empty.
+
 ### Layout todo
 `src/` reads as "the source", but it is really the Python distribution root
 (`pyproject.toml` sets `package-dir = {"" = "src"}`, so every top-level dir under
