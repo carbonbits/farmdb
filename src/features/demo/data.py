@@ -40,7 +40,7 @@ def rectangle(west: float, south: float, east: float, north: float) -> dict[str,
 
 FARM_NAME = "Njoro Demo Farm"
 
-FARM_OUTLINE = rectangle(35.9400, -0.3400, 35.9500, -0.3340)
+FARM_OUTLINE = rectangle(35.9000, -0.3400, 35.9100, -0.3340)
 
 ACCOUNTS = (
     DemoAccount("owner@demo.wakulima.tech", "Wanjiku Kamau", "administrator"),
@@ -52,24 +52,24 @@ FIELDS = (
     DemoField(
         "Upper Field",
         "Gentle slope on the north side, good drainage.",
-        rectangle(35.9410, -0.3390, 35.9450, -0.3360),
+        rectangle(35.9010, -0.3390, 35.9050, -0.3360),
     ),
     DemoField(
-        "River Field",
-        "Flat ground next to the stream, holds water in the long rains.",
-        rectangle(35.9460, -0.3390, 35.9490, -0.3360),
+        "Lower Field",
+        "Flat ground at the bottom of the slope, holds water in the long rains.",
+        rectangle(35.9060, -0.3390, 35.9090, -0.3360),
     ),
     DemoField(
         "Hillside Field",
         "Terraced ground below the farm store.",
-        rectangle(35.9410, -0.3355, 35.9450, -0.3345),
+        rectangle(35.9010, -0.3355, 35.9050, -0.3345),
     ),
 )
 
 CROPS = (
     DemoCrop("Upper Field", "Maize", "H614D", "Planted March 2026 for the long rains."),
     DemoCrop(
-        "River Field", "Beans", "Rosecoco", "Intercropped with maize, long rains 2026."
+        "Lower Field", "Beans", "Rosecoco", "Planted March 2026 for the long rains."
     ),
     DemoCrop(
         "Hillside Field",
