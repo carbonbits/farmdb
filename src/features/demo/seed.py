@@ -39,7 +39,7 @@ class SeedSummary:
 
 async def seed_demo() -> SeedSummary:
     """Fill a demo instance. Call after start_core(), on a migrated database."""
-    password = _demo_password()
+    password = demo_password()
     summary = SeedSummary()
     authz = AuthzService()
 
@@ -54,7 +54,8 @@ async def seed_demo() -> SeedSummary:
     return summary
 
 
-def _demo_password() -> str:
+def demo_password() -> str:
+    """The demo password, or DemoSeedRefused if this is not a demo instance."""
     # Fail closed: only an instance marked as a demo may be seeded, so sample
     # data can never land in a real farm's database.
     if not settings.demo:
